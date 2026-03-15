@@ -12,10 +12,10 @@ export default function Contact() {
   }
 
   return (
-    <main>
+    <main className="bg-[#f0f0f3]">
       <Navbar />
 
-      <section className="bg-black text-white py-16">
+      <section className="bg-black text-white py-16 rounded-b-[40px]">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-black mb-3">CONTACTEZ-NOUS</h1>
           <p className="text-gray-400 max-w-xl mx-auto">
@@ -24,35 +24,27 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-50">
+      <section className="py-16">
         <div className="max-w-5xl mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8">
             {/* Contact Info */}
             <div className="space-y-6">
-              <div className="bg-white border p-6">
-                <div className="text-2xl mb-3">📧</div>
-                <h3 className="font-bold text-sm mb-1">Email</h3>
-                <p className="text-gray-500 text-sm">contact@aca-wholesale.com</p>
-              </div>
-              <div className="bg-white border p-6">
-                <div className="text-2xl mb-3">💬</div>
-                <h3 className="font-bold text-sm mb-1">Instagram</h3>
-                <p className="text-gray-500 text-sm">@aca.wholesale</p>
-              </div>
-              <div className="bg-white border p-6">
-                <div className="text-2xl mb-3">📍</div>
-                <h3 className="font-bold text-sm mb-1">Localisation</h3>
-                <p className="text-gray-500 text-sm">Moselle, France</p>
-              </div>
-              <div className="bg-white border p-6">
-                <div className="text-2xl mb-3">⏰</div>
-                <h3 className="font-bold text-sm mb-1">Horaires</h3>
-                <p className="text-gray-500 text-sm">Lun-Ven : 9h-18h<br/>Sam : 10h-16h</p>
-              </div>
+              {[
+                { emoji: '📧', title: 'Email', info: 'contact@aca-wholesale.com' },
+                { emoji: '💬', title: 'Instagram', info: '@aca.wholesale' },
+                { emoji: '📍', title: 'Localisation', info: 'Moselle, France' },
+                { emoji: '⏰', title: 'Horaires', info: 'Lun-Ven : 9h-18h\nSam : 10h-16h' },
+              ].map((item) => (
+                <div key={item.title} className="bg-white rounded-2xl p-6" style={{ boxShadow: '6px 6px 14px rgba(0,0,0,0.07), -6px -6px 14px rgba(255,255,255,0.8)' }}>
+                  <div className="text-2xl mb-3">{item.emoji}</div>
+                  <h3 className="font-bold text-sm mb-1">{item.title}</h3>
+                  <p className="text-gray-500 text-sm whitespace-pre-line">{item.info}</p>
+                </div>
+              ))}
             </div>
 
             {/* Form */}
-            <div className="md:col-span-2 bg-white border p-8">
+            <div className="md:col-span-2 bg-white rounded-3xl p-8" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
               {sent ? (
                 <div className="text-center py-12">
                   <div className="text-5xl mb-4">✅</div>
@@ -65,20 +57,20 @@ export default function Contact() {
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
                     <div>
                       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Prénom</label>
-                      <input type="text" required className="w-full border px-4 py-3 text-sm focus:outline-none focus:border-black" placeholder="Votre prénom" />
+                      <input type="text" required className="w-full border px-4 py-3 text-sm focus:outline-none focus:border-black rounded-xl" placeholder="Votre prénom" />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Nom</label>
-                      <input type="text" required className="w-full border px-4 py-3 text-sm focus:outline-none focus:border-black" placeholder="Votre nom" />
+                      <input type="text" required className="w-full border px-4 py-3 text-sm focus:outline-none focus:border-black rounded-xl" placeholder="Votre nom" />
                     </div>
                   </div>
                   <div className="mb-4">
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Email</label>
-                    <input type="email" required className="w-full border px-4 py-3 text-sm focus:outline-none focus:border-black" placeholder="votre@email.com" />
+                    <input type="email" required className="w-full border px-4 py-3 text-sm focus:outline-none focus:border-black rounded-xl" placeholder="votre@email.com" />
                   </div>
                   <div className="mb-4">
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Sujet</label>
-                    <select className="w-full border px-4 py-3 text-sm focus:outline-none focus:border-black bg-white">
+                    <select className="w-full border px-4 py-3 text-sm focus:outline-none focus:border-black bg-white rounded-xl">
                       <option>Demande d&apos;information</option>
                       <option>Devis personnalisé</option>
                       <option>Suivi de commande</option>
@@ -88,9 +80,9 @@ export default function Contact() {
                   </div>
                   <div className="mb-6">
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Message</label>
-                    <textarea required rows={5} className="w-full border px-4 py-3 text-sm focus:outline-none focus:border-black resize-none" placeholder="Décrivez votre demande..."></textarea>
+                    <textarea required rows={5} className="w-full border px-4 py-3 text-sm focus:outline-none focus:border-black resize-none rounded-xl" placeholder="Décrivez votre demande..."></textarea>
                   </div>
-                  <button type="submit" className="w-full bg-black text-white py-3 font-bold text-sm hover:bg-gray-800 transition-colors">
+                  <button type="submit" className="w-full bg-black text-white py-3 font-bold text-sm hover:bg-gray-800 transition-colors rounded-full">
                     ENVOYER LE MESSAGE
                   </button>
                 </form>
