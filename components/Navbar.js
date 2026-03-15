@@ -10,14 +10,14 @@ export default function Navbar() {
       {/* Announcement Bar */}
       <div className="bg-black text-white text-xs py-2 overflow-hidden">
         <div className="animate-scroll whitespace-nowrap flex gap-12">
-          <span>🚚 LIVRAISON GRATUITE EN FRANCE DÈS 500€ D&apos;ACHAT</span>
-          <span>⭐ +500 AVIS 5 ÉTOILES</span>
-          <span>📦 EXPÉDITION SOUS 48H</span>
-          <span>🔥 NOUVEAUX BALLOTS CHAQUE SEMAINE</span>
-          <span>🚚 LIVRAISON GRATUITE EN FRANCE DÈS 500€ D&apos;ACHAT</span>
-          <span>⭐ +500 AVIS 5 ÉTOILES</span>
-          <span>📦 EXPÉDITION SOUS 48H</span>
-          <span>🔥 NOUVEAUX BALLOTS CHAQUE SEMAINE</span>
+          <span>🇫🇷 EXPÉDIÉ DEPUIS LA MOSELLE, FRANCE</span>
+          <span>✋ LOTS SÉLECTIONNÉS À LA MAIN</span>
+          <span>📦 EXPÉDITION RAPIDE</span>
+          <span>♻️ VÊTEMENTS DE SECONDE MAIN DE QUALITÉ</span>
+          <span>🇫🇷 EXPÉDIÉ DEPUIS LA MOSELLE, FRANCE</span>
+          <span>✋ LOTS SÉLECTIONNÉS À LA MAIN</span>
+          <span>📦 EXPÉDITION RAPIDE</span>
+          <span>♻️ VÊTEMENTS DE SECONDE MAIN DE QUALITÉ</span>
         </div>
       </div>
 
@@ -41,7 +41,7 @@ export default function Navbar() {
                 Accueil
               </Link>
               <Link href="/produits" className="text-sm font-medium hover:text-blue-600 transition-colors">
-                Nos Ballots
+                Nos Lots
               </Link>
               <Link href="/a-propos" className="text-sm font-medium hover:text-blue-600 transition-colors">
                 À Propos
@@ -80,7 +80,7 @@ export default function Navbar() {
           <div className="md:hidden border-t bg-white">
             <div className="px-4 py-4 space-y-3">
               <Link href="/" className="block text-sm font-medium py-2" onClick={() => setMenuOpen(false)}>Accueil</Link>
-              <Link href="/produits" className="block text-sm font-medium py-2" onClick={() => setMenuOpen(false)}>Nos Ballots</Link>
+              <Link href="/produits" className="block text-sm font-medium py-2" onClick={() => setMenuOpen(false)}>Nos Lots</Link>
               <Link href="/a-propos" className="block text-sm font-medium py-2" onClick={() => setMenuOpen(false)}>À Propos</Link>
               <Link href="/faq" className="block text-sm font-medium py-2" onClick={() => setMenuOpen(false)}>FAQ</Link>
               <Link href="/contact" className="block text-sm font-medium py-2" onClick={() => setMenuOpen(false)}>Contact</Link>
