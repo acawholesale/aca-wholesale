@@ -42,10 +42,10 @@ export default function FAQ() {
   }
 
   return (
-    <main>
+    <main className="bg-[#f0f0f3]">
       <Navbar />
 
-      <section className="bg-black text-white py-16">
+      <section className="bg-black text-white py-16 rounded-b-[40px]">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-black mb-3">FAQ</h1>
           <p className="text-gray-400 max-w-xl mx-auto">
@@ -54,24 +54,24 @@ export default function FAQ() {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-50">
+      <section className="py-16">
         <div className="max-w-3xl mx-auto px-4">
           {faqCategories.map((cat, ci) => (
             <div key={ci} className="mb-12">
               <h2 className="text-xl font-black mb-6 flex items-center gap-3">
-                <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center text-sm font-bold">
+                <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center text-sm font-bold rounded-full">
                   {ci + 1}
                 </span>
                 {cat.title}
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {cat.items.map((item, i) => {
                   const key = `${ci}-${i}`
                   return (
-                    <div key={key} className="bg-white border">
+                    <div key={key} className="faq-item">
                       <button
                         onClick={() => toggle(key)}
-                        className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
+                        className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors rounded-2xl"
                       >
                         <span className="font-semibold text-sm">{item.q}</span>
                         <span className="text-xl ml-4 flex-shrink-0">{openItems[key] ? '−' : '+'}</span>
@@ -86,10 +86,10 @@ export default function FAQ() {
             </div>
           ))}
 
-          <div className="bg-white border p-8 text-center mt-8">
+          <div className="bg-white rounded-3xl p-8 text-center mt-8" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
             <h3 className="text-xl font-bold mb-3">Vous n&apos;avez pas trouvé votre réponse ?</h3>
             <p className="text-gray-500 text-sm mb-6">Notre équipe est disponible pour répondre à toutes vos questions.</p>
-            <Link href="/contact" className="inline-block bg-black text-white px-8 py-3 font-bold text-sm hover:bg-gray-800 transition-colors">
+            <Link href="/contact" className="inline-block bg-black text-white px-8 py-3 font-bold text-sm hover:bg-gray-800 transition-colors rounded-full">
               NOUS CONTACTER
             </Link>
           </div>
