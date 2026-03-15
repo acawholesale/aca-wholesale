@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer className="bg-black text-white">
+    <footer className="bg-black text-white rounded-t-[40px]">
       {/* Newsletter */}
       <div className="border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 py-12 text-center">
@@ -14,9 +14,9 @@ export default function Footer() {
             <input
               type="email"
               placeholder="Votre adresse email"
-              className="flex-1 px-4 py-3 bg-gray-900 border border-gray-700 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              className="flex-1 px-4 py-3 bg-gray-900 border border-gray-700 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500 rounded-full"
             />
-            <button className="bg-white text-black px-6 py-3 font-semibold text-sm hover:bg-gray-200 transition-colors">
+            <button className="bg-white text-black px-6 py-3 font-semibold text-sm hover:bg-gray-200 transition-colors rounded-full">
               S&apos;inscrire
             </button>
           </form>
@@ -29,7 +29,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="bg-white text-black px-3 py-1.5 font-black text-xl tracking-tighter">
+              <div className="bg-white text-black px-3 py-1.5 font-black text-xl tracking-tighter rounded-xl">
                 ACA
               </div>
               <span className="text-xs font-semibold uppercase tracking-wide">
@@ -68,13 +68,13 @@ export default function Footer() {
           <div>
             <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Suivez-nous</h4>
             <div className="flex gap-3">
-              <a href="#" className="w-10 h-10 bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition-colors">
+              <a href="#" className="w-10 h-10 bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition-colors rounded-full">
                 <span className="text-sm">IG</span>
               </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition-colors">
+              <a href="#" className="w-10 h-10 bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition-colors rounded-full">
                 <span className="text-sm">TT</span>
               </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition-colors">
+              <a href="#" className="w-10 h-10 bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition-colors rounded-full">
                 <span className="text-sm">FB</span>
               </a>
             </div>
