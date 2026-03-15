@@ -19,7 +19,7 @@ export default function Contact() {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-black mb-3">CONTACTEZ-NOUS</h1>
           <p className="text-gray-400 max-w-xl mx-auto">
-            Une question ? Un devis personnalisé ? Notre équipe vous répond sous 24h.
+            Une question ? Un devis personnalisé ? Notre équipe basée en Moselle vous répond rapidement.
           </p>
         </div>
       </section>
@@ -35,14 +35,14 @@ export default function Contact() {
                 <p className="text-gray-500 text-sm">contact@aca-wholesale.com</p>
               </div>
               <div className="bg-white border p-6">
-                <div className="text-2xl mb-3">📱</div>
-                <h3 className="font-bold text-sm mb-1">Téléphone</h3>
-                <p className="text-gray-500 text-sm">+33 6 00 00 00 00</p>
-              </div>
-              <div className="bg-white border p-6">
                 <div className="text-2xl mb-3">💬</div>
                 <h3 className="font-bold text-sm mb-1">Instagram</h3>
                 <p className="text-gray-500 text-sm">@aca.wholesale</p>
+              </div>
+              <div className="bg-white border p-6">
+                <div className="text-2xl mb-3">📍</div>
+                <h3 className="font-bold text-sm mb-1">Localisation</h3>
+                <p className="text-gray-500 text-sm">Moselle, France</p>
               </div>
               <div className="bg-white border p-6">
                 <div className="text-2xl mb-3">⏰</div>
@@ -57,7 +57,7 @@ export default function Contact() {
                 <div className="text-center py-12">
                   <div className="text-5xl mb-4">✅</div>
                   <h3 className="text-2xl font-bold mb-3">Message envoyé !</h3>
-                  <p className="text-gray-500">Nous vous répondrons sous 24h.</p>
+                  <p className="text-gray-500">Nous vous répondrons dans les plus brefs délais.</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit}>
