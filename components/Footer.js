@@ -37,8 +37,8 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Votre grossiste de confiance pour les ballots de vêtements de marque.
-              Qualité premium, prix imbattables.
+              Grossiste en lots de vêtements de seconde main basé en Moselle.
+              Des lots sélectionnés avec soin, pensés pour les revendeurs.
             </p>
           </div>
 
@@ -47,9 +47,10 @@ export default function Footer() {
             <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Navigation</h4>
             <ul className="space-y-2">
               <li><Link href="/" className="text-gray-400 text-sm hover:text-white transition-colors">Accueil</Link></li>
-              <li><Link href="/produits" className="text-gray-400 text-sm hover:text-white transition-colors">Nos Ballots</Link></li>
+              <li><Link href="/produits" className="text-gray-400 text-sm hover:text-white transition-colors">Nos Lots</Link></li>
               <li><Link href="/a-propos" className="text-gray-400 text-sm hover:text-white transition-colors">À Propos</Link></li>
               <li><Link href="/faq" className="text-gray-400 text-sm hover:text-white transition-colors">FAQ</Link></li>
+              <li><Link href="/contact" className="text-gray-400 text-sm hover:text-white transition-colors">Contact</Link></li>
             </ul>
           </div>
 
@@ -58,8 +59,8 @@ export default function Footer() {
             <h4 className="font-bold text-sm uppercase tracking-wider mb-4">Contact</h4>
             <ul className="space-y-2 text-gray-400 text-sm">
               <li>📧 contact@aca-wholesale.com</li>
-              <li>📱 +33 6 00 00 00 00</li>
-              <li>📍 France</li>
+              <li>💬 @aca.wholesale</li>
+              <li>📍 Moselle, France</li>
             </ul>
           </div>
 
@@ -84,7 +85,7 @@ export default function Footer() {
       {/* Copyright */}
       <div className="border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 py-6 text-center text-gray-500 text-xs">
-          © 2026 ACA Wholesale. Tous droits réservés.
+          © 2026 ACA Wholesale. Tous droits réservés. Basé en Moselle, France.
         </div>
       </div>
     </footer>
