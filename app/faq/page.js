@@ -8,29 +8,29 @@ const faqCategories = [
   {
     title: 'Commandes & Livraison',
     items: [
-      { q: 'Quel est le délai de livraison ?', a: 'Nous expédions sous 48h. La livraison prend ensuite 2-5 jours ouvrés en France métropolitaine, et 5-10 jours pour le reste de l\'Europe.' },
-      { q: 'Quels sont les frais de livraison ?', a: 'La livraison est offerte dès 500€ d\'achat. En dessous, les frais sont de 15€ pour la France et varient selon le pays pour l\'Europe.' },
-      { q: 'Livrez-vous en dehors de la France ?', a: 'Oui ! Nous livrons dans toute l\'Europe : Belgique, Suisse, Espagne, Italie, Allemagne, etc.' },
+      { q: 'Quel est le délai de livraison ?', a: 'Nous expédions rapidement depuis la Moselle. La livraison prend ensuite 2-5 jours ouvrés en France métropolitaine.' },
+      { q: 'Quels sont les frais de livraison ?', a: 'Les frais de livraison varient selon le poids du colis et la destination. Contactez-nous pour un devis précis.' },
+      { q: 'Livrez-vous en dehors de la France ?', a: 'Oui ! Nous livrons dans toute l\'Europe : Belgique, Suisse, Luxembourg, Allemagne, etc.' },
       { q: 'Comment suivre ma commande ?', a: 'Un numéro de suivi vous est envoyé par email dès l\'expédition de votre colis.' },
     ]
   },
   {
-    title: 'Nos Ballots',
+    title: 'Nos Lots',
     items: [
-      { q: 'Comment sont composés les ballots ?', a: 'Chaque ballot est composé manuellement par notre équipe. Nous sélectionnons uniquement des pièces de qualité, en bon état, de marques authentiques.' },
+      { q: 'Comment sont composés les lots ?', a: 'Chaque lot est sélectionné avec soin par notre équipe. Nous choisissons uniquement des pièces de qualité, en bon état, de marques authentiques, avec un réel potentiel de revente.' },
       { q: 'Puis-je choisir les tailles ?', a: 'Oui ! Lors de votre commande, vous pouvez indiquer vos préférences de tailles (S/M/L/XL) et nous ferons notre maximum pour les respecter.' },
       { q: 'Les vêtements sont-ils authentiques ?', a: 'Absolument. Nous garantissons 100% d\'authenticité sur toutes les pièces. Chaque article est vérifié par notre équipe.' },
-      { q: 'Quel est l\'état des vêtements ?', a: 'Nos ballots contiennent des pièces en très bon état à excellent état. Les pièces abîmées ou tachées sont systématiquement écartées.' },
+      { q: 'Quel est l\'état des vêtements ?', a: 'Nos lots contiennent des pièces en très bon état à excellent état. Les pièces abîmées ou tachées sont systématiquement écartées lors de notre tri.' },
+      { q: 'Les lots sont-ils adaptés pour Vinted ?', a: 'Absolument ! Nos lots sont pensés pour les revendeurs Vinted. Chaque pièce est sélectionnée pour son potentiel de revente à la pièce.' },
     ]
   },
   {
     title: 'Paiement & Retours',
     items: [
       { q: 'Quels moyens de paiement acceptez-vous ?', a: 'Nous acceptons les cartes bancaires (Visa, Mastercard), PayPal, et le virement bancaire.' },
-      { q: 'Proposez-vous des retours ?', a: 'Nous offrons un échange ou un avoir sous 14 jours si le ballot ne correspond pas à sa description. Les frais de retour sont à la charge du client.' },
-      { q: 'Y a-t-il un minimum de commande ?', a: 'Non, vous pouvez commander à partir d\'un seul ballot. Des réductions progressives sont appliquées dès 3 ballots commandés.' },
-      { q: 'Proposez-vous le paiement en plusieurs fois ?', a: 'Oui, nous proposons le paiement en 3x sans frais pour les commandes supérieures à 300€.' },
-    ]
+      { q: 'Proposez-vous des retours ?', a: 'Nous offrons un échange ou un avoir sous 14 jours si le lot ne correspond pas à sa description.' },
+      { q: 'Y a-t-il un minimum de commande ?', a: 'Non, vous pouvez commander à partir d\'un seul lot. Des réductions progressives sont appliquées dès 3 lots commandés.' },
+    ],
   },
 ]
 
@@ -49,7 +49,7 @@ export default function FAQ() {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-black mb-3">FAQ</h1>
           <p className="text-gray-400 max-w-xl mx-auto">
-            Toutes les réponses à vos questions
+            Toutes les réponses à vos questions sur nos lots de vêtements de seconde main
           </p>
         </div>
       </section>
