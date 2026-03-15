@@ -48,11 +48,11 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState(null)
 
   return (
-    <main>
+    <main className="bg-[#f0f0f3]">
       <Navbar />
 
       {/* HERO SECTION */}
-      <section className="relative bg-gray-900 text-white overflow-hidden">
+      <section className="relative bg-gray-900 text-white overflow-hidden rounded-b-[40px]">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-gray-800"></div>
         <div className="absolute inset-0 opacity-10">
           <div className="w-full h-full" style={{
@@ -61,7 +61,7 @@ export default function Home() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 py-24 md:py-36">
           <div className="max-w-2xl">
-            <div className="inline-block bg-blue-600 text-white text-xs font-bold px-3 py-1 mb-6 uppercase tracking-wider">
+            <div className="inline-block bg-blue-600 text-white text-xs font-bold px-4 py-1.5 mb-6 uppercase tracking-wider rounded-full">
               Basé en Moselle, France
             </div>
             <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
@@ -74,26 +74,26 @@ export default function Home() {
               Expédition rapide depuis la France.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href="/produits" className="bg-white text-black px-8 py-4 font-bold text-sm hover:bg-gray-200 transition-colors">
+              <Link href="/produits" className="bg-white text-black px-8 py-4 font-bold text-sm hover:bg-gray-200 transition-colors rounded-full">
                 VOIR NOS LOTS
               </Link>
-              <Link href="/a-propos" className="border-2 border-white text-white px-8 py-4 font-bold text-sm hover:bg-white hover:text-black transition-colors">
+              <Link href="/a-propos" className="border-2 border-white text-white px-8 py-4 font-bold text-sm hover:bg-white hover:text-black transition-colors rounded-full">
                 QUI SOMMES-NOUS ?
               </Link>
             </div>
             {/* Stats */}
             <div className="flex gap-8 mt-12">
-              <div>
-                <div className="text-3xl font-black">🇫🇷</div>
-                <div className="text-gray-400 text-sm">Depuis la France</div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-3 text-center">
+                <div className="text-2xl font-black">🇫🇷</div>
+                <div className="text-gray-300 text-xs mt-1">Depuis la France</div>
               </div>
-              <div>
-                <div className="text-3xl font-black">Trié</div>
-                <div className="text-gray-400 text-sm">À la main</div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-3 text-center">
+                <div className="text-2xl font-black">Trié</div>
+                <div className="text-gray-300 text-xs mt-1">À la main</div>
               </div>
-              <div>
-                <div className="text-3xl font-black">Rapide</div>
-                <div className="text-gray-400 text-sm">Expédition</div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-3 text-center">
+                <div className="text-2xl font-black">Rapide</div>
+                <div className="text-gray-300 text-xs mt-1">Expédition</div>
               </div>
             </div>
           </div>
@@ -101,35 +101,27 @@ export default function Home() {
       </section>
 
       {/* TRUST BAR */}
-      <section className="bg-gray-50 py-8 border-b">
+      <section className="py-10">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <div className="text-2xl mb-2">🇫🇷</div>
-              <div className="font-bold text-sm">Expédié de France</div>
-              <div className="text-xs text-gray-500">Depuis la Moselle</div>
-            </div>
-            <div>
-              <div className="text-2xl mb-2">✋</div>
-              <div className="font-bold text-sm">Sélection manuelle</div>
-              <div className="text-xs text-gray-500">Qualité contrôlée</div>
-            </div>
-            <div>
-              <div className="text-2xl mb-2">💰</div>
-              <div className="font-bold text-sm">Prix compétitifs</div>
-              <div className="text-xs text-gray-500">Bonnes marges de revente</div>
-            </div>
-            <div>
-              <div className="text-2xl mb-2">🤝</div>
-              <div className="font-bold text-sm">Service transparent</div>
-              <div className="text-xs text-gray-500">Confiance & sérieux</div>
-            </div>
+            {[
+              { emoji: '🇫🇷', title: 'Expédié de France', sub: 'Depuis la Moselle' },
+              { emoji: '✋', title: 'Sélection manuelle', sub: 'Qualité contrôlée' },
+              { emoji: '💰', title: 'Prix compétitifs', sub: 'Bonnes marges de revente' },
+              { emoji: '🤝', title: 'Service transparent', sub: 'Confiance & sérieux' },
+            ].map((item) => (
+              <div key={item.title} className="bg-white rounded-2xl p-6" style={{ boxShadow: '6px 6px 14px rgba(0,0,0,0.07), -6px -6px 14px rgba(255,255,255,0.8)' }}>
+                <div className="text-2xl mb-2">{item.emoji}</div>
+                <div className="font-bold text-sm">{item.title}</div>
+                <div className="text-xs text-gray-500">{item.sub}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* CATEGORIES */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black mb-3">NOS CATÉGORIES</h2>
@@ -140,7 +132,8 @@ export default function Home() {
               <Link
                 key={cat.name}
                 href="/produits"
-                className="group text-center p-6 bg-gray-50 hover:bg-black hover:text-white transition-all duration-300"
+                className="group text-center p-6 bg-white rounded-2xl hover:bg-black hover:text-white transition-all duration-300"
+                style={{ boxShadow: '6px 6px 14px rgba(0,0,0,0.07), -6px -6px 14px rgba(255,255,255,0.8)' }}
               >
                 <div className="text-3xl mb-3">{cat.emoji}</div>
                 <h3 className="font-bold text-sm mb-1">{cat.name}</h3>
@@ -152,10 +145,10 @@ export default function Home() {
       </section>
 
       {/* NEW DROPS */}
-      <section className="py-16 md:py-24 bg-gray-50">
+      <section className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <div className="inline-block bg-red-600 text-white text-xs font-bold px-3 py-1 mb-4 uppercase tracking-wider">
+            <div className="inline-block bg-red-600 text-white text-xs font-bold px-4 py-1.5 mb-4 uppercase tracking-wider rounded-full">
               Quantité limitée
             </div>
             <h2 className="text-3xl md:text-4xl font-black mb-3">NOUVEAUX ARRIVAGES</h2>
@@ -167,7 +160,7 @@ export default function Home() {
             ))}
           </div>
           <div className="text-center mt-10">
-            <Link href="/produits" className="border-2 border-black text-black px-8 py-3 font-semibold hover:bg-black hover:text-white transition-colors inline-block">
+            <Link href="/produits" className="bg-white text-black px-8 py-3 font-semibold hover:bg-black hover:text-white transition-colors inline-block rounded-full" style={{ boxShadow: '5px 5px 10px rgba(0,0,0,0.08), -5px -5px 10px rgba(255,255,255,0.9)' }}>
               Tout afficher →
             </Link>
           </div>
@@ -175,7 +168,7 @@ export default function Home() {
       </section>
 
       {/* BEST SELLERS */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black mb-3">NOS BEST SELLERS</h2>
@@ -187,7 +180,7 @@ export default function Home() {
             ))}
           </div>
           <div className="text-center mt-10">
-            <Link href="/produits" className="border-2 border-black text-black px-8 py-3 font-semibold hover:bg-black hover:text-white transition-colors inline-block">
+            <Link href="/produits" className="bg-white text-black px-8 py-3 font-semibold hover:bg-black hover:text-white transition-colors inline-block rounded-full" style={{ boxShadow: '5px 5px 10px rgba(0,0,0,0.08), -5px -5px 10px rgba(255,255,255,0.9)' }}>
               Tout afficher →
             </Link>
           </div>
@@ -195,7 +188,7 @@ export default function Home() {
       </section>
 
       {/* BRANDS BANNER */}
-      <section className="bg-black text-white py-16 md:py-24 overflow-hidden">
+      <section className="bg-black text-white py-16 md:py-24 overflow-hidden rounded-[40px] mx-4 my-8">
         <div className="max-w-7xl mx-auto px-4 text-center mb-12">
           <h2 className="text-3xl md:text-5xl font-black mb-3">
             DES MARQUES <span className="text-blue-500">QUI SE REVENDENT</span>
@@ -216,7 +209,7 @@ export default function Home() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-black mb-3">COMMENT ÇA MARCHE ?</h2>
@@ -228,7 +221,7 @@ export default function Home() {
               { step: '02', title: 'Passez commande', desc: 'Commandez en ligne ou contactez-nous. Paiement sécurisé et expédition rapide depuis la Moselle.', emoji: '💳' },
               { step: '03', title: 'Revendez à la pièce', desc: 'Recevez votre lot et revendez chaque pièce individuellement sur Vinted. Multipliez votre investissement.', emoji: '🚀' },
             ].map((item) => (
-              <div key={item.step} className="text-center p-8">
+              <div key={item.step} className="text-center p-8 bg-white rounded-3xl" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
                 <div className="text-5xl mb-4">{item.emoji}</div>
                 <div className="text-blue-600 font-black text-sm mb-2">ÉTAPE {item.step}</div>
                 <h3 className="text-xl font-bold mb-3">{item.title}</h3>
@@ -240,10 +233,10 @@ export default function Home() {
       </section>
 
       {/* WHY US */}
-      <section className="py-16 md:py-24 bg-gray-50">
+      <section className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+            <div className="bg-white rounded-3xl p-10" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
               <div className="text-blue-600 font-bold text-sm uppercase tracking-wider mb-3">Pourquoi ACA Wholesale ?</div>
               <h2 className="text-3xl font-black mb-6">Un fournisseur fiable, pensé pour les revendeurs</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
@@ -260,13 +253,13 @@ export default function Home() {
                   'Relation de confiance durable',
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-3">
-                    <span className="w-6 h-6 bg-blue-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">✓</span>
+                    <span className="w-7 h-7 bg-blue-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 rounded-full">✓</span>
                     <span className="text-sm font-medium">{item}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="bg-gray-100 aspect-square flex items-center justify-center">
+            <div className="bg-white rounded-3xl aspect-square flex items-center justify-center" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
               <div className="text-center">
                 <div className="text-6xl mb-4">📦</div>
                 <p className="text-gray-500 font-medium">Notre entrepôt en Moselle</p>
@@ -278,7 +271,7 @@ export default function Home() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black mb-3">AVIS CLIENTS</h2>
@@ -286,7 +279,7 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
-              <div key={i} className="bg-gray-50 p-8 border">
+              <div key={i} className="bg-white rounded-2xl p-8" style={{ boxShadow: '6px 6px 14px rgba(0,0,0,0.07), -6px -6px 14px rgba(255,255,255,0.8)' }}>
                 <div className="flex gap-1 mb-4">
                   {Array(t.rating).fill(0).map((_, j) => (
                     <span key={j} className="star-filled text-lg">★</span>
@@ -294,7 +287,7 @@ export default function Home() {
                 </div>
                 <p className="text-gray-700 mb-6 text-sm leading-relaxed">&quot;{t.text}&quot;</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-black text-white flex items-center justify-center font-bold text-sm">
+                  <div className="w-10 h-10 bg-black text-white flex items-center justify-center font-bold text-sm rounded-full">
                     {t.name.charAt(0)}
                   </div>
                   <div>
@@ -309,18 +302,18 @@ export default function Home() {
       </section>
 
       {/* FAQ */}
-      <section className="py-16 md:py-24 bg-gray-50">
+      <section className="py-16 md:py-24">
         <div className="max-w-3xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black mb-3">FAQ</h2>
             <p className="text-gray-500">Questions fréquemment posées</p>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {faqItems.map((item, i) => (
-              <div key={i} className="border bg-white">
+              <div key={i} className="faq-item">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors rounded-2xl"
                 >
                   <span className="font-semibold text-sm">{item.q}</span>
                   <span className="text-xl ml-4 flex-shrink-0">{openFaq === i ? '−' : '+'}</span>
@@ -335,7 +328,7 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="bg-blue-600 text-white py-16 md:py-20">
+      <section className="bg-blue-600 text-white py-16 md:py-20 rounded-[40px] mx-4 mb-8">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-black mb-4">
             Prêt à développer votre activité de revente ?
@@ -343,7 +336,7 @@ export default function Home() {
           <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">
             Accédez à des lots de vêtements de marque sélectionnés avec soin, expédiés rapidement depuis la France.
           </p>
-          <Link href="/produits" className="inline-block bg-white text-black px-10 py-4 font-bold text-sm hover:bg-gray-100 transition-colors">
+          <Link href="/produits" className="inline-block bg-white text-black px-10 py-4 font-bold text-sm hover:bg-gray-100 transition-colors rounded-full">
             VOIR NOS LOTS
           </Link>
         </div>
