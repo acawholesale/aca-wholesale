@@ -10,19 +10,22 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #111;
   background: #f0f0f3;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* =============================
    NEUMORPHIC / SOFT UI DESIGN
    ============================= */
 
-/* Soft card shadow (light background) */
+/* Soft card shadow */
 .neu-card {
   background: #f0f0f3;
   border-radius: 20px;
@@ -79,6 +82,14 @@ body {
 .product-card:hover {
   transform: translateY(-6px);
   box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.1), -10px -10px 20px rgba(255, 255, 255, 0.9);
+}
+
+/* Mobile: disable hover transform (causes janky scrolling) */
+@media (max-width: 768px) {
+  .product-card:hover {
+    transform: none;
+    box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.07), -6px -6px 14px rgba(255, 255, 255, 0.8);
+  }
 }
 
 /* Star rating */
@@ -152,6 +163,52 @@ input, textarea, select {
   border-radius: 12px !important;
 }
 
+/* =============================
+   MOBILE OPTIMIZATIONS
+   ============================= */
+
+/* Ensure touch targets are at least 44px tall */
+@media (max-width: 768px) {
+  button, a, select, input, textarea {
+    min-height: 44px;
+  }
+
+  /* Prevent horizontal overflow */
+  section, div {
+    max-width: 100vw;
+  }
+
+  /* Better text readability on small screens */
+  p, span, li {
+    line-height: 1.7;
+  }
+
+  /* Prevent zoom on input focus (iOS) */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* Horizontal scroll for filter buttons on mobile */
+.filter-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.filter-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safe area for notch phones */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -163,4 +220,12 @@ input, textarea, select {
 ::-webkit-scrollbar-thumb {
   background: #c0c0c0;
   border-radius: 4px;
+}
+
+/* Hide scrollbar on mobile for cleaner look */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 0;
+    display: none;
+  }
 }
