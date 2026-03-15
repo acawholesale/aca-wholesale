@@ -15,6 +15,45 @@ html {
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #111;
+  background: #f0f0f3;
+}
+
+/* =============================
+   NEUMORPHIC / SOFT UI DESIGN
+   ============================= */
+
+/* Soft card shadow (light background) */
+.neu-card {
+  background: #f0f0f3;
+  border-radius: 20px;
+  box-shadow: 8px 8px 16px #d1d1d4, -8px -8px 16px #ffffff;
+}
+
+.neu-card-white {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.08), -6px -6px 14px rgba(255, 255, 255, 0.9);
+}
+
+/* Inset / pressed effect */
+.neu-inset {
+  border-radius: 16px;
+  box-shadow: inset 4px 4px 8px #d1d1d4, inset -4px -4px 8px #ffffff;
+}
+
+/* Soft button */
+.neu-btn {
+  border-radius: 50px;
+  box-shadow: 5px 5px 10px #d1d1d4, -5px -5px 10px #ffffff;
+  transition: all 0.2s ease;
+}
+
+.neu-btn:hover {
+  box-shadow: 3px 3px 6px #d1d1d4, -3px -3px 6px #ffffff;
+}
+
+.neu-btn:active {
+  box-shadow: inset 3px 3px 6px #d1d1d4, inset -3px -3px 6px #ffffff;
 }
 
 /* Announcement bar animation */
@@ -27,14 +66,19 @@ body {
   animation: scroll-left 20s linear infinite;
 }
 
-/* Product card hover */
-.product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+/* Product card */
+.product-card {
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.07), -6px -6px 14px rgba(255, 255, 255, 0.8);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  border: none;
 }
 
-.product-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.1), -10px -10px 20px rgba(255, 255, 255, 0.9);
 }
 
 /* Star rating */
@@ -51,6 +95,15 @@ body {
 
 .faq-answer.open {
   max-height: 500px;
+}
+
+/* FAQ item styling */
+.faq-item {
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.06), -4px -4px 10px rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  border: none;
 }
 
 /* Hero gradient overlay */
@@ -73,6 +126,7 @@ body {
   width: 60px;
   height: 3px;
   background: #2563eb;
+  border-radius: 3px;
 }
 
 /* Marquee brands */
@@ -82,13 +136,20 @@ body {
   animation: scroll-left 15s linear infinite;
 }
 
-/* Button styles */
+/* Rounded buttons */
 .btn-primary {
   @apply bg-black text-white px-8 py-3 font-semibold hover:bg-gray-800 transition-colors;
+  border-radius: 50px;
 }
 
 .btn-outline {
   @apply border-2 border-black text-black px-8 py-3 font-semibold hover:bg-black hover:text-white transition-colors;
+  border-radius: 50px;
+}
+
+/* Soft input fields */
+input, textarea, select {
+  border-radius: 12px !important;
 }
 
 /* Scrollbar */
@@ -96,9 +157,10 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f0f0f3;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #c0c0c0;
   border-radius: 4px;
 }
