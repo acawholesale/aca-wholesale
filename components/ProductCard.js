@@ -57,7 +57,7 @@ export default function ProductCard({ product }) {
           href={`/produits`}
           className="mt-3 block text-center bg-black text-white text-sm py-2.5 font-medium hover:bg-gray-800 transition-colors"
         >
-          Voir le ballot
+          Voir le lot
         </Link>
       </div>
     </div>
