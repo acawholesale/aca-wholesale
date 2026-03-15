@@ -22,12 +22,12 @@ export default function Navbar() {
       </div>
 
       {/* Main Navbar */}
-      <nav className="bg-white shadow-sm sticky top-0 z-50">
+      <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="bg-black text-white px-3 py-1.5 font-black text-xl tracking-tighter">
+              <div className="bg-black text-white px-3 py-1.5 font-black text-xl tracking-tighter rounded-xl">
                 ACA
               </div>
               <span className="text-xs font-semibold uppercase tracking-wide hidden sm:block">
@@ -56,7 +56,7 @@ export default function Navbar() {
 
             {/* CTA + Mobile toggle */}
             <div className="flex items-center gap-4">
-              <Link href="/produits" className="hidden sm:inline-block bg-black text-white text-sm px-5 py-2 font-semibold hover:bg-gray-800 transition-colors">
+              <Link href="/produits" className="hidden sm:inline-block bg-black text-white text-sm px-5 py-2 font-semibold hover:bg-gray-800 transition-colors rounded-full">
                 Commander
               </Link>
               <button
@@ -77,14 +77,14 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <div className="md:hidden border-t bg-white">
+          <div className="md:hidden bg-white rounded-b-2xl" style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
             <div className="px-4 py-4 space-y-3">
               <Link href="/" className="block text-sm font-medium py-2" onClick={() => setMenuOpen(false)}>Accueil</Link>
               <Link href="/produits" className="block text-sm font-medium py-2" onClick={() => setMenuOpen(false)}>Nos Lots</Link>
               <Link href="/a-propos" className="block text-sm font-medium py-2" onClick={() => setMenuOpen(false)}>À Propos</Link>
               <Link href="/faq" className="block text-sm font-medium py-2" onClick={() => setMenuOpen(false)}>FAQ</Link>
               <Link href="/contact" className="block text-sm font-medium py-2" onClick={() => setMenuOpen(false)}>Contact</Link>
-              <Link href="/produits" className="block bg-black text-white text-sm px-5 py-2.5 font-semibold text-center" onClick={() => setMenuOpen(false)}>
+              <Link href="/produits" className="block bg-black text-white text-sm px-5 py-2.5 font-semibold text-center rounded-full" onClick={() => setMenuOpen(false)}>
                 Commander
               </Link>
             </div>
