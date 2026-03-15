@@ -42,42 +42,42 @@ export default function FAQ() {
   }
 
   return (
-    <main className="bg-[#f0f0f3]">
+    <main className="bg-[#f0f0f3] overflow-x-hidden">
       <Navbar />
 
-      <section className="bg-black text-white py-16 rounded-b-[40px]">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-black mb-3">FAQ</h1>
-          <p className="text-gray-400 max-w-xl mx-auto">
-            Toutes les réponses à vos questions sur nos lots de vêtements de seconde main
+      <section className="bg-black text-white py-12 md:py-16 rounded-b-[24px] md:rounded-b-[40px]">
+        <div className="max-w-7xl mx-auto px-5 text-center">
+          <h1 className="text-3xl md:text-5xl font-black mb-2 md:mb-3">FAQ</h1>
+          <p className="text-gray-400 max-w-xl mx-auto text-sm md:text-base">
+            Toutes les réponses à vos questions sur nos lots
           </p>
         </div>
       </section>
 
-      <section className="py-16">
-        <div className="max-w-3xl mx-auto px-4">
+      <section className="py-10 md:py-16">
+        <div className="max-w-3xl mx-auto px-5">
           {faqCategories.map((cat, ci) => (
-            <div key={ci} className="mb-12">
-              <h2 className="text-xl font-black mb-6 flex items-center gap-3">
-                <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center text-sm font-bold rounded-full">
+            <div key={ci} className="mb-10 md:mb-12">
+              <h2 className="text-lg md:text-xl font-black mb-4 md:mb-6 flex items-center gap-3">
+                <span className="w-7 h-7 md:w-8 md:h-8 bg-blue-600 text-white flex items-center justify-center text-xs md:text-sm font-bold rounded-full">
                   {ci + 1}
                 </span>
                 {cat.title}
               </h2>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {cat.items.map((item, i) => {
                   const key = `${ci}-${i}`
                   return (
                     <div key={key} className="faq-item">
                       <button
                         onClick={() => toggle(key)}
-                        className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors rounded-2xl"
+                        className="w-full flex items-center justify-between p-4 md:p-5 text-left hover:bg-gray-50 transition-colors rounded-2xl"
                       >
-                        <span className="font-semibold text-sm">{item.q}</span>
-                        <span className="text-xl ml-4 flex-shrink-0">{openItems[key] ? '−' : '+'}</span>
+                        <span className="font-semibold text-sm pr-2">{item.q}</span>
+                        <span className="text-xl flex-shrink-0">{openItems[key] ? '−' : '+'}</span>
                       </button>
                       <div className={`faq-answer ${openItems[key] ? 'open' : ''}`}>
-                        <p className="px-5 pb-5 text-gray-600 text-sm leading-relaxed">{item.a}</p>
+                        <p className="px-4 md:px-5 pb-4 md:pb-5 text-gray-600 text-sm leading-relaxed">{item.a}</p>
                       </div>
                     </div>
                   )
@@ -86,10 +86,10 @@ export default function FAQ() {
             </div>
           ))}
 
-          <div className="bg-white rounded-3xl p-8 text-center mt-8" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
-            <h3 className="text-xl font-bold mb-3">Vous n&apos;avez pas trouvé votre réponse ?</h3>
-            <p className="text-gray-500 text-sm mb-6">Notre équipe est disponible pour répondre à toutes vos questions.</p>
-            <Link href="/contact" className="inline-block bg-black text-white px-8 py-3 font-bold text-sm hover:bg-gray-800 transition-colors rounded-full">
+          <div className="bg-white rounded-3xl p-6 md:p-8 text-center mt-6 md:mt-8" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
+            <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Vous n&apos;avez pas trouvé votre réponse ?</h3>
+            <p className="text-gray-500 text-sm mb-4 md:mb-6">Notre équipe est disponible pour répondre à toutes vos questions.</p>
+            <Link href="/contact" className="inline-block bg-black text-white px-6 md:px-8 py-3 font-bold text-sm hover:bg-gray-800 transition-colors rounded-full">
               NOUS CONTACTER
             </Link>
           </div>
