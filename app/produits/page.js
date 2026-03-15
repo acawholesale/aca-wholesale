@@ -41,11 +41,11 @@ export default function Produits() {
   if (sortBy === 'popular') filtered = [...filtered].sort((a, b) => b.reviews - a.reviews)
 
   return (
-    <main>
+    <main className="bg-[#f0f0f3]">
       <Navbar />
 
       {/* Header */}
-      <section className="bg-black text-white py-16">
+      <section className="bg-black text-white py-16 rounded-b-[40px]">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-black mb-3">NOS LOTS</h1>
           <p className="text-gray-400 max-w-xl mx-auto">
@@ -55,7 +55,7 @@ export default function Produits() {
       </section>
 
       {/* Filters */}
-      <section className="bg-white border-b sticky top-16 z-40">
+      <section className="bg-white/80 backdrop-blur-md sticky top-16 z-40 rounded-b-2xl" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap gap-2">
@@ -63,7 +63,7 @@ export default function Produits() {
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`text-xs font-semibold px-4 py-2 transition-colors ${
+                  className={`text-xs font-semibold px-4 py-2 transition-colors rounded-full ${
                     activeCategory === cat.id
                       ? 'bg-black text-white'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -76,7 +76,7 @@ export default function Produits() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="text-sm border px-3 py-2 bg-white"
+              className="text-sm border px-3 py-2 bg-white rounded-xl"
             >
               <option value="popular">Plus populaires</option>
               <option value="price-asc">Prix croissant</option>
@@ -87,7 +87,7 @@ export default function Produits() {
       </section>
 
       {/* Products Grid */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-12">
         <div className="max-w-7xl mx-auto px-4">
           <p className="text-sm text-gray-500 mb-6">{filtered.length} lot{filtered.length > 1 ? 's' : ''} trouvé{filtered.length > 1 ? 's' : ''}</p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
@@ -99,11 +99,11 @@ export default function Produits() {
       </section>
 
       {/* CTA */}
-      <section className="bg-black text-white py-16">
+      <section className="bg-black text-white py-16 rounded-[40px] mx-4 mb-8">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-2xl md:text-3xl font-black mb-4">Vous ne trouvez pas ce que vous cherchez ?</h2>
           <p className="text-gray-400 mb-6">Contactez-nous pour un lot personnalisé selon vos besoins de revente.</p>
-          <a href="/contact" className="inline-block bg-white text-black px-8 py-3 font-bold text-sm hover:bg-gray-200 transition-colors">
+          <a href="/contact" className="inline-block bg-white text-black px-8 py-3 font-bold text-sm hover:bg-gray-200 transition-colors rounded-full">
             NOUS CONTACTER
           </a>
         </div>
