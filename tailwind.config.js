@@ -8,8 +8,10 @@ module.exports = {
     extend: {
       colors: {
         primary: '#000000',
-        accent: '#2563eb',
-        'accent-dark': '#1d4ed8',
+        gold: '#C4962A',
+        'gold-light': '#E8B84B',
+        'gold-dark': '#9A7520',
+        'gold-50': '#FDF8EC',
       },
     },
   },
