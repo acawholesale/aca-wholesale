@@ -1,3 +1,4 @@
+'use client'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import Link from 'next/link'
@@ -22,7 +23,7 @@ export default function APropos() {
         <div className="max-w-4xl mx-auto px-5">
           <div className="grid md:grid-cols-2 gap-6 md:gap-12 items-center">
             <div className="bg-white rounded-3xl p-6 md:p-10" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
-              <div className="text-blue-600 font-bold text-[10px] md:text-sm uppercase tracking-wider mb-2 md:mb-3">Notre Histoire</div>
+              <div className="font-bold text-[10px] md:text-sm uppercase tracking-wider mb-2 md:mb-3" style={{ color: '#C4962A' }}>Notre Histoire</div>
               <h2 className="text-xl md:text-3xl font-black mb-4 md:mb-6">Née de l&apos;expérience directe dans la revente</h2>
               <p className="text-gray-600 leading-relaxed mb-3 md:mb-4 text-sm">
                 ACA Wholesale est né de notre expérience directe dans la revente de vêtements de seconde main. En travaillant dans ce domaine, nous avons rapidement compris que beaucoup de revendeurs avaient du mal à trouver des fournisseurs fiables proposant des produits de qualité constante.
@@ -49,7 +50,7 @@ export default function APropos() {
       <section className="py-10 md:py-24">
         <div className="max-w-4xl mx-auto px-5 text-center">
           <div className="bg-white rounded-3xl p-8 md:p-12" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
-            <div className="text-blue-600 font-bold text-[10px] md:text-sm uppercase tracking-wider mb-2 md:mb-3">Qui sommes-nous ?</div>
+            <div className="font-bold text-[10px] md:text-sm uppercase tracking-wider mb-2 md:mb-3" style={{ color: '#C4962A' }}>Qui sommes-nous ?</div>
             <h2 className="text-xl md:text-3xl font-black mb-4 md:mb-6">Une équipe passionnée par la seconde main</h2>
             <p className="text-gray-600 leading-relaxed max-w-2xl mx-auto text-sm md:text-lg">
               Nous sommes une équipe basée en Moselle, passionnée par la seconde main et l&apos;entrepreneuriat. Notre objectif est d&apos;aider les revendeurs à se développer en leur donnant accès à des produits fiables et prêts à être revendus.
@@ -67,9 +68,9 @@ export default function APropos() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             {[
-              { emoji: '✅', title: 'Qualité', desc: 'Chaque lot est sélectionné avec attention afin d\'offrir des articles en bon état et avec un réel potentiel de revente.' },
-              { emoji: '🔍', title: 'Transparence', desc: 'Nous croyons en une relation honnête avec nos clients. Vous savez exactement ce que vous achetez.' },
-              { emoji: '🤝', title: 'Confiance', desc: 'Notre objectif est de créer une relation de confiance durable avec nos clients.' },
+              { emoji: '✅', title: 'Qualité', desc: "Chaque lot est sélectionné avec attention afin d'offrir des articles en bon état et avec un réel potentiel de revente." },
+              { emoji: '🔍', title: 'Transparence', desc: "Nous croyons en une relation honnête avec nos clients. Vous savez exactement ce que vous achetez." },
+              { emoji: '🤝', title: 'Confiance', desc: "Notre objectif est de créer une relation de confiance durable avec nos clients." },
             ].map((v) => (
               <div key={v.title} className="bg-white rounded-3xl p-8 md:p-10 text-center" style={{ boxShadow: '6px 6px 14px rgba(0,0,0,0.07), -6px -6px 14px rgba(255,255,255,0.8)' }}>
                 <div className="text-3xl md:text-4xl mb-3 md:mb-4">{v.emoji}</div>
@@ -93,7 +94,7 @@ export default function APropos() {
               </div>
             </div>
             <div className="bg-white rounded-3xl p-6 md:p-10" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
-              <div className="text-blue-600 font-bold text-[10px] md:text-sm uppercase tracking-wider mb-2 md:mb-3">Notre Vision</div>
+              <div className="font-bold text-[10px] md:text-sm uppercase tracking-wider mb-2 md:mb-3" style={{ color: '#C4962A' }}>Notre Vision</div>
               <h2 className="text-xl md:text-3xl font-black mb-4 md:mb-6">Donner une seconde vie aux vêtements</h2>
               <p className="text-gray-600 leading-relaxed mb-3 md:mb-4 text-sm">
                 Nous croyons au développement de la seconde main et à une consommation plus responsable. À travers notre activité, nous souhaitons faciliter l&apos;accès à des vêtements de qualité pour les revendeurs tout en participant à donner une seconde vie aux produits.
@@ -141,7 +142,7 @@ export default function APropos() {
               { num: '🚚', label: 'Expédition rapide' },
             ].map((s) => (
               <div key={s.label}>
-                <div className="text-2xl md:text-4xl font-black text-blue-500">{s.num}</div>
+                <div className="text-2xl md:text-4xl font-black" style={{ color: '#C4962A' }}>{s.num}</div>
                 <div className="text-gray-400 text-xs md:text-sm mt-1 md:mt-2">{s.label}</div>
               </div>
             ))}
