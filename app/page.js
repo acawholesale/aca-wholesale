@@ -41,34 +41,41 @@ export default function Home() {
     <main className="bg-[#f0f0f3] overflow-x-hidden">
       <Navbar />
 
-      {/* HERO SECTION */}
-      <section className="relative bg-gray-900 text-white overflow-hidden rounded-b-[24px] md:rounded-b-[40px]">
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-blue-950"></div>
-        <div className="absolute inset-0 opacity-5">
-          <div className="w-full h-full" style={{
-            backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(59,130,246,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%)'
-          }}></div>
-        </div>
+      {/* ── HERO ── */}
+      <section className="relative bg-black text-white overflow-hidden rounded-b-[24px] md:rounded-b-[40px]">
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #000000 0%, #111111 60%, #0d0d0d 100%)' }} />
+        {/* Lueur or subtile */}
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 15% 50%, rgba(196,150,42,0.18) 0%, transparent 55%), radial-gradient(circle at 85% 20%, rgba(232,184,75,0.08) 0%, transparent 50%)' }} />
         <div className="relative max-w-7xl mx-auto px-5 py-16 md:py-36">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500/30 text-blue-300 text-[10px] md:text-xs font-bold px-3 py-1.5 mb-4 md:mb-6 uppercase tracking-wider rounded-full">
-              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
+            <div className="inline-flex items-center gap-2 border text-[10px] md:text-xs font-bold px-3 py-1.5 mb-4 md:mb-6 uppercase tracking-wider rounded-full" style={{ background: 'rgba(196,150,42,0.15)', borderColor: 'rgba(196,150,42,0.35)', color: '#E8B84B' }}>
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#C4962A' }} />
               Basé en Moselle, France
             </div>
             <h1 className="text-3xl md:text-6xl font-black mb-4 md:mb-6 leading-tight">
               Lots de Vêtements<br />
-              <span className="text-blue-400">de Seconde Main</span>
+              <span style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                de Seconde Main
+              </span>
             </h1>
             <p className="text-gray-300 text-sm md:text-lg mb-6 md:mb-8 leading-relaxed max-w-lg">
               Des lots sélectionnés avec soin, pensés pour la revente.
-              Nike, Adidas, The North Face, Ralph Lauren...
+              Nike, Adidas, The North Face, Ralph Lauren…
               Expédition rapide depuis la France.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-              <Link href="/produits" className="bg-white text-black px-6 md:px-8 py-3.5 md:py-4 font-black text-sm hover:bg-blue-50 transition-colors rounded-full text-center shadow-lg">
+              <Link
+                href="/produits"
+                className="px-6 md:px-8 py-3.5 md:py-4 font-black text-sm rounded-full text-center hover:opacity-90 transition-all shadow-lg text-black"
+                style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
+              >
                 VOIR NOS LOTS →
               </Link>
-              <Link href="/a-propos" className="border-2 border-white/30 text-white px-6 md:px-8 py-3.5 md:py-4 font-bold text-sm hover:bg-white/10 transition-colors rounded-full text-center">
+              <Link
+                href="/a-propos"
+                className="border-2 text-white px-6 md:px-8 py-3.5 md:py-4 font-bold text-sm hover:bg-white/10 transition-colors rounded-full text-center"
+                style={{ borderColor: 'rgba(196,150,42,0.45)' }}
+              >
                 QUI SOMMES-NOUS ?
               </Link>
             </div>
@@ -80,7 +87,7 @@ export default function Home() {
                 { val: '⚡', label: 'Expédition rapide' },
                 { val: '100%', label: 'Authentique' },
               ].map(s => (
-                <div key={s.label} className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl px-3 md:px-5 py-3 text-center flex-1 md:flex-none">
+                <div key={s.label} className="backdrop-blur-sm rounded-2xl px-3 md:px-5 py-3 text-center flex-1 md:flex-none" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(196,150,42,0.2)' }}>
                   <div className="text-lg md:text-2xl font-black">{s.val}</div>
                   <div className="text-gray-400 text-[9px] md:text-xs mt-1">{s.label}</div>
                 </div>
@@ -90,7 +97,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TRUST BAR */}
+      {/* ── TRUST BAR ── */}
       <section className="py-8 md:py-10">
         <div className="max-w-7xl mx-auto px-5">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 text-center">
@@ -110,7 +117,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CATEGORIES */}
+      {/* ── CATEGORIES ── */}
       <section className="py-10 md:py-24">
         <div className="max-w-7xl mx-auto px-5">
           <div className="text-center mb-8 md:mb-12">
@@ -122,8 +129,10 @@ export default function Home() {
               <Link
                 key={cat.name}
                 href="/produits"
-                className="group text-center p-4 md:p-6 bg-white rounded-2xl hover:bg-black hover:text-white transition-all duration-300"
+                className="group text-center p-4 md:p-6 bg-white rounded-2xl transition-all duration-300 hover:text-white"
                 style={{ boxShadow: '6px 6px 14px rgba(0,0,0,0.07), -6px -6px 14px rgba(255,255,255,0.8)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(135deg, #1a1a1a, #000)'}
+                onMouseLeave={e => e.currentTarget.style.background = '#ffffff'}
               >
                 <div className="text-2xl md:text-3xl mb-2 md:mb-3">{cat.emoji}</div>
                 <h3 className="font-bold text-[10px] md:text-sm mb-0.5 md:mb-1">{cat.name}</h3>
@@ -134,7 +143,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NEW DROPS */}
+      {/* ── NOUVEAUX ARRIVAGES ── */}
       <section className="py-10 md:py-24">
         <div className="max-w-7xl mx-auto px-5">
           <div className="flex items-end justify-between mb-6 md:mb-10">
@@ -145,7 +154,7 @@ export default function Home() {
               <h2 className="text-2xl md:text-4xl font-black">NOUVEAUX ARRIVAGES</h2>
               <p className="text-gray-500 text-sm mt-1">Les derniers lots ajoutés cette semaine</p>
             </div>
-            <Link href="/produits" className="hidden md:block text-sm font-bold hover:text-blue-600 transition-colors">
+            <Link href="/produits" className="hidden md:block text-sm font-bold transition-colors hover:text-[#C4962A]">
               Tout voir →
             </Link>
           </div>
@@ -162,18 +171,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* BEST SELLERS */}
+      {/* ── BEST SELLERS ── */}
       <section className="py-10 md:py-24">
         <div className="max-w-7xl mx-auto px-5">
           <div className="flex items-end justify-between mb-6 md:mb-10">
             <div>
-              <div className="inline-block bg-blue-600 text-white text-[10px] md:text-xs font-bold px-3 py-1 mb-2 md:mb-3 uppercase tracking-wider rounded-full">
+              <div className="inline-block text-black text-[10px] md:text-xs font-bold px-3 py-1 mb-2 md:mb-3 uppercase tracking-wider rounded-full" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
                 ⭐ Les plus populaires
               </div>
               <h2 className="text-2xl md:text-4xl font-black">NOS BEST SELLERS</h2>
               <p className="text-gray-500 text-sm mt-1">Les lots les plus populaires du moment</p>
             </div>
-            <Link href="/produits" className="hidden md:block text-sm font-bold hover:text-blue-600 transition-colors">
+            <Link href="/produits" className="hidden md:block text-sm font-bold transition-colors hover:text-[#C4962A]">
               Tout voir →
             </Link>
           </div>
@@ -190,11 +199,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* BRANDS BANNER */}
-      <section className="bg-black text-white py-10 md:py-20 overflow-hidden rounded-[24px] md:rounded-[40px] mx-3 md:mx-4 my-6 md:my-8">
+      {/* ── BRANDS ── */}
+      <section className="text-white py-10 md:py-20 overflow-hidden rounded-[24px] md:rounded-[40px] mx-3 md:mx-4 my-6 md:my-8" style={{ background: 'linear-gradient(135deg, #0A0A0A 0%, #141414 100%)', border: '1px solid rgba(196,150,42,0.15)' }}>
         <div className="max-w-7xl mx-auto px-5 text-center mb-8 md:mb-12">
           <h2 className="text-2xl md:text-5xl font-black mb-2 md:mb-3">
-            DES MARQUES <span className="text-blue-500">QUI SE REVENDENT</span>
+            DES MARQUES{' '}
+            <span style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              QUI SE REVENDENT
+            </span>
           </h2>
           <p className="text-gray-400 text-sm md:text-lg">
             Sélectionnées pour leur fort potentiel de revente sur Vinted et ailleurs
@@ -203,7 +215,7 @@ export default function Home() {
         <div className="overflow-hidden">
           <div className="flex gap-8 md:gap-12 brands-marquee">
             {[...brands, ...brands].map((brand, i) => (
-              <span key={i} className="text-lg md:text-3xl font-black text-gray-600 whitespace-nowrap hover:text-white transition-colors cursor-default">
+              <span key={i} className="text-lg md:text-3xl font-black whitespace-nowrap cursor-default transition-colors hover:text-[#C4962A]" style={{ color: '#333' }}>
                 {brand}
               </span>
             ))}
@@ -211,7 +223,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
+      {/* ── COMMENT ÇA MARCHE ── */}
       <section className="py-10 md:py-24">
         <div className="max-w-7xl mx-auto px-5">
           <div className="text-center mb-10 md:mb-16">
@@ -230,7 +242,7 @@ export default function Home() {
                 )}
                 <div className="text-3xl md:text-5xl md:mb-4 flex-shrink-0">{item.emoji}</div>
                 <div className="text-left md:text-center">
-                  <div className="text-blue-600 font-black text-[10px] md:text-sm mb-1 md:mb-2 uppercase tracking-wider">Étape {item.step}</div>
+                  <div className="font-black text-[10px] md:text-sm mb-1 md:mb-2 uppercase tracking-wider" style={{ color: '#C4962A' }}>Étape {item.step}</div>
                   <h3 className="text-base md:text-xl font-bold mb-1 md:mb-3">{item.title}</h3>
                   <p className="text-gray-500 text-xs md:text-sm leading-relaxed">{item.desc}</p>
                 </div>
@@ -240,18 +252,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* WHY US */}
+      {/* ── POURQUOI NOUS ── */}
       <section className="py-10 md:py-24">
         <div className="max-w-7xl mx-auto px-5">
           <div className="grid md:grid-cols-2 gap-6 md:gap-12 items-center">
             <div className="bg-white rounded-3xl p-6 md:p-10" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
-              <div className="text-blue-600 font-bold text-[10px] md:text-sm uppercase tracking-wider mb-2 md:mb-3">Pourquoi ACA Wholesale ?</div>
+              <div className="font-bold text-[10px] md:text-sm uppercase tracking-wider mb-2 md:mb-3" style={{ color: '#C4962A' }}>Pourquoi ACA Wholesale ?</div>
               <h2 className="text-xl md:text-3xl font-black mb-4 md:mb-6">Un fournisseur fiable, pensé pour les revendeurs</h2>
               <p className="text-gray-600 leading-relaxed mb-3 md:mb-4 text-sm">
                 Après plusieurs années dans la revente de vêtements, nous avons créé ACA Wholesale pour répondre à un vrai besoin : proposer aux revendeurs des lots de qualité, sélectionnés avec soin, avec un bon potentiel de revente.
               </p>
               <p className="text-gray-600 leading-relaxed mb-4 md:mb-6 text-sm">
-                Basés en Moselle, nous travaillons chaque jour pour offrir un service sérieux, transparent et efficace. Notre objectif est simple : vous permettre d&apos;accéder à des produits fiables, à des prix compétitifs.
+                Basés en Moselle, nous travaillons chaque jour pour offrir un service sérieux, transparent et efficace.
               </p>
               <div className="space-y-2 md:space-y-3">
                 {[
@@ -261,7 +273,7 @@ export default function Home() {
                   'Relation de confiance durable',
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-2 md:gap-3">
-                    <span className="w-6 h-6 md:w-7 md:h-7 bg-blue-600 text-white flex items-center justify-center text-[10px] md:text-xs font-bold flex-shrink-0 rounded-full">✓</span>
+                    <span className="w-6 h-6 md:w-7 md:h-7 text-black flex items-center justify-center text-[10px] md:text-xs font-bold flex-shrink-0 rounded-full" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>✓</span>
                     <span className="text-xs md:text-sm font-medium">{item}</span>
                   </div>
                 ))}
@@ -296,7 +308,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* ── TÉMOIGNAGES ── */}
       <section className="py-10 md:py-24">
         <div className="max-w-7xl mx-auto px-5">
           <div className="text-center mb-8 md:mb-12">
@@ -313,7 +325,7 @@ export default function Home() {
                 </div>
                 <p className="text-gray-700 mb-4 md:mb-6 text-sm leading-relaxed">&quot;{t.text}&quot;</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 md:w-10 md:h-10 bg-black text-white flex items-center justify-center font-bold text-sm rounded-full">
+                  <div className="w-9 h-9 md:w-10 md:h-10 text-black flex items-center justify-center font-bold text-sm rounded-full" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
                     {t.name.charAt(0)}
                   </div>
                   <div>
@@ -327,7 +339,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* ── FAQ ── */}
       <section className="py-10 md:py-24">
         <div className="max-w-3xl mx-auto px-5">
           <div className="text-center mb-8 md:mb-12">
@@ -351,28 +363,38 @@ export default function Home() {
             ))}
           </div>
           <div className="text-center mt-6">
-            <Link href="/faq" className="text-blue-600 font-semibold text-sm hover:underline">
+            <Link href="/faq" className="font-semibold text-sm hover:underline" style={{ color: '#C4962A' }}>
               Voir toutes les questions →
             </Link>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-gradient-to-br from-blue-600 to-blue-700 text-white py-12 md:py-20 rounded-[24px] md:rounded-[40px] mx-3 md:mx-4 mb-6 md:mb-8">
+      {/* ── CTA ── */}
+      <section className="text-white py-12 md:py-20 rounded-[24px] md:rounded-[40px] mx-3 md:mx-4 mb-6 md:mb-8" style={{ background: 'linear-gradient(135deg, #0A0A0A 0%, #141414 100%)', border: '1px solid rgba(196,150,42,0.2)' }}>
         <div className="max-w-4xl mx-auto px-5 text-center">
-          <div className="text-3xl md:text-4xl mb-4">🚀</div>
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-6" style={{ background: 'rgba(196,150,42,0.15)', border: '1px solid rgba(196,150,42,0.3)' }}>
+            <span className="text-2xl">🚀</span>
+          </div>
           <h2 className="text-xl md:text-4xl font-black mb-3 md:mb-4">
             Prêt à développer votre activité de revente ?
           </h2>
-          <p className="text-blue-100 text-sm md:text-lg mb-6 md:mb-8 max-w-xl mx-auto">
+          <p className="text-gray-400 text-sm md:text-lg mb-6 md:mb-8 max-w-xl mx-auto">
             Accédez à des lots de vêtements de marque sélectionnés avec soin, expédiés rapidement depuis la France.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/produits" className="inline-block bg-white text-black px-8 md:px-10 py-3.5 md:py-4 font-black text-sm hover:bg-gray-100 transition-colors rounded-full shadow-lg">
+            <Link
+              href="/produits"
+              className="inline-block px-8 md:px-10 py-3.5 md:py-4 font-black text-sm hover:opacity-90 transition-all rounded-full shadow-lg text-black"
+              style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
+            >
               VOIR NOS LOTS →
             </Link>
-            <Link href="/contact" className="inline-block border-2 border-white/40 text-white px-8 md:px-10 py-3.5 md:py-4 font-bold text-sm hover:bg-white/10 transition-colors rounded-full">
+            <Link
+              href="/contact"
+              className="inline-block border-2 text-white px-8 md:px-10 py-3.5 md:py-4 font-bold text-sm hover:bg-white/10 transition-colors rounded-full"
+              style={{ borderColor: 'rgba(196,150,42,0.4)' }}
+            >
               NOUS CONTACTER
             </Link>
           </div>
