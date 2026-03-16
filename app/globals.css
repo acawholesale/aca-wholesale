@@ -54,16 +54,29 @@ body {
   box-shadow: inset 3px 3px 6px #d1d1d4, inset -3px -3px 6px #ffffff;
 }
 
-/* Announcement bar */
+/* =============================
+   ANNOUNCEMENT BAR CAROUSEL
+   ============================= */
+
 @keyframes scroll-left {
-  0% { transform: translateX(0); }
+  0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+
 .animate-scroll {
-  animation: scroll-left 20s linear infinite;
+  animation: scroll-left 25s linear infinite;
+  will-change: transform;
+  animation-play-state: running;
 }
 
-/* Product card */
+.animate-scroll:hover {
+  animation-play-state: running;
+}
+
+/* =============================
+   PRODUCT CARD
+   ============================= */
+
 .product-card {
   border-radius: 20px;
   background: #ffffff;
@@ -82,12 +95,18 @@ body {
   }
 }
 
-/* Star rating */
+/* =============================
+   ÉTOILES — COULEUR OR
+   ============================= */
+
 .star-filled {
   color: #C4962A;
 }
 
-/* FAQ accordion */
+/* =============================
+   FAQ ACCORDION
+   ============================= */
+
 .faq-answer {
   max-height: 0;
   overflow: hidden;
@@ -104,7 +123,10 @@ body {
   overflow: hidden;
 }
 
-/* Section title underline — OR */
+/* =============================
+   SECTION TITLE UNDERLINE — OR
+   ============================= */
+
 .section-title {
   position: relative;
   display: inline-block;
@@ -121,14 +143,22 @@ body {
   border-radius: 3px;
 }
 
-/* Marquee brands */
+/* =============================
+   BRANDS MARQUEE
+   ============================= */
+
 .brands-marquee {
   display: flex;
   gap: 3rem;
   animation: scroll-left 15s linear infinite;
+  will-change: transform;
+  animation-play-state: running;
 }
 
-/* Buttons */
+/* =============================
+   BOUTONS
+   ============================= */
+
 .btn-primary {
   @apply bg-black text-white px-8 py-3 font-semibold hover:bg-gray-800 transition-colors;
   border-radius: 50px;
@@ -138,13 +168,17 @@ body {
   border-radius: 50px;
 }
 
-/* Gold gradient text utility */
+/* Texte dégradé or */
 .text-gold-gradient {
   background: linear-gradient(135deg, #C4962A, #E8B84B);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* =============================
+   FORMULAIRES
+   ============================= */
 
 input, textarea, select {
   border-radius: 12px !important;
@@ -153,6 +187,7 @@ input, textarea, select {
 /* =============================
    MOBILE
    ============================= */
+
 @media (max-width: 768px) {
   button, a, select, input, textarea {
     min-height: 44px;
@@ -185,9 +220,14 @@ input, textarea, select {
   }
 }
 
-::-webkit-scrollbar { width: 8px; }
+/* =============================
+   SCROLLBAR — OR
+   ============================= */
+
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f0f0f3; border-radius: 4px; }
 ::-webkit-scrollbar-thumb { background: #C4962A; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #9A7520; }
 
 @media (max-width: 768px) {
   ::-webkit-scrollbar { width: 0; display: none; }
