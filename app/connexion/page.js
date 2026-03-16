@@ -10,6 +10,7 @@ function ConnexionContent() {
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/compte'
 
+  // mode : 'login' | 'register' | 'forgot'
   const [mode, setMode] = useState('login')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -20,14 +21,16 @@ function ConnexionContent() {
     email: '', password: '', confirmPassword: '',
     firstName: '', lastName: '', phone: ''
   })
+  const [forgotEmail, setForgotEmail] = useState('')
 
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, resetPassword } = useAuth()
   const router = useRouter()
+
+  const reset = () => { setError(''); setSuccess('') }
 
   const handleLogin = async (e) => {
     e.preventDefault()
-    setLoading(true)
-    setError('')
+    setLoading(true); reset()
     const { error } = await signIn(loginForm.email, loginForm.password)
     if (error) {
       setError('Email ou mot de passe incorrect.')
@@ -39,19 +42,15 @@ function ConnexionContent() {
 
   const handleRegister = async (e) => {
     e.preventDefault()
-    setLoading(true)
-    setError('')
-    setSuccess('')
+    setLoading(true); reset()
 
     if (registerForm.password !== registerForm.confirmPassword) {
       setError('Les mots de passe ne correspondent pas.')
-      setLoading(false)
-      return
+      setLoading(false); return
     }
     if (registerForm.password.length < 6) {
       setError('Le mot de passe doit contenir au moins 6 caractères.')
-      setLoading(false)
-      return
+      setLoading(false); return
     }
 
     const { error } = await signUp(registerForm.email, registerForm.password, {
@@ -61,9 +60,23 @@ function ConnexionContent() {
     })
 
     if (error) {
-      setError("Erreur lors de la création du compte. Cet email est peut-être déjà utilisé.")
+      setError(error.message || "Erreur lors de la création du compte.")
     } else {
-      setSuccess('Compte créé ! Vérifiez votre email pour confirmer votre inscription.')
+      setSuccess('✅ Compte créé ! Vérifiez votre boîte email pour confirmer votre inscription, puis connectez-vous.')
+      setRegisterForm({ email: '', password: '', confirmPassword: '', firstName: '', lastName: '', phone: '' })
+    }
+    setLoading(false)
+  }
+
+  const handleForgot = async (e) => {
+    e.preventDefault()
+    setLoading(true); reset()
+    const { error } = await resetPassword(forgotEmail)
+    if (error) {
+      setError("Impossible d'envoyer l'email. Vérifiez l'adresse saisie.")
+    } else {
+      setSuccess('📧 Un lien de réinitialisation a été envoyé à votre email.')
+      setForgotEmail('')
     }
     setLoading(false)
   }
@@ -71,6 +84,7 @@ function ConnexionContent() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4">
       <div className="max-w-md mx-auto w-full">
+
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
@@ -78,25 +92,29 @@ function ConnexionContent() {
             <span className="text-xs font-semibold uppercase tracking-wide">Wholesale</span>
           </Link>
           <p className="mt-3 text-gray-500 text-sm">
-            {mode === 'login' ? 'Connectez-vous à votre compte' : 'Créez votre compte client'}
+            {mode === 'login' && 'Connectez-vous à votre compte'}
+            {mode === 'register' && 'Créez votre compte client'}
+            {mode === 'forgot' && 'Réinitialiser le mot de passe'}
           </p>
         </div>
 
-        {/* Toggle */}
-        <div className="bg-gray-100 rounded-2xl p-1 flex mb-6">
-          <button
-            onClick={() => { setMode('login'); setError(''); setSuccess('') }}
-            className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all ${mode === 'login' ? 'bg-white shadow text-black' : 'text-gray-500'}`}
-          >
-            Connexion
-          </button>
-          <button
-            onClick={() => { setMode('register'); setError(''); setSuccess('') }}
-            className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all ${mode === 'register' ? 'bg-white shadow text-black' : 'text-gray-500'}`}
-          >
-            Inscription
-          </button>
-        </div>
+        {/* Toggle login / register (caché en mode forgot) */}
+        {mode !== 'forgot' && (
+          <div className="bg-gray-100 rounded-2xl p-1 flex mb-6">
+            <button
+              onClick={() => { setMode('login'); reset() }}
+              className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all ${mode === 'login' ? 'bg-white shadow text-black' : 'text-gray-500'}`}
+            >
+              Connexion
+            </button>
+            <button
+              onClick={() => { setMode('register'); reset() }}
+              className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all ${mode === 'register' ? 'bg-white shadow text-black' : 'text-gray-500'}`}
+            >
+              Inscription
+            </button>
+          </div>
+        )}
 
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
           {error && (
@@ -110,7 +128,8 @@ function ConnexionContent() {
             </div>
           )}
 
-          {mode === 'login' ? (
+          {/* ── CONNEXION ── */}
+          {mode === 'login' && (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1.5">Email</label>
@@ -118,17 +137,26 @@ function ConnexionContent() {
                   type="email" required
                   value={loginForm.email}
                   onChange={e => setLoginForm({ ...loginForm, email: e.target.value })}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                   placeholder="votre@email.com"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Mot de passe</label>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-xs font-semibold text-gray-600">Mot de passe</label>
+                  <button
+                    type="button"
+                    onClick={() => { setMode('forgot'); reset() }}
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    Mot de passe oublié ?
+                  </button>
+                </div>
                 <input
                   type="password" required
                   value={loginForm.password}
                   onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                   placeholder="••••••••"
                 />
               </div>
@@ -139,7 +167,10 @@ function ConnexionContent() {
                 {loading ? 'Connexion...' : 'Se connecter'}
               </button>
             </form>
-          ) : (
+          )}
+
+          {/* ── INSCRIPTION ── */}
+          {mode === 'register' && (
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -208,6 +239,38 @@ function ConnexionContent() {
                 className="w-full bg-black text-white py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors disabled:opacity-50"
               >
                 {loading ? 'Création...' : 'Créer mon compte'}
+              </button>
+            </form>
+          )}
+
+          {/* ── MOT DE PASSE OUBLIÉ ── */}
+          {mode === 'forgot' && (
+            <form onSubmit={handleForgot} className="space-y-4">
+              <p className="text-sm text-gray-500">
+                Entrez votre email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+              </p>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Email</label>
+                <input
+                  type="email" required
+                  value={forgotEmail}
+                  onChange={e => setForgotEmail(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="votre@email.com"
+                />
+              </div>
+              <button
+                type="submit" disabled={loading}
+                className="w-full bg-black text-white py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Envoi...' : 'Envoyer le lien'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setMode('login'); reset() }}
+                className="w-full text-sm text-gray-500 hover:text-black transition-colors py-1"
+              >
+                ← Retour à la connexion
               </button>
             </form>
           )}
