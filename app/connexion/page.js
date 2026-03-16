@@ -1,33 +1,39 @@
 'use client'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '../../context/AuthContext'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
-import { useAuth } from '../../context/AuthContext'
 
-export default function Connexion() {
-  const [tab, setTab] = useState('login')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-  const { signIn, signUp } = useAuth()
-  const router = useRouter()
+function ConnexionContent() {
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/compte'
 
+  const [mode, setMode] = useState('login')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
   const [loginForm, setLoginForm] = useState({ email: '', password: '' })
   const [registerForm, setRegisterForm] = useState({
-    firstName: '', lastName: '', email: '', password: '', confirmPassword: ''
+    email: '', password: '', confirmPassword: '',
+    firstName: '', lastName: '', phone: ''
   })
+
+  const { signIn, signUp } = useAuth()
+  const router = useRouter()
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError('')
     const { error } = await signIn(loginForm.email, loginForm.password)
-    if (error) setError('Email ou mot de passe incorrect.')
-    else router.push(redirect)
+    if (error) {
+      setError('Email ou mot de passe incorrect.')
+    } else {
+      router.push(redirect)
+    }
     setLoading(false)
   }
 
@@ -35,119 +41,198 @@ export default function Connexion() {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setSuccess('')
+
     if (registerForm.password !== registerForm.confirmPassword) {
       setError('Les mots de passe ne correspondent pas.')
       setLoading(false)
       return
     }
     if (registerForm.password.length < 6) {
-      setError('Le mot de passe doit faire au moins 6 caractères.')
+      setError('Le mot de passe doit contenir au moins 6 caractères.')
       setLoading(false)
       return
     }
-    const { error } = await signUp(registerForm.email, registerForm.password, registerForm.firstName, registerForm.lastName)
-    if (error) setError(error.message === 'User already registered' ? 'Un compte existe déjà avec cet email.' : 'Une erreur est survenue.')
-    else setSuccess('Compte créé ! Vérifiez votre email pour confirmer votre inscription, puis connectez-vous.')
+
+    const { error } = await signUp(registerForm.email, registerForm.password, {
+      firstName: registerForm.firstName,
+      lastName: registerForm.lastName,
+      phone: registerForm.phone,
+    })
+
+    if (error) {
+      setError("Erreur lors de la création du compte. Cet email est peut-être déjà utilisé.")
+    } else {
+      setSuccess('Compte créé ! Vérifiez votre email pour confirmer votre inscription.')
+    }
     setLoading(false)
   }
 
   return (
-    <main className="bg-[#f0f0f3] min-h-screen">
-      <Navbar />
-      <section className="bg-black text-white py-10 md:py-14 rounded-b-[24px] md:rounded-b-[40px]">
-        <div className="max-w-7xl mx-auto px-5 text-center">
-          <h1 className="text-2xl md:text-4xl font-black mb-1">MON COMPTE</h1>
-          <p className="text-gray-400 text-sm">Accédez à vos commandes et gérez votre profil</p>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4">
+      <div className="max-w-md mx-auto w-full">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center gap-2">
+            <div className="bg-black text-white px-3 py-1.5 font-black text-xl tracking-tighter rounded-xl">ACA</div>
+            <span className="text-xs font-semibold uppercase tracking-wide">Wholesale</span>
+          </Link>
+          <p className="mt-3 text-gray-500 text-sm">
+            {mode === 'login' ? 'Connectez-vous à votre compte' : 'Créez votre compte client'}
+          </p>
         </div>
-      </section>
-      <div className="max-w-md mx-auto px-5 py-10 md:py-14">
-        <div className="bg-white rounded-3xl p-6 md:p-8" style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.07), -8px -8px 16px rgba(255,255,255,0.9)' }}>
-          <div className="flex bg-gray-100 rounded-2xl p-1 mb-6">
-            <button onClick={() => { setTab('login'); setError(''); setSuccess('') }}
-              className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${tab === 'login' ? 'bg-white shadow text-black' : 'text-gray-500'}`}>
-              Se connecter
-            </button>
-            <button onClick={() => { setTab('register'); setError(''); setSuccess('') }}
-              className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${tab === 'register' ? 'bg-white shadow text-black' : 'text-gray-500'}`}>
-              Créer un compte
-            </button>
-          </div>
-          {error && <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl px-4 py-3 mb-4">⚠️ {error}</div>}
-          {success && <div className="bg-green-50 border border-green-200 text-green-700 text-xs rounded-xl px-4 py-3 mb-4">✅ {success}</div>}
-          {tab === 'login' && (
+
+        {/* Toggle */}
+        <div className="bg-gray-100 rounded-2xl p-1 flex mb-6">
+          <button
+            onClick={() => { setMode('login'); setError(''); setSuccess('') }}
+            className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all ${mode === 'login' ? 'bg-white shadow text-black' : 'text-gray-500'}`}
+          >
+            Connexion
+          </button>
+          <button
+            onClick={() => { setMode('register'); setError(''); setSuccess('') }}
+            className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all ${mode === 'register' ? 'bg-white shadow text-black' : 'text-gray-500'}`}
+          >
+            Inscription
+          </button>
+        </div>
+
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+          {error && (
+            <div className="mb-4 bg-red-50 text-red-600 text-sm px-4 py-3 rounded-xl border border-red-100">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="mb-4 bg-green-50 text-green-700 text-sm px-4 py-3 rounded-xl border border-green-100">
+              {success}
+            </div>
+          )}
+
+          {mode === 'login' ? (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email</label>
-                <input type="email" required value={loginForm.email}
-                  onChange={e => setLoginForm(p => ({ ...p, email: e.target.value }))}
-                  className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black rounded-xl"
-                  placeholder="votre@email.com" />
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Email</label>
+                <input
+                  type="email" required
+                  value={loginForm.email}
+                  onChange={e => setLoginForm({ ...loginForm, email: e.target.value })}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  placeholder="votre@email.com"
+                />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Mot de passe</label>
-                <input type="password" required value={loginForm.password}
-                  onChange={e => setLoginForm(p => ({ ...p, password: e.target.value }))}
-                  className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black rounded-xl"
-                  placeholder="••••••••" />
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Mot de passe</label>
+                <input
+                  type="password" required
+                  value={loginForm.password}
+                  onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  placeholder="••••••••"
+                />
               </div>
-              <button type="submit" disabled={loading}
-                className="w-full bg-black text-white py-3.5 rounded-full font-black text-sm hover:bg-blue-600 transition-colors disabled:opacity-50 mt-2">
-                {loading ? 'Connexion...' : 'SE CONNECTER →'}
+              <button
+                type="submit" disabled={loading}
+                className="w-full bg-black text-white py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Connexion...' : 'Se connecter'}
               </button>
             </form>
-          )}
-          {tab === 'register' && (
+          ) : (
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Prénom *</label>
-                  <input type="text" required value={registerForm.firstName}
-                    onChange={e => setRegisterForm(p => ({ ...p, firstName: e.target.value }))}
-                    className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black rounded-xl"
-                    placeholder="Prénom" />
+                  <label className="block text-xs font-semibold text-gray-600 mb-1.5">Prénom</label>
+                  <input
+                    type="text" required
+                    value={registerForm.firstName}
+                    onChange={e => setRegisterForm({ ...registerForm, firstName: e.target.value })}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                    placeholder="Jean"
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nom *</label>
-                  <input type="text" required value={registerForm.lastName}
-                    onChange={e => setRegisterForm(p => ({ ...p, lastName: e.target.value }))}
-                    className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black rounded-xl"
-                    placeholder="Nom" />
+                  <label className="block text-xs font-semibold text-gray-600 mb-1.5">Nom</label>
+                  <input
+                    type="text" required
+                    value={registerForm.lastName}
+                    onChange={e => setRegisterForm({ ...registerForm, lastName: e.target.value })}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                    placeholder="Dupont"
+                  />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email *</label>
-                <input type="email" required value={registerForm.email}
-                  onChange={e => setRegisterForm(p => ({ ...p, email: e.target.value }))}
-                  className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black rounded-xl"
-                  placeholder="votre@email.com" />
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Email</label>
+                <input
+                  type="email" required
+                  value={registerForm.email}
+                  onChange={e => setRegisterForm({ ...registerForm, email: e.target.value })}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="votre@email.com"
+                />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Mot de passe *</label>
-                <input type="password" required value={registerForm.password}
-                  onChange={e => setRegisterForm(p => ({ ...p, password: e.target.value }))}
-                  className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black rounded-xl"
-                  placeholder="Minimum 6 caractères" />
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Téléphone (optionnel)</label>
+                <input
+                  type="tel"
+                  value={registerForm.phone}
+                  onChange={e => setRegisterForm({ ...registerForm, phone: e.target.value })}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="06 00 00 00 00"
+                />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Confirmer le mot de passe *</label>
-                <input type="password" required value={registerForm.confirmPassword}
-                  onChange={e => setRegisterForm(p => ({ ...p, confirmPassword: e.target.value }))}
-                  className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black rounded-xl"
-                  placeholder="••••••••" />
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Mot de passe</label>
+                <input
+                  type="password" required
+                  value={registerForm.password}
+                  onChange={e => setRegisterForm({ ...registerForm, password: e.target.value })}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="Minimum 6 caractères"
+                />
               </div>
-              <button type="submit" disabled={loading}
-                className="w-full bg-black text-white py-3.5 rounded-full font-black text-sm hover:bg-blue-600 transition-colors disabled:opacity-50">
-                {loading ? 'Création...' : 'CRÉER MON COMPTE →'}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Confirmer le mot de passe</label>
+                <input
+                  type="password" required
+                  value={registerForm.confirmPassword}
+                  onChange={e => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="••••••••"
+                />
+              </div>
+              <button
+                type="submit" disabled={loading}
+                className="w-full bg-black text-white py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Création...' : 'Créer mon compte'}
               </button>
             </form>
           )}
-          <p className="text-xs text-gray-400 text-center mt-5">
-            En créant un compte, vous acceptez nos{' '}
-            <Link href="/mentions-legales" className="underline hover:text-black">conditions d&apos;utilisation</Link>.
-          </p>
         </div>
+
+        <p className="text-center text-xs text-gray-400 mt-6">
+          <Link href="/" className="hover:underline">← Retour à l'accueil</Link>
+        </p>
       </div>
+    </div>
+  )
+}
+
+export default function Connexion() {
+  return (
+    <>
+      <Navbar />
+      <Suspense fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+        </div>
+      }>
+        <ConnexionContent />
+      </Suspense>
       <Footer />
-    </main>
+    </>
   )
 }
