@@ -16,8 +16,18 @@ export default function Navbar() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className="bg-black text-white text-[10px] md:text-xs py-1.5 md:py-2 overflow-hidden" style={{ borderBottom: '1px solid rgba(196,150,42,0.25)' }}>
-        <div className="animate-scroll whitespace-nowrap flex gap-8 md:gap-12">
+      <div
+        className="bg-black text-white text-[10px] md:text-xs py-1.5 md:py-2 overflow-hidden"
+        style={{ borderBottom: '1px solid rgba(196,150,42,0.25)' }}
+      >
+        <div
+          className="whitespace-nowrap flex gap-8 md:gap-12"
+          style={{
+            animation: 'scroll-left 25s linear infinite',
+            willChange: 'transform',
+            animationPlayState: 'running',
+          }}
+        >
           <span>♻️ VÊTEMENTS DE SECONDE MAIN</span>
           <span>🇫🇷 EXPÉDIÉ DEPUIS LA MOSELLE</span>
           <span>✋ LOTS SÉLECTIONNÉS À LA MAIN</span>
@@ -30,46 +40,43 @@ export default function Navbar() {
       </div>
 
       {/* Main Navbar */}
-      <nav className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+      <nav
+        className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100"
+        style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}
+      >
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14 md:h-16">
 
-            {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <img
-                src="/logo.png"
-                alt="ACA Wholesale"
-                className="h-8 md:h-10 w-auto"
-                onError={(e) => {
-                  e.target.style.display = 'none'
-                  e.target.nextSibling.style.display = 'flex'
-                }}
-              />
-              {/* Fallback si logo pas encore uploadé */}
-              <div className="items-center gap-2" style={{ display: 'none' }}>
-                <div className="text-white px-2.5 py-1 font-black text-lg tracking-tighter rounded-lg" style={{ background: 'linear-gradient(135deg, #1a1a1a, #000)' }}>
-                  ACA
-                </div>
-                <span className="text-xs font-bold uppercase tracking-wide hidden sm:block" style={{ color: '#C4962A' }}>Wholesale</span>
+            {/* Logo CSS */}
+            <Link href="/" className="flex flex-col items-start leading-none gap-0.5">
+              <div
+                className="font-black tracking-tighter leading-none"
+                style={{ fontSize: '1.6rem', lineHeight: 1 }}
+              >
+                <span className="text-black">AC</span>
+                <span style={{ color: '#C4962A' }}>A</span>
               </div>
+              <span
+                className="font-bold uppercase tracking-widest hidden sm:block"
+                style={{ fontSize: '0.5rem', color: '#C4962A', letterSpacing: '0.2em' }}
+              >
+                WHOLESALE
+              </span>
             </Link>
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-8">
-              {['/', '/produits', '/a-propos', '/faq', '/contact'].map((href, i) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="text-sm font-medium transition-colors hover:text-[#C4962A]"
-                >
-                  {['Accueil', 'Nos Lots', 'À Propos', 'FAQ', 'Contact'][i]}
-                </Link>
-              ))}
+              <Link href="/" className="text-sm font-medium transition-colors hover:text-[#C4962A]">Accueil</Link>
+              <Link href="/produits" className="text-sm font-medium transition-colors hover:text-[#C4962A]">Nos Lots</Link>
+              <Link href="/a-propos" className="text-sm font-medium transition-colors hover:text-[#C4962A]">À Propos</Link>
+              <Link href="/faq" className="text-sm font-medium transition-colors hover:text-[#C4962A]">FAQ</Link>
+              <Link href="/contact" className="text-sm font-medium transition-colors hover:text-[#C4962A]">Contact</Link>
             </div>
 
             {/* Actions */}
             <div className="flex items-center gap-2 md:gap-3">
-              {/* Commander — bouton or */}
+
+              {/* Bouton Commander — or */}
               <Link
                 href="/produits"
                 className="hidden sm:inline-block text-black text-sm px-5 py-2 font-bold transition-all rounded-full hover:opacity-90"
@@ -78,7 +85,7 @@ export default function Navbar() {
                 Commander
               </Link>
 
-              {/* Compte */}
+              {/* Compte utilisateur */}
               {user ? (
                 <Link
                   href="/compte"
@@ -109,13 +116,16 @@ export default function Navbar() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 text-black text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full" style={{ background: '#C4962A' }}>
+                  <span
+                    className="absolute -top-1 -right-1 text-black text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full"
+                    style={{ background: '#C4962A' }}
+                  >
                     {totalItems > 9 ? '9+' : totalItems}
                   </span>
                 )}
               </Link>
 
-              {/* Mobile toggle */}
+              {/* Menu mobile */}
               <button
                 className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 onClick={() => setMenuOpen(!menuOpen)}
@@ -136,15 +146,17 @@ export default function Navbar() {
         {menuOpen && (
           <div className="md:hidden bg-white rounded-b-2xl" style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
             <div className="px-5 py-4 space-y-1">
-              {['/', '/produits', '/a-propos', '/faq', '/contact'].map((href, i) => (
-                <Link key={href} href={href} className="block text-sm font-medium py-3 px-3 rounded-xl hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
-                  {['Accueil', 'Nos Lots', 'À Propos', 'FAQ', 'Contact'][i]}
-                </Link>
-              ))}
+              <Link href="/" className="block text-sm font-medium py-3 px-3 rounded-xl hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Accueil</Link>
+              <Link href="/produits" className="block text-sm font-medium py-3 px-3 rounded-xl hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Nos Lots</Link>
+              <Link href="/a-propos" className="block text-sm font-medium py-3 px-3 rounded-xl hover:bg-gray-50" onClick={() => setMenuOpen(false)}>À Propos</Link>
+              <Link href="/faq" className="block text-sm font-medium py-3 px-3 rounded-xl hover:bg-gray-50" onClick={() => setMenuOpen(false)}>FAQ</Link>
+              <Link href="/contact" className="block text-sm font-medium py-3 px-3 rounded-xl hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Contact</Link>
               <Link href="/panier" className="flex items-center gap-2 text-sm font-medium py-3 px-3 rounded-xl hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
                 🛒 Panier
                 {totalItems > 0 && (
-                  <span className="text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: '#C4962A' }}>{totalItems}</span>
+                  <span className="text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: '#C4962A' }}>
+                    {totalItems}
+                  </span>
                 )}
               </Link>
               {user ? (
