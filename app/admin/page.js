@@ -1,500 +1,418 @@
 'use client'
 import { useState } from 'react'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 
 const EXPEDITEUR = {
-  nom: 'ACA Wholesale', adresse: '— Votre adresse —', codePostal: '57000',
-  ville: 'Moselle', pays: 'France', tel: '— Votre téléphone —', email: 'contact@aca-wholesale.com',
+  nom: 'ACA Wholesale',
+  adresse: '12 Rue du Commerce',
+  codePostal: '57000',
+  ville: 'Metz',
+  pays: 'France',
+  tel: '+33 6 00 00 00 00',
 }
 
 const mockOrders = [
-  { id: 'ACA-2026-001', date: '2026-03-18', dateAff: 'Mar 18/03/2026', status: 'À expédier', client: { nom: 'Karim Benali', adresse: '45 Rue des Lilas', codePostal: '69001', ville: 'Lyon', pays: 'France', tel: '06 23 45 67 89', email: 'karim.b@email.com' }, produits: [{ nom: 'Lot Sweats & Hoodies Premium', qte: 1, prix: 89 }], poids: '5', dimensions: '50x40x25', valeur: '89', livraison: 'Standard' },
-  { id: 'ACA-2026-002', date: '2026-03-18', dateAff: 'Mar 18/03/2026', status: 'À expédier', client: { nom: 'Sarah Martin', adresse: '12 Avenue Victor Hugo', codePostal: '13001', ville: 'Marseille', pays: 'France', tel: '07 34 56 78 90', email: 'sarah.m@email.com' }, produits: [{ nom: 'Lot T-Shirts Nike & Adidas', qte: 2, prix: 65 }, { nom: 'Lot Jeans Premium', qte: 1, prix: 79 }], poids: '10', dimensions: '60x45x30', valeur: '209', livraison: 'Express' },
-  { id: 'ACA-2026-003', date: '2026-03-19', dateAff: 'Mer 19/03/2026', status: 'À expédier', client: { nom: 'Thomas Leroy', adresse: '8 Rue du Commerce', codePostal: '33000', ville: 'Bordeaux', pays: 'France', tel: '06 45 67 89 01', email: 'thomas.l@email.com' }, produits: [{ nom: 'Lot Doudounes The North Face', qte: 1, prix: 129 }], poids: '7', dimensions: '55x40x30', valeur: '129', livraison: 'Standard' },
-  { id: 'ACA-2026-004', date: '2026-03-19', dateAff: 'Mer 19/03/2026', status: 'Expédié', client: { nom: 'Laura Petit', adresse: '3 Rue de la République', codePostal: '67000', ville: 'Strasbourg', pays: 'France', tel: '06 56 78 90 12', email: 'laura.p@email.com' }, produits: [{ nom: 'Lot Luxury Ralph Lauren', qte: 1, prix: 159 }], poids: '4', dimensions: '45x35x20', valeur: '159', livraison: 'Express' },
-  { id: 'ACA-2026-005', date: '2026-03-20', dateAff: 'Jeu 20/03/2026', status: 'À expédier', client: { nom: 'Marc Dupont', adresse: '22 Boulevard Gambetta', codePostal: '59000', ville: 'Lille', pays: 'France', tel: '07 67 89 01 23', email: 'marc.d@email.com' }, produits: [{ nom: 'Lot Sportswear Nike', qte: 2, prix: 75 }], poids: '8', dimensions: '55x40x28', valeur: '150', livraison: 'Standard' },
+  { id: 'CMD-001', date: '2024-01-15', client: 'Sophie Martin', email: 'sophie@email.com', adresse: '5 rue des Lilas, 75001 Paris', articles: [{ nom: 'Veste Vintage Levi\'s', taille: 'M', qty: 1, prix: 45 }], total: 45, statut: 'à expédier' },
+  { id: 'CMD-002', date: '2024-01-15', client: 'Lucas Bernard', email: 'lucas@email.com', adresse: '12 av Victor Hugo, 69001 Lyon', articles: [{ nom: 'Jean 501 Levi\'s', taille: '32', qty: 2, prix: 35 }], total: 70, statut: 'à expédier' },
+  { id: 'CMD-003', date: '2024-01-14', client: 'Emma Dubois', email: 'emma@email.com', adresse: '8 bd Gambetta, 13001 Marseille', articles: [{ nom: 'Hoodie Champion', taille: 'L', qty: 1, prix: 38 }], total: 38, statut: 'expédié' },
+  { id: 'CMD-004', date: '2024-01-13', client: 'Noah Petit', email: 'noah@email.com', adresse: '3 rue Nationale, 59000 Lille', articles: [{ nom: 'T-shirt Vintage', taille: 'S', qty: 3, prix: 20 }], total: 60, statut: 'livré' },
+  { id: 'CMD-005', date: '2024-01-12', client: 'Chloé Leroy', email: 'chloe@email.com', adresse: '17 rue Alsace, 67000 Strasbourg', articles: [{ nom: 'Bomber MA-1', taille: 'M', qty: 1, prix: 65 }], total: 65, statut: 'expédié' },
 ]
 
 const mockClients = [
-  { id: 1, nom: 'Karim Benali', email: 'karim.b@email.com', statut: 'VIP', commandes: 5, ville: 'Lyon', dateInscription: '10/01/2026' },
-  { id: 2, nom: 'Sarah Martin', email: 'sarah.m@email.com', statut: 'Actif', commandes: 3, ville: 'Marseille', dateInscription: '15/01/2026' },
-  { id: 3, nom: 'Thomas Leroy', email: 'thomas.l@email.com', statut: 'Nouveau', commandes: 1, ville: 'Bordeaux', dateInscription: '01/02/2026' },
-  { id: 4, nom: 'Laura Petit', email: 'laura.p@email.com', statut: 'VIP', commandes: 8, ville: 'Strasbourg', dateInscription: '05/12/2025' },
-  { id: 5, nom: 'Marc Dupont', email: 'marc.d@email.com', statut: 'Actif', commandes: 2, ville: 'Lille', dateInscription: '20/02/2026' },
-  { id: 6, nom: 'Julie Bernard', email: 'julie.b@email.com', statut: 'Nouveau', commandes: 1, ville: 'Nantes', dateInscription: '10/03/2026' },
-  { id: 7, nom: 'Alex Moreau', email: 'alex.m@email.com', statut: 'Actif', commandes: 4, ville: 'Paris', dateInscription: '08/01/2026' },
+  { id: 1, nom: 'Sophie Martin', email: 'sophie@email.com', commandes: 5, total: 320, segment: 'VIP', dateInscription: '2023-06-12' },
+  { id: 2, nom: 'Lucas Bernard', email: 'lucas@email.com', commandes: 3, total: 180, segment: 'Actif', dateInscription: '2023-09-04' },
+  { id: 3, nom: 'Emma Dubois', email: 'emma@email.com', commandes: 1, total: 38, segment: 'Nouveau', dateInscription: '2024-01-14' },
+  { id: 4, nom: 'Noah Petit', email: 'noah@email.com', commandes: 4, total: 240, segment: 'Actif', dateInscription: '2023-07-22' },
+  { id: 5, nom: 'Chloé Leroy', email: 'chloe@email.com', commandes: 7, total: 510, segment: 'VIP', dateInscription: '2023-03-18' },
 ]
 
-const buildBordereauHTML = (order) => {
-  const produitsList = order.produits.map(p => `<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">${p.nom}</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:center;">${p.qte}</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${p.prix * p.qte} €</td></tr>`).join('')
-  const total = order.produits.reduce((s, p) => s + p.prix * p.qte, 0)
-  const barcode = order.id.replace(/-/g, '')
-  return `<div class="page"><div class="header"><div class="logo-block"><h1>AC<span>A</span> WHOLESALE</h1><p>Grossiste vêtements seconde main • Moselle, France</p><p>${EXPEDITEUR.tel} • ${EXPEDITEUR.email}</p></div><div class="ref-block"><div style="font-size:9px;color:#999;text-transform:uppercase;letter-spacing:1px;">Bordereau d'envoi</div><div class="num">${order.id}</div><div class="date">Date : ${order.dateAff}</div><div class="badge badge-${order.livraison === 'Express' ? 'express' : 'standard'}">${order.livraison}</div></div></div><div class="addresses"><div class="address-box"><h3>📤 Expéditeur</h3><div class="name">${EXPEDITEUR.nom}</div><p>${EXPEDITEUR.adresse}<br>${EXPEDITEUR.codePostal} ${EXPEDITEUR.ville}<br>${EXPEDITEUR.pays}<br>${EXPEDITEUR.tel}</p></div><div class="address-box dest"><h3>📬 Destinataire</h3><div class="name">${order.client.nom}</div><p>${order.client.adresse}<br>${order.client.codePostal} ${order.client.ville}<br>${order.client.pays}<br>${order.client.tel}<br>${order.client.email}</p></div></div><div class="section"><h3>📦 Produits commandés</h3><table><thead><tr><th>Désignation</th><th>Qté</th><th>Prix</th></tr></thead><tbody>${produitsList}</tbody><tfoot><tr class="total-row"><td colspan="2">Total commande</td><td>${total} €</td></tr></tfoot></table></div><div class="section"><h3>📏 Informations colis</h3><div class="colis-grid"><div class="colis-item"><div class="val">${order.poids} kg</div><div class="lbl">Poids</div></div><div class="colis-item"><div class="val">${order.dimensions}</div><div class="lbl">Dimensions (cm)</div></div><div class="colis-item"><div class="val">${order.valeur} €</div><div class="lbl">Valeur déclarée</div></div><div class="colis-item"><div class="val">1</div><div class="lbl">Nb colis</div></div></div><p style="margin-top:10px;font-size:10px;color:#666;">Contenu : Vêtements de seconde main</p></div><div class="barcode-section"><div style="font-size:9px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Code de suivi</div><span class="barcode">${barcode}</span><div class="barcode-num">${order.id}</div></div><div class="footer">ACA Wholesale • Moselle, France • contact@aca-wholesale.com<br>Document généré automatiquement — À coller sur le colis</div></div>`
-}
-
-const CSS_PRINT = `* { margin:0; padding:0; box-sizing:border-box; } body { font-family: Arial, sans-serif; font-size: 12px; color: #000; background: #fff; } .page { width:210mm; min-height:297mm; margin:0 auto; padding:15mm; page-break-after:always; } .page:last-child { page-break-after:avoid; } .header { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid #C4962A; padding-bottom:12px; margin-bottom:16px; } .logo-block h1 { font-size:24px; font-weight:900; color:#000; letter-spacing:-1px; } .logo-block span { color:#C4962A; } .logo-block p { font-size:10px; color:#666; margin-top:2px; } .ref-block { text-align:right; } .ref-block .num { font-size:18px; font-weight:900; color:#C4962A; } .ref-block .date { font-size:10px; color:#666; } .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-top:4px; } .badge-express { background:#fff3cd; color:#856404; } .badge-standard { background:#e8f5e9; color:#2e7d32; } .addresses { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; } .address-box { border:1px solid #ddd; border-radius:8px; padding:12px; } .address-box.dest { border:2px solid #C4962A; } .address-box h3 { font-size:9px; text-transform:uppercase; letter-spacing:1px; color:#999; margin-bottom:8px; } .address-box .name { font-size:14px; font-weight:700; margin-bottom:4px; } .address-box p { font-size:11px; color:#333; line-height:1.6; } .section { border:1px solid #ddd; border-radius:8px; padding:12px; margin-bottom:12px; } .section h3 { font-size:9px; text-transform:uppercase; letter-spacing:1px; color:#999; margin-bottom:10px; } table { width:100%; border-collapse:collapse; } th { background:#f5f5f5; padding:6px 8px; text-align:left; font-size:10px; text-transform:uppercase; } th:nth-child(2) { text-align:center; } th:nth-child(3) { text-align:right; } .total-row td { padding:8px; font-weight:700; font-size:13px; border-top:2px solid #C4962A; } .total-row td:last-child { text-align:right; color:#C4962A; } .colis-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; } .colis-item { text-align:center; } .colis-item .val { font-size:16px; font-weight:900; } .colis-item .lbl { font-size:9px; color:#999; text-transform:uppercase; } .barcode-section { text-align:center; padding:16px; border:1px solid #ddd; border-radius:8px; } .barcode { font-family:'Libre Barcode 128',monospace; font-size:48px; letter-spacing:4px; display:block; margin:8px 0; } .barcode-num { font-size:13px; font-weight:700; letter-spacing:3px; color:#333; } .footer { margin-top:20px; padding-top:12px; border-top:1px solid #eee; text-align:center; font-size:9px; color:#999; } @media print { body { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }`
-
-const printMultiple = (orders) => {
-  const body = orders.map(buildBordereauHTML).join('')
-  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Bordereaux ACA Wholesale</title><link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap" rel="stylesheet"><style>${CSS_PRINT}</style></head><body>${body}<script>window.onload=function(){window.print()}<\/script></body></html>`
-  const win = window.open('', '_blank', 'width=900,height=700')
-  win.document.write(html)
-  win.document.close()
-}
-
-export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('accueil')
-  const [menuOpen, setMenuOpen] = useState(false)
-  const router = useRouter()
-
-  const handleLogout = async () => {
-    await fetch('/api/admin/auth', { method: 'DELETE' })
-    router.push('/admin/login')
-  }
-
-  const navItems = [
-    { id: 'accueil', label: 'Tableau de bord', icon: '📊' },
-    { id: 'commandes', label: 'Commandes', icon: '📦' },
-    { id: 'clients', label: 'Clients', icon: '👥' },
-  ]
-
-  return (
-    <div className="min-h-screen flex" style={{ background: '#0a0500' }}>
-      <aside className="hidden md:flex flex-col w-60 border-r border-white/10 p-5" style={{ background: 'rgba(15,10,0,0.95)' }}>
-        <div className="mb-8">
-          <Image src="/logo.png" alt="ACA Wholesale" width={120} height={40} className="h-9 w-auto object-contain" />
-          <div className="mt-2 text-[10px] uppercase tracking-widest font-bold px-1" style={{ color: '#C4962A' }}>Administration</div>
-        </div>
-        <nav className="flex-1 space-y-1">
-          {navItems.map(item => (
-            <button key={item.id} onClick={() => setActiveTab(item.id)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wide transition-all text-left" style={activeTab === item.id ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' } : { color: '#9ca3af' }}>
-              <span>{item.icon}</span>{item.label}
-            </button>
-          ))}
-        </nav>
-        <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-500 hover:text-white transition-colors">
-          <span>🚪</span> Déconnexion
-        </button>
-      </aside>
-
-      <div className="flex-1 flex flex-col min-h-screen">
-        <header className="flex items-center justify-between px-5 py-4 border-b border-white/10" style={{ background: 'rgba(10,6,0,0.9)' }}>
-          <div className="flex items-center gap-3">
-            <button className="md:hidden text-white" onClick={() => setMenuOpen(!menuOpen)}>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-            </button>
-            <h1 className="text-white font-black text-base uppercase tracking-widest">{navItems.find(n => n.id === activeTab)?.label}</h1>
-          </div>
-          <button onClick={handleLogout} className="md:hidden text-xs font-bold uppercase tracking-wide text-gray-400 hover:text-white">Déco</button>
-        </header>
-
-        {menuOpen && (
-          <div className="md:hidden border-b border-white/10 px-4 py-3 space-y-1" style={{ background: 'rgba(15,10,0,0.98)' }}>
-            {navItems.map(item => (
-              <button key={item.id} onClick={() => { setActiveTab(item.id); setMenuOpen(false) }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wide text-left" style={activeTab === item.id ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' } : { color: '#9ca3af' }}>
-                <span>{item.icon}</span> {item.label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <main className="flex-1 p-5 md:p-8">
-          {activeTab === 'accueil' && <DashboardHome setActiveTab={setActiveTab} />}
-          {activeTab === 'commandes' && <CommandesTab />}
-          {activeTab === 'clients' && <ClientsTab />}
-        </main>
+function buildBordereauHTML(order) {
+  const articles = order.articles.map(a =>
+    `<tr><td style="padding:6px 10px;border-bottom:1px solid #eee">${a.nom}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${a.taille}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${a.qty}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">${a.prix}€</td></tr>`
+  ).join('')
+  return `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:30px;border:2px solid #C4962A;border-radius:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #C4962A">
+        <div><h1 style="margin:0;font-size:22px;color:#C4962A">ACA WHOLESALE</h1><p style="margin:2px 0;color:#666;font-size:12px">BORDEREAU D'ENVOI</p></div>
+        <div style="text-align:right"><p style="margin:0;font-weight:bold;font-size:16px">${order.id}</p><p style="margin:2px 0;color:#666;font-size:12px">${order.date}</p></div>
       </div>
-    </div>
-  )
+      <div style="display:flex;justify-content:space-between;margin-bottom:20px">
+        <div style="flex:1">
+          <h3 style="margin:0 0 8px;font-size:12px;color:#666;text-transform:uppercase">Expéditeur</h3>
+          <p style="margin:0;font-weight:bold">${EXPEDITEUR.nom}</p>
+          <p style="margin:2px 0;font-size:13px">${EXPEDITEUR.adresse}</p>
+          <p style="margin:2px 0;font-size:13px">${EXPEDITEUR.codePostal} ${EXPEDITEUR.ville}</p>
+          <p style="margin:2px 0;font-size:13px">${EXPEDITEUR.tel}</p>
+        </div>
+        <div style="flex:1;text-align:right">
+          <h3 style="margin:0 0 8px;font-size:12px;color:#666;text-transform:uppercase">Destinataire</h3>
+          <p style="margin:0;font-weight:bold">${order.client}</p>
+          <p style="margin:2px 0;font-size:13px">${order.adresse}</p>
+          <p style="margin:2px 0;font-size:13px">${order.email}</p>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:15px">
+        <thead><tr style="background:#f5f5f5"><th style="padding:8px 10px;text-align:left;font-size:12px">Article</th><th style="padding:8px 10px;text-align:center;font-size:12px">Taille</th><th style="padding:8px 10px;text-align:center;font-size:12px">Qté</th><th style="padding:8px 10px;text-align:right;font-size:12px">Prix</th></tr></thead>
+        <tbody>${articles}</tbody>
+      </table>
+      <div style="text-align:right;padding-top:10px;border-top:2px solid #C4962A">
+        <p style="margin:0;font-size:18px;font-weight:bold;color:#C4962A">Total : ${order.total}€</p>
+      </div>
+      <div style="margin-top:20px;padding:10px;background:#f9f9f9;border-radius:4px;text-align:center">
+        <p style="margin:0;font-size:11px;color:#999">Merci pour votre commande • ACA Wholesale • ${EXPEDITEUR.ville}, ${EXPEDITEUR.pays}</p>
+      </div>
+    </div>`
 }
 
-function DashboardHome({ setActiveTab }) {
-  const aExpedier = mockOrders.filter(o => o.status === 'À expédier').length
-  const expedie = mockOrders.filter(o => o.status === 'Expédié').length
-  const stats = [
-    { label: 'Total commandes', value: mockOrders.length, icon: '📦', sub: 'au total', tab: 'commandes' },
-    { label: 'À expédier', value: aExpedier, icon: '🚚', sub: 'en attente', tab: 'commandes' },
-    { label: 'Clients', value: mockClients.length, icon: '👥', sub: 'inscrits', tab: 'clients' },
-    { label: 'Chiffre total', value: mockOrders.reduce((s, o) => s + o.produits.reduce((ss, p) => ss + p.prix * p.qte, 0), 0) + ' €', icon: '💰', sub: 'ce mois', tab: 'commandes' },
-  ]
+function printMultiple(orders) {
+  const html = `<!DOCTYPE html><html><head><title>Bordereaux</title><style>body{margin:0;padding:20px;background:#fff} .bordereau{margin-bottom:40px;page-break-after:always} @media print{body{padding:0} .bordereau{margin:0;page-break-after:always}}</style></head><body>${orders.map(o => `<div class="bordereau">${buildBordereauHTML(o)}</div>`).join('')}<script>window.onload=function(){window.print()}<\/script></body></html>`
+  const w = window.open('', '_blank')
+  w.document.write(html)
+  w.document.close()
+}
+
+function DashboardHome() {
+  const aExpedier = mockOrders.filter(o => o.statut === 'à expédier').length
   return (
     <div>
-      <p className="text-gray-500 text-xs uppercase tracking-widest mb-6">Vue d&apos;ensemble</p>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-        {stats.map(stat => (
-          <button key={stat.label} onClick={() => setActiveTab(stat.tab)} className="rounded-xl p-5 text-left transition-all hover:border-[#C4962A]/30" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <div className="text-2xl mb-3">{stat.icon}</div>
-            <div className="text-2xl font-black text-white mb-1">{stat.value}</div>
-            <div className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{stat.label}</div>
-            <div className="text-[10px] text-gray-600 mt-0.5">{stat.sub}</div>
-          </button>
-        ))}
-      </div>
+      <h2 className="text-2xl font-bold text-yellow-400 mb-6">Tableau de bord</h2>
       {aExpedier > 0 && (
-        <div className="rounded-xl p-5 flex items-center justify-between" style={{ background: 'rgba(196,150,42,0.1)', border: '1px solid rgba(196,150,42,0.3)' }}>
-          <div>
-            <p className="text-white font-black uppercase tracking-wide text-sm">🚚 {aExpedier} commande{aExpedier > 1 ? 's' : ''} à expédier</p>
-            <p className="text-gray-400 text-xs mt-1">Générez les bordereaux d&apos;envoi</p>
-          </div>
-          <button onClick={() => setActiveTab('commandes')} className="text-black text-xs px-4 py-2 font-black uppercase tracking-wide rounded" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>Voir →</button>
+        <div className="mb-6 p-4 rounded-xl border border-yellow-500/50 flex items-center gap-3" style={{background:'rgba(196,150,42,0.1)'}}>
+          <span className="text-2xl">⚠️</span>
+          <p className="text-yellow-300 font-medium">{aExpedier} commande{aExpedier > 1 ? 's' : ''} en attente d'expédition</p>
         </div>
       )}
-    </div>
-  )
-}
-
-function ClientsTab() {
-  const [vue, setVue] = useState('liste')
-  const [filtre, setFiltre] = useState('Tous')
-  const [checked, setChecked] = useState([])
-  const [sujet, setSujet] = useState('')
-  const [contenu, setContenu] = useState('')
-  const [envoi, setEnvoi] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [historique, setHistorique] = useState([])
-
-  const filtres = ['Tous', 'VIP', 'Actif', 'Nouveau']
-  const filtered = filtre === 'Tous' ? mockClients : mockClients.filter(c => c.statut === filtre)
-  const toggleCheck = (id) => setChecked(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
-  const toggleAll = () => setChecked(checked.length === filtered.length ? [] : filtered.map(c => c.id))
-  const selectedClients = mockClients.filter(c => checked.includes(c.id))
-
-  const statutStyle = (s) => {
-    if (s === 'VIP') return { background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }
-    if (s === 'Actif') return { background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }
-    return { background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)' }
-  }
-
-  const envoyerCampagne = async () => {
-    if (!sujet.trim() || !contenu.trim()) return
-    setLoading(true)
-    setEnvoi(null)
-    try {
-      const res = await fetch('/api/admin/send-campaign', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ destinataires: selectedClients, sujet, contenu }),
-      })
-      const data = await res.json()
-      setEnvoi(data)
-      if (data.success) {
-        setHistorique(prev => [{
-          id: Date.now(), date: new Date().toLocaleDateString('fr-FR'),
-          heure: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-          sujet, destinataires: selectedClients.length, succes: data.succes, echecs: data.echecs,
-        }, ...prev])
-        setSujet('')
-        setContenu('')
-        setChecked([])
-      }
-    } catch {
-      setEnvoi({ error: 'Erreur réseau' })
-    }
-    setLoading(false)
-  }
-
-  return (
-    <div>
-      {/* Tabs internes */}
-      <div className="flex gap-2 mb-6">
-        {[{ id: 'liste', label: '👥 Clients', count: mockClients.length }, { id: 'campagne', label: '✉️ Campagne', count: null }, { id: 'historique', label: '📋 Historique', count: historique.length }].map(t => (
-          <button key={t.id} onClick={() => setVue(t.id)} className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all" style={vue === t.id ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' } : { background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)' }}>
-            {t.label}{t.count !== null && <span className="px-1.5 py-0.5 rounded-full text-[10px]" style={vue === t.id ? { background: 'rgba(0,0,0,0.2)' } : { background: 'rgba(196,150,42,0.2)', color: '#E8B84B' }}>{t.count}</span>}
-          </button>
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        {[
+          { label: 'Commandes totales', value: mockOrders.length, icon: '📦', color: '#C4962A' },
+          { label: 'À expédier', value: aExpedier, icon: '🚚', color: '#e85555' },
+          { label: 'Chiffre du mois', value: `${mockOrders.reduce((s,o)=>s+o.total,0)}€`, icon: '💰', color: '#55c455' },
+          { label: 'Clients', value: mockClients.length, icon: '👥', color: '#5599e8' },
+        ].map((stat, i) => (
+          <div key={i} className="p-5 rounded-xl border border-white/10" style={{background:'rgba(255,255,255,0.05)'}}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-2xl">{stat.icon}</span>
+              <span className="text-sm text-gray-400">{stat.label}</span>
+            </div>
+            <p className="text-3xl font-bold" style={{color:stat.color}}>{stat.value}</p>
+          </div>
         ))}
       </div>
-
-      {/* LISTE */}
-      {vue === 'liste' && (
-        <div>
-          {checked.length > 0 && (
-            <div className="rounded-xl p-4 mb-5 flex items-center justify-between flex-wrap gap-3" style={{ background: 'rgba(196,150,42,0.12)', border: '2px solid rgba(196,150,42,0.4)' }}>
-              <div>
-                <p className="text-white font-black text-sm uppercase tracking-wide">✉️ {checked.length} client{checked.length > 1 ? 's' : ''} sélectionné{checked.length > 1 ? 's' : ''}</p>
-                <p className="text-gray-400 text-xs mt-0.5">Prêts pour une campagne email</p>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={() => setChecked([])} className="text-gray-400 hover:text-white text-xs font-bold px-3 py-2 rounded border border-white/10">Annuler</button>
-                <button onClick={() => setVue('campagne')} className="text-black text-sm px-5 py-2 font-black uppercase tracking-wide rounded-lg" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
-                  ✉️ Créer une campagne
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div className="flex gap-2 mb-4 flex-wrap">
-            {filtres.map(f => (
-              <button key={f} onClick={() => setFiltre(f)} className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all" style={filtre === f ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' } : { background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)' }}>
-                {f} {filtre === f && `(${filtered.length})`}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-between mb-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={checked.length === filtered.length && filtered.length > 0} onChange={toggleAll} className="w-4 h-4 accent-yellow-500" />
-              <span className="text-xs text-gray-400 font-bold uppercase tracking-wide">Tout sélectionner ({filtered.length})</span>
-            </label>
-            {checked.length > 0 && <span className="text-xs font-bold" style={{ color: '#C4962A' }}>{checked.length} sélectionné{checked.length > 1 ? 's' : ''}</span>}
-          </div>
-
-          <div className="space-y-2">
-            {filtered.map(client => {
-              const isChecked = checked.includes(client.id)
-              return (
-                <div key={client.id} className="rounded-xl p-4 flex items-center gap-3 transition-all" style={{ background: isChecked ? 'rgba(196,150,42,0.08)' : 'rgba(15,10,0,0.85)', border: isChecked ? '1px solid rgba(196,150,42,0.4)' : '1px solid rgba(255,255,255,0.07)' }}>
-                  <input type="checkbox" checked={isChecked} onChange={() => toggleCheck(client.id)} className="w-4 h-4 accent-yellow-500 flex-shrink-0" />
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm text-black flex-shrink-0" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>{client.nom.charAt(0)}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-white font-bold text-sm">{client.nom}</span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide" style={statutStyle(client.statut)}>{client.statut}</span>
-                    </div>
-                    <p className="text-gray-500 text-xs truncate">{client.email} • {client.ville} • {client.commandes} commande{client.commandes > 1 ? 's' : ''}</p>
-                  </div>
-                  <p className="text-gray-600 text-[10px] flex-shrink-0 hidden md:block">Inscrit le {client.dateInscription}</p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* CAMPAGNE */}
-      {vue === 'campagne' && (
-        <div className="max-w-2xl">
-          <div className="rounded-xl p-5 mb-4" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-3 font-bold">👥 Destinataires</p>
-            {selectedClients.length > 0 ? (
-              <div>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {selectedClients.map(c => (
-                    <span key={c.id} className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold" style={{ background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }}>
-                      {c.nom}
-                    </span>
-                  ))}
-                </div>
-                <p className="text-gray-500 text-xs">{selectedClients.length} client{selectedClients.length > 1 ? 's' : ''} • Sélectionnez d&apos;autres dans la liste si besoin</p>
-              </div>
-            ) : (
-              <div className="rounded-lg p-4 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)' }}>
-                <p className="text-gray-500 text-sm mb-2">Aucun client sélectionné</p>
-                <button onClick={() => setVue('liste')} className="text-xs font-bold uppercase tracking-wide px-4 py-2 rounded" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' }}>
-                  ← Sélectionner des clients
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-xl p-5 mb-4 space-y-4" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <div>
-              <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-bold">Objet de l&apos;email</label>
-              <input type="text" value={sujet} onChange={e => setSujet(e.target.value)} placeholder="Ex: 🔥 Nouveau drop — Lots disponibles maintenant !" className="w-full px-4 py-3 text-white text-sm rounded-lg outline-none transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }} onFocus={e => e.target.style.borderColor = '#C4962A'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
-            </div>
-            <div>
-              <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-bold">Contenu du message</label>
-              <textarea value={contenu} onChange={e => setContenu(e.target.value)} rows={8} placeholder="Bonjour,&#10;&#10;Nous avons de nouveaux lots disponibles...&#10;&#10;Cordialement,&#10;L'équipe ACA Wholesale" className="w-full px-4 py-3 text-white text-sm rounded-lg outline-none transition-all resize-none" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }} onFocus={e => e.target.style.borderColor = '#C4962A'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
-              <p className="text-gray-600 text-[10px] mt-1">Un bouton &quot;VOIR NOS LOTS&quot; sera automatiquement ajouté en bas de l&apos;email.</p>
-            </div>
-          </div>
-
-          {envoi && (
-            <div className="rounded-xl p-4 mb-4" style={{ background: envoi.success ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${envoi.success ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}` }}>
-              {envoi.success ? (
-                <p className="text-green-400 font-bold text-sm">✅ Campagne envoyée ! {envoi.succes} email{envoi.succes > 1 ? 's' : ''} envoyé{envoi.succes > 1 ? 's' : ''} avec succès{envoi.echecs > 0 ? ` (${envoi.echecs} échec${envoi.echecs > 1 ? 's' : ''})` : ''}.</p>
-              ) : (
-                <p className="text-red-400 font-bold text-sm">❌ Erreur : {envoi.error}</p>
-              )}
-            </div>
-          )}
-
-          <button onClick={envoyerCampagne} disabled={loading || !sujet.trim() || !contenu.trim() || selectedClients.length === 0} className="w-full py-4 font-black text-base uppercase tracking-widest text-black rounded-xl transition-opacity hover:opacity-90 disabled:opacity-40 flex items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
-            {loading ? 'Envoi en cours...' : `✉️ Envoyer à ${selectedClients.length} client${selectedClients.length > 1 ? 's' : ''}`}
-          </button>
-        </div>
-      )}
-
-      {/* HISTORIQUE */}
-      {vue === 'historique' && (
-        <div>
-          {historique.length === 0 ? (
-            <div className="flex items-center justify-center min-h-[250px]">
-              <div className="text-center">
-                <div className="text-4xl mb-3">📭</div>
-                <p className="text-white font-bold uppercase tracking-wide text-sm mb-1">Aucune campagne envoyée</p>
-                <p className="text-gray-500 text-xs">Les campagnes envoyées apparaîtront ici.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {historique.map(h => (
-                <div key={h.id} className="rounded-xl p-5" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white font-black text-sm mb-1 truncate">{h.sujet}</p>
-                      <p className="text-gray-500 text-xs">{h.date} à {h.heure} • {h.destinataires} destinataire{h.destinataires > 1 ? 's' : ''}</p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <span className="text-[10px] font-bold px-2 py-1 rounded-full" style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>
-                        ✅ {h.succes} envoyé{h.succes > 1 ? 's' : ''}
-                      </span>
-                      {h.echecs > 0 && <p className="text-red-400 text-[10px] mt-1">{h.echecs} échec{h.echecs > 1 ? 's' : ''}</p>}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   )
 }
 
 function CommandesTab() {
-  const [selected, setSelected] = useState(null)
-  const [filtre, setFiltre] = useState('Tous')
-  const [checked, setChecked] = useState([])
+  const [filtre, setFiltre] = useState('tous')
   const [dateDebut, setDateDebut] = useState('')
   const [dateFin, setDateFin] = useState('')
+  const [selected, setSelected] = useState([])
+  const [detail, setDetail] = useState(null)
 
-  const filtres = ['Tous', 'À expédier', 'En attente', 'Expédié']
   const filtered = mockOrders.filter(o => {
-    const matchStatus = filtre === 'Tous' || o.status === filtre
-    const matchDebut = !dateDebut || o.date >= dateDebut
-    const matchFin = !dateFin || o.date <= dateFin
-    return matchStatus && matchDebut && matchFin
+    if (filtre !== 'tous' && o.statut !== filtre) return false
+    if (dateDebut && o.date < dateDebut) return false
+    if (dateFin && o.date > dateFin) return false
+    return true
   })
 
-  const toggleCheck = (id) => setChecked(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
-  const toggleAll = () => setChecked(checked.length === filtered.length ? [] : filtered.map(o => o.id))
-  const selectedOrders = mockOrders.filter(o => checked.includes(o.id))
+  const toggleSelect = (id) => setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id])
+  const toggleAll = () => setSelected(selected.length === filtered.length ? [] : filtered.map(o => o.id))
+  const selectedOrders = mockOrders.filter(o => selected.includes(o.id))
 
-  const statusStyle = (s) => {
-    if (s === 'À expédier') return { background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }
-    if (s === 'Expédié') return { background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }
-    return { background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)' }
-  }
-
-  if (selected) {
-    const order = mockOrders.find(o => o.id === selected)
-    const total = order.produits.reduce((s, p) => s + p.prix * p.qte, 0)
+  if (detail) {
     return (
       <div>
-        <button onClick={() => setSelected(null)} className="flex items-center gap-2 text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wide mb-6 transition-colors">← Retour aux commandes</button>
-        <div className="grid md:grid-cols-2 gap-4 mb-4">
-          <div className="rounded-xl p-5" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-3 font-bold">📬 Destinataire</p>
-            <p className="text-white font-black text-base mb-1">{order.client.nom}</p>
-            <p className="text-gray-400 text-sm leading-relaxed">{order.client.adresse}<br />{order.client.codePostal} {order.client.ville}<br />{order.client.pays}</p>
-            <p className="text-gray-400 text-sm mt-2">{order.client.tel}</p>
-            <p className="text-gray-400 text-sm">{order.client.email}</p>
+        <button onClick={() => setDetail(null)} className="mb-6 flex items-center gap-2 text-yellow-400 hover:text-yellow-300">← Retour aux commandes</button>
+        <div className="p-6 rounded-xl border border-white/10" style={{background:'rgba(255,255,255,0.05)'}}>
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-yellow-400">{detail.id}</h2>
+              <p className="text-gray-400">{detail.date}</p>
+            </div>
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${detail.statut === 'à expédier' ? 'bg-red-500/20 text-red-400' : detail.statut === 'expédié' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'}`}>{detail.statut}</span>
           </div>
-          <div className="rounded-xl p-5" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-3 font-bold">📏 Colis</p>
-            <div className="grid grid-cols-2 gap-3">
-              {[{ l: 'Poids', v: `${order.poids} kg` }, { l: 'Dimensions', v: `${order.dimensions} cm` }, { l: 'Valeur', v: `${order.valeur} €` }, { l: 'Livraison', v: order.livraison }].map(i => (
-                <div key={i.l} className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wide">{i.l}</p>
-                  <p className="text-white font-bold text-sm mt-0.5">{i.v}</p>
-                </div>
-              ))}
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            <div>
+              <h3 className="text-sm text-gray-400 mb-2 uppercase">Client</h3>
+              <p className="font-medium">{detail.client}</p>
+              <p className="text-gray-400 text-sm">{detail.email}</p>
+              <p className="text-gray-400 text-sm">{detail.adresse}</p>
             </div>
           </div>
+          <table className="w-full mb-4">
+            <thead><tr className="border-b border-white/10"><th className="text-left py-2 text-gray-400 text-sm">Article</th><th className="text-center py-2 text-gray-400 text-sm">Taille</th><th className="text-center py-2 text-gray-400 text-sm">Qté</th><th className="text-right py-2 text-gray-400 text-sm">Prix</th></tr></thead>
+            <tbody>{detail.articles.map((a,i) => <tr key={i} className="border-b border-white/5"><td className="py-2">{a.nom}</td><td className="py-2 text-center">{a.taille}</td><td className="py-2 text-center">{a.qty}</td><td className="py-2 text-right">{a.prix}€</td></tr>)}</tbody>
+          </table>
+          <div className="text-right text-xl font-bold text-yellow-400">Total : {detail.total}€</div>
+          <button onClick={() => printMultiple([detail])} className="mt-4 px-6 py-2 rounded-lg font-bold text-black" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>🖨️ Imprimer le bordereau</button>
         </div>
-        <div className="rounded-xl p-5 mb-4" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-3 font-bold">📦 Produits</p>
-          <div className="space-y-2">
-            {order.produits.map((p, i) => (
-              <div key={i} className="flex justify-between items-center py-2 border-b border-white/5">
-                <span className="text-white text-sm">{p.nom}</span>
-                <div className="flex items-center gap-4"><span className="text-gray-400 text-xs">x{p.qte}</span><span className="text-white font-bold text-sm">{p.prix * p.qte} €</span></div>
-              </div>
-            ))}
-            <div className="flex justify-between items-center pt-2">
-              <span className="text-white font-black uppercase tracking-wide text-sm">Total</span>
-              <span className="font-black text-lg" style={{ color: '#C4962A' }}>{total} €</span>
-            </div>
-          </div>
-        </div>
-        <button onClick={() => printMultiple([order])} className="w-full py-4 font-black text-base uppercase tracking-widest text-black rounded-xl transition-opacity hover:opacity-90 flex items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
-          🖨️ Imprimer le bordereau d&apos;envoi
-        </button>
       </div>
     )
   }
 
   return (
     <div>
-      {checked.length > 0 && (
-        <div className="rounded-xl p-4 mb-5 flex items-center justify-between flex-wrap gap-3" style={{ background: 'rgba(196,150,42,0.12)', border: '2px solid rgba(196,150,42,0.4)' }}>
-          <div>
-            <p className="text-white font-black text-sm uppercase tracking-wide">🖨️ {checked.length} bordereau{checked.length > 1 ? 'x' : ''} sélectionné{checked.length > 1 ? 's' : ''}</p>
-            <p className="text-gray-400 text-xs mt-0.5">Tous seront imprimés en une seule fois</p>
+      <h2 className="text-2xl font-bold text-yellow-400 mb-6">Commandes</h2>
+      <div className="flex flex-wrap gap-3 mb-4">
+        {['tous','à expédier','expédié','livré'].map(s => (
+          <button key={s} onClick={() => setFiltre(s)} className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${filtre === s ? 'text-black border-yellow-500' : 'text-gray-300 border-white/20 hover:border-yellow-500/50'}`} style={filtre === s ? {background:'linear-gradient(135deg,#C4962A,#E8B84B)'} : {}}>{s.charAt(0).toUpperCase()+s.slice(1)}</button>
+        ))}
+      </div>
+      <div className="flex gap-3 mb-4 flex-wrap items-center">
+        <input type="date" value={dateDebut} onChange={e => setDateDebut(e.target.value)} className="px-3 py-1.5 rounded-lg text-sm text-white border border-white/20" style={{background:'rgba(255,255,255,0.07)'}} />
+        <span className="text-gray-400">→</span>
+        <input type="date" value={dateFin} onChange={e => setDateFin(e.target.value)} className="px-3 py-1.5 rounded-lg text-sm text-white border border-white/20" style={{background:'rgba(255,255,255,0.07)'}} />
+        {selected.length > 0 && (
+          <button onClick={() => printMultiple(selectedOrders)} className="ml-auto px-5 py-1.5 rounded-lg font-bold text-black text-sm" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>🖨️ Imprimer ({selected.length})</button>
+        )}
+      </div>
+      <div className="rounded-xl overflow-hidden border border-white/10">
+        <table className="w-full">
+          <thead>
+            <tr style={{background:'rgba(255,255,255,0.07)'}}>
+              <th className="p-3 text-left"><input type="checkbox" checked={selected.length === filtered.length && filtered.length > 0} onChange={toggleAll} className="rounded" /></th>
+              <th className="p-3 text-left text-gray-400 text-sm">Commande</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Date</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Client</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Total</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Statut</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((order, i) => (
+              <tr key={order.id} className="border-t border-white/5 hover:bg-white/5 transition-colors">
+                <td className="p-3"><input type="checkbox" checked={selected.includes(order.id)} onChange={() => toggleSelect(order.id)} /></td>
+                <td className="p-3 font-mono text-yellow-400 text-sm">{order.id}</td>
+                <td className="p-3 text-gray-300 text-sm">{order.date}</td>
+                <td className="p-3 text-sm">{order.client}</td>
+                <td className="p-3 font-medium">{order.total}€</td>
+                <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${order.statut === 'à expédier' ? 'bg-red-500/20 text-red-400' : order.statut === 'expédié' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'}`}>{order.statut}</span></td>
+                <td className="p-3 flex gap-2">
+                  <button onClick={() => setDetail(order)} className="px-3 py-1 rounded text-xs border border-white/20 hover:border-yellow-500/50 transition-colors">Voir</button>
+                  <button onClick={() => printMultiple([order])} className="px-3 py-1 rounded text-xs border border-white/20 hover:border-yellow-500/50 transition-colors">🖨️</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function ClientsTab() {
+  const [view, setView] = useState('liste')
+  const [segmentFiltre, setSegmentFiltre] = useState('tous')
+  const [sujet, setSujet] = useState('')
+  const [contenu, setContenu] = useState('')
+  const [destinataires, setDestinataires] = useState([])
+  const [sending, setSending] = useState(false)
+  const [campaigns, setCampaigns] = useState([
+    { id: 1, date: '2024-01-10', sujet: 'Nouveau drop disponible !', destinataires: 5, statut: 'envoyé' },
+  ])
+
+  const filteredClients = mockClients.filter(c => segmentFiltre === 'tous' || c.segment === segmentFiltre)
+
+  const toggleDest = (email) => setDestinataires(d => d.includes(email) ? d.filter(x => x !== email) : [...d, email])
+  const selectAll = () => setDestinataires(filteredClients.map(c => c.email))
+  const deselectAll = () => setDestinataires([])
+
+  const sendCampaign = async () => {
+    if (!sujet || !contenu || destinataires.length === 0) return alert('Veuillez remplir le sujet, le contenu et sélectionner des destinataires.')
+    setSending(true)
+    try {
+      const res = await fetch('/api/admin/send-campaign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destinataires, sujet, contenu })
+      })
+      if (res.ok) {
+        setCampaigns(c => [...c, { id: Date.now(), date: new Date().toISOString().split('T')[0], sujet, destinataires: destinataires.length, statut: 'envoyé' }])
+        setSujet('')
+        setContenu('')
+        setDestinataires([])
+        setView('historique')
+        alert('Campagne envoyée avec succès !')
+      } else {
+        alert('Erreur lors de l\'envoi. Vérifiez votre clé RESEND_API_KEY.')
+      }
+    } catch {
+      alert('Erreur réseau.')
+    }
+    setSending(false)
+  }
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-yellow-400 mb-6">Clients</h2>
+      <div className="flex gap-3 mb-6">
+        {[{id:'liste',label:'📋 Liste'},{id:'campagne',label:'📧 Campagne'},{id:'historique',label:'📊 Historique'}].map(v => (
+          <button key={v.id} onClick={() => setView(v.id)} className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${view === v.id ? 'text-black border-yellow-500' : 'text-gray-300 border-white/20 hover:border-yellow-500/50'}`} style={view === v.id ? {background:'linear-gradient(135deg,#C4962A,#E8B84B)'} : {}}>{v.label}</button>
+        ))}
+      </div>
+
+      {view === 'liste' && (
+        <div>
+          <div className="flex gap-2 mb-4 flex-wrap">
+            {['tous','VIP','Actif','Nouveau'].map(s => (
+              <button key={s} onClick={() => setSegmentFiltre(s)} className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${segmentFiltre === s ? 'text-black border-yellow-500' : 'text-gray-300 border-white/20'}`} style={segmentFiltre === s ? {background:'linear-gradient(135deg,#C4962A,#E8B84B)'} : {}}>{s}</button>
+            ))}
           </div>
-          <div className="flex gap-2">
-            <button onClick={() => setChecked([])} className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wide px-3 py-2 rounded border border-white/10">Annuler</button>
-            <button onClick={() => printMultiple(selectedOrders)} className="text-black text-sm px-5 py-2 font-black uppercase tracking-wide rounded-lg flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer tout ({checked.length})</button>
+          <div className="rounded-xl overflow-hidden border border-white/10">
+            <table className="w-full">
+              <thead>
+                <tr style={{background:'rgba(255,255,255,0.07)'}}>
+                  <th className="p-3 text-left text-gray-400 text-sm">Client</th>
+                  <th className="p-3 text-left text-gray-400 text-sm">Email</th>
+                  <th className="p-3 text-left text-gray-400 text-sm">Commandes</th>
+                  <th className="p-3 text-left text-gray-400 text-sm">Total dépensé</th>
+                  <th className="p-3 text-left text-gray-400 text-sm">Segment</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredClients.map(c => (
+                  <tr key={c.id} className="border-t border-white/5 hover:bg-white/5">
+                    <td className="p-3 font-medium">{c.nom}</td>
+                    <td className="p-3 text-gray-400 text-sm">{c.email}</td>
+                    <td className="p-3 text-center">{c.commandes}</td>
+                    <td className="p-3 text-yellow-400 font-medium">{c.total}€</td>
+                    <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${c.segment === 'VIP' ? 'bg-yellow-500/20 text-yellow-400' : c.segment === 'Actif' ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}`}>{c.segment}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
-      <div className="flex gap-2 mb-4 flex-wrap">
-        {filtres.map(f => (
-          <button key={f} onClick={() => setFiltre(f)} className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all" style={filtre === f ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' } : { background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)' }}>
-            {f}
-          </button>
-        ))}
-      </div>
-      <div className="rounded-xl p-4 mb-5" style={{ background: 'rgba(15,10,0,0.7)', border: '1px solid rgba(255,255,255,0.07)' }}>
-        <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-3">📅 Filtrer par période</p>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-400 font-bold">Du</label>
-            <input type="date" value={dateDebut} onChange={e => setDateDebut(e.target.value)} className="px-3 py-1.5 text-white text-xs rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', colorScheme: 'dark' }} />
+
+      {view === 'campagne' && (
+        <div className="space-y-5">
+          <div>
+            <label className="block text-sm text-gray-400 mb-2">Sujet de l'email</label>
+            <input value={sujet} onChange={e => setSujet(e.target.value)} placeholder="Ex: Nouveau drop disponible !" className="w-full px-4 py-3 rounded-xl border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500" style={{background:'rgba(255,255,255,0.07)'}} />
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-400 font-bold">Au</label>
-            <input type="date" value={dateFin} onChange={e => setDateFin(e.target.value)} className="px-3 py-1.5 text-white text-xs rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', colorScheme: 'dark' }} />
+          <div>
+            <label className="block text-sm text-gray-400 mb-2">Contenu</label>
+            <textarea value={contenu} onChange={e => setContenu(e.target.value)} rows={5} placeholder="Rédigez votre message ici..." className="w-full px-4 py-3 rounded-xl border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 resize-none" style={{background:'rgba(255,255,255,0.07)'}} />
           </div>
-          {(dateDebut || dateFin) && <button onClick={() => { setDateDebut(''); setDateFin('') }} className="text-xs text-gray-400 hover:text-white font-bold px-3 py-1.5 rounded border border-white/10">✕ Effacer</button>}
-          {filtered.length > 0 && <button onClick={() => printMultiple(filtered)} className="text-black text-xs px-4 py-1.5 font-black uppercase tracking-wide rounded-lg flex items-center gap-1.5 ml-auto" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer les {filtered.length} bordereaux filtrés</button>}
-        </div>
-      </div>
-      <div className="flex items-center justify-between mb-3">
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={checked.length === filtered.length && filtered.length > 0} onChange={toggleAll} className="w-4 h-4 accent-yellow-500" />
-          <span className="text-xs text-gray-400 font-bold uppercase tracking-wide">Tout sélectionner ({filtered.length})</span>
-        </label>
-        {checked.length > 0 && <span className="text-xs font-bold" style={{ color: '#C4962A' }}>{checked.length} sélectionné{checked.length > 1 ? 's' : ''}</span>}
-      </div>
-      <div className="space-y-3">
-        {filtered.length === 0 && <div className="text-center py-12 text-gray-500 text-sm">Aucune commande pour cette période.</div>}
-        {filtered.map(order => {
-          const total = order.produits.reduce((s, p) => s + p.prix * p.qte, 0)
-          const isChecked = checked.includes(order.id)
-          return (
-            <div key={order.id} className="rounded-xl p-4 transition-all" style={{ background: isChecked ? 'rgba(196,150,42,0.08)' : 'rgba(15,10,0,0.85)', border: isChecked ? '1px solid rgba(196,150,42,0.4)' : '1px solid rgba(255,255,255,0.07)' }}>
-              <div className="flex items-center gap-3">
-                <input type="checkbox" checked={isChecked} onChange={() => toggleCheck(order.id)} className="w-4 h-4 accent-yellow-500 flex-shrink-0" />
-                <div className="flex-1 cursor-pointer" onClick={() => setSelected(order.id)}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-white font-black text-sm">{order.id}</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide" style={statusStyle(order.status)}>{order.status}</span>
-                    <span className="text-gray-600 text-[10px]">{order.dateAff}</span>
-                  </div>
-                  <p className="text-gray-400 text-xs">{order.client.nom} • {order.client.ville}</p>
-                  <p className="text-gray-500 text-xs mt-0.5">{order.produits.map(p => p.nom).join(', ')}</p>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="font-black text-base" style={{ color: '#C4962A' }}>{total} €</p>
-                  <button onClick={() => printMultiple([order])} className="text-[10px] font-bold px-3 py-1 rounded mt-1 uppercase tracking-wide text-black" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer</button>
-                </div>
+          <div>
+            <div className="flex justify-between items-center mb-3">
+              <label className="text-sm text-gray-400">Destinataires ({destinataires.length} sélectionné{destinataires.length > 1 ? 's' : ''})</label>
+              <div className="flex gap-2">
+                <button onClick={selectAll} className="text-xs text-yellow-400 hover:text-yellow-300">Tous</button>
+                <button onClick={deselectAll} className="text-xs text-gray-400 hover:text-gray-300">Aucun</button>
               </div>
             </div>
-          )
-        })}
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {mockClients.map(c => (
+                <label key={c.id} className="flex items-center gap-3 p-3 rounded-lg border border-white/10 cursor-pointer hover:border-yellow-500/30 transition-colors" style={{background:'rgba(255,255,255,0.03)'}}>
+                  <input type="checkbox" checked={destinataires.includes(c.email)} onChange={() => toggleDest(c.email)} />
+                  <span className="flex-1 text-sm">{c.nom}</span>
+                  <span className="text-xs text-gray-500">{c.email}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs ${c.segment === 'VIP' ? 'bg-yellow-500/20 text-yellow-400' : c.segment === 'Actif' ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}`}>{c.segment}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <button onClick={sendCampaign} disabled={sending} className="w-full py-3 rounded-xl font-bold text-black text-base disabled:opacity-50 transition-opacity" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>
+            {sending ? 'Envoi en cours...' : `📧 Envoyer la campagne (${destinataires.length} destinataire${destinataires.length > 1 ? 's' : ''})`}
+          </button>
+        </div>
+      )}
+
+      {view === 'historique' && (
+        <div className="rounded-xl overflow-hidden border border-white/10">
+          <table className="w-full">
+            <thead>
+              <tr style={{background:'rgba(255,255,255,0.07)'}}>
+                <th className="p-3 text-left text-gray-400 text-sm">Date</th>
+                <th className="p-3 text-left text-gray-400 text-sm">Sujet</th>
+                <th className="p-3 text-left text-gray-400 text-sm">Destinataires</th>
+                <th className="p-3 text-left text-gray-400 text-sm">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {campaigns.map(c => (
+                <tr key={c.id} className="border-t border-white/5">
+                  <td className="p-3 text-gray-400 text-sm">{c.date}</td>
+                  <td className="p-3 font-medium">{c.sujet}</td>
+                  <td className="p-3 text-center">{c.destinataires}</td>
+                  <td className="p-3"><span className="px-2 py-0.5 rounded-full text-xs bg-green-500/20 text-green-400">{c.statut}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ArticlesTab() {
+  return (
+    <div className="flex flex-col items-center justify-center h-96">
+      <div className="text-center p-10 rounded-2xl border border-yellow-600/30" style={{background:'rgba(196,150,42,0.07)'}}>
+        <div className="text-5xl mb-5">🔒</div>
+        <h2 className="text-2xl font-bold text-yellow-400 mb-3">Fonctionnalité Premium</h2>
+        <p className="text-gray-300 text-lg mb-2">Passez au plan supérieur pour</p>
+        <p className="text-gray-300 text-lg mb-6">bénéficier de cette fonctionnalité.</p>
+        <button className="px-8 py-3 rounded-full font-bold text-black text-base" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>
+          Mettre à niveau
+        </button>
       </div>
+    </div>
+  )
+}
+
+export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState('dashboard')
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  const navItems = [
+    { id: 'dashboard', label: 'Tableau de bord', icon: '📊' },
+    { id: 'commandes', label: 'Commandes', icon: '📦' },
+    { id: 'clients', label: 'Clients', icon: '👥' },
+    { id: 'articles', label: 'Articles', icon: '🏷️' },
+  ]
+
+  const logout = async () => {
+    await fetch('/api/admin/auth', { method: 'DELETE' })
+    window.location.href = '/admin/login'
+  }
+
+  return (
+    <div className="min-h-screen flex" style={{background:'#0a0500'}}>
+      {/* Sidebar */}
+      <aside className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 flex flex-col border-r border-white/10`} style={{background:'rgba(255,255,255,0.03)'}}>
+        <div className="p-4 flex items-center justify-between border-b border-white/10">
+          {sidebarOpen && <span className="font-bold text-yellow-400 text-lg">ACA Admin</span>}
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white p-1">{sidebarOpen ? '◀' : '▶'}</button>
+        </div>
+        <nav className="flex-1 p-3 space-y-1">
+          {navItems.map(item => (
+            <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${activeTab === item.id ? 'text-black font-medium' : 'text-gray-300 hover:text-white hover:bg-white/5'}`} style={activeTab === item.id ? {background:'linear-gradient(135deg,#C4962A,#E8B84B)'} : {}}>
+              <span className="text-lg flex-shrink-0">{item.icon}</span>
+              {sidebarOpen && <span className="text-sm">{item.label}</span>}
+            </button>
+          ))}
+        </nav>
+        <div className="p-3 border-t border-white/10">
+          <button onClick={logout} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-all`}>
+            <span className="text-lg flex-shrink-0">🚪</span>
+            {sidebarOpen && <span className="text-sm">Déconnexion</span>}
+          </button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 p-8 overflow-y-auto">
+        {activeTab === 'dashboard' && <DashboardHome />}
+        {activeTab === 'commandes' && <CommandesTab />}
+        {activeTab === 'clients' && <ClientsTab />}
+        {activeTab === 'articles' && <ArticlesTab />}
+      </main>
     </div>
   )
 }
