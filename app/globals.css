@@ -17,29 +17,35 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #fff;
   background:
-    radial-gradient(ellipse at 0% 50%, rgba(196, 130, 10, 0.13) 0%, transparent 55%),
-    radial-gradient(ellipse at 100% 50%, rgba(150, 90, 5, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 0%, rgba(180, 110, 10, 0.06) 0%, transparent 60%),
-    #000000;
+    radial-gradient(ellipse at 0% 40%, rgba(196, 120, 10, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 100% 60%, rgba(160, 80, 5, 0.28) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 0%, rgba(200, 130, 10, 0.20) 0%, transparent 60%),
+    radial-gradient(ellipse at 30% 100%, rgba(140, 70, 0, 0.22) 0%, transparent 50%),
+    #0a0500;
   background-attachment: fixed;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
 }
+
+/* =============================
+   DARK CARD
+   ============================= */
 
 .dark-card {
-  background: #111;
-  border-radius: 4px;
+  background: rgba(15,10,0,0.85);
+  border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.07);
+  backdrop-filter: blur(4px);
 }
 
+/* Product card */
 .product-card {
-  border-radius: 4px;
-  background: rgba(15, 10, 0, 0.85);
+  border-radius: 12px;
+  background: rgba(15,10,0,0.85);
   border: 1px solid rgba(255,255,255,0.07);
+  backdrop-filter: blur(4px);
   transition: transform 0.3s ease, border-color 0.3s ease;
   overflow: hidden;
-  backdrop-filter: blur(4px);
 }
 
 .product-card:hover {
@@ -54,10 +60,12 @@ body {
   }
 }
 
+/* Star rating */
 .star-filled {
   color: #C4962A;
 }
 
+/* FAQ accordion */
 .faq-answer {
   max-height: 0;
   overflow: hidden;
@@ -69,12 +77,14 @@ body {
 }
 
 .faq-item {
-  background: rgba(15, 10, 0, 0.7);
+  border-radius: 12px;
+  background: rgba(15,10,0,0.85);
   border: 1px solid rgba(255,255,255,0.07);
-  overflow: hidden;
   backdrop-filter: blur(4px);
+  overflow: hidden;
 }
 
+/* Section title underline */
 .section-title::after {
   content: '';
   position: absolute;
@@ -86,6 +96,7 @@ body {
   border-radius: 3px;
 }
 
+/* Announcement bar animation */
 @keyframes scroll-left {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -97,6 +108,7 @@ body {
   animation-play-state: running;
 }
 
+/* Brands marquee */
 .brands-marquee {
   display: flex;
   gap: 3rem;
@@ -105,6 +117,20 @@ body {
   animation-play-state: running;
 }
 
+/* Buttons */
+.btn-gold {
+  background: linear-gradient(135deg, #C4962A, #E8B84B);
+  color: #000;
+  font-weight: 900;
+  border-radius: 6px;
+  transition: opacity 0.2s ease;
+}
+
+.btn-gold:hover {
+  opacity: 0.9;
+}
+
+/* Horizontal scroll filter */
 .filter-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -116,11 +142,12 @@ body {
   display: none;
 }
 
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0600;
+  background: #111;
 }
 ::-webkit-scrollbar-thumb {
   background: #C4962A;
@@ -128,11 +155,26 @@ body {
 }
 
 @media (max-width: 768px) {
-  ::-webkit-scrollbar { display: none; width: 0; }
-  button, a, select, input, textarea { min-height: 44px; }
-  section, div { max-width: 100vw; }
-  p, span, li { line-height: 1.7; }
-  input, textarea, select { font-size: 16px !important; }
+  ::-webkit-scrollbar {
+    display: none;
+    width: 0;
+  }
+
+  button, a, select, input, textarea {
+    min-height: 44px;
+  }
+
+  section, div {
+    max-width: 100vw;
+  }
+
+  p, span, li {
+    line-height: 1.7;
+  }
+
+  input, textarea, select {
+    font-size: 16px !important;
+  }
 }
 
 @supports (padding: max(0px)) {
@@ -140,4 +182,8 @@ body {
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
+}
+
+input, textarea, select {
+  border-radius: 8px !important;
 }
