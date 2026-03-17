@@ -16,23 +16,30 @@ html {
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #fff;
-  background: #000;
+  background:
+    radial-gradient(ellipse at 0% 50%, rgba(196, 130, 10, 0.13) 0%, transparent 55%),
+    radial-gradient(ellipse at 100% 50%, rgba(150, 90, 5, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 0%, rgba(180, 110, 10, 0.06) 0%, transparent 60%),
+    #000000;
+  background-attachment: fixed;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
 .dark-card {
   background: #111;
-  border-radius: 12px;
+  border-radius: 4px;
   border: 1px solid rgba(255,255,255,0.07);
 }
 
 .product-card {
   border-radius: 4px;
-  background: #111;
+  background: rgba(15, 10, 0, 0.85);
   border: 1px solid rgba(255,255,255,0.07);
   transition: transform 0.3s ease, border-color 0.3s ease;
   overflow: hidden;
+  backdrop-filter: blur(4px);
 }
 
 .product-card:hover {
@@ -62,9 +69,10 @@ body {
 }
 
 .faq-item {
-  background: #111;
+  background: rgba(15, 10, 0, 0.7);
   border: 1px solid rgba(255,255,255,0.07);
   overflow: hidden;
+  backdrop-filter: blur(4px);
 }
 
 .section-title::after {
@@ -112,7 +120,7 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #111;
+  background: #0a0600;
 }
 ::-webkit-scrollbar-thumb {
   background: #C4962A;
