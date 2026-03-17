@@ -60,7 +60,7 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* CTA + Cart + Toggle */}
+            {/* CTA + Cart + Account + Toggle */}
             <div className="flex items-center gap-2 md:gap-3">
               <Link
                 href="/produits"
@@ -68,6 +68,17 @@ export default function Navbar() {
                 style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
               >
                 Commander
+              </Link>
+
+              {/* Account / Admin */}
+              <Link
+                href="/admin"
+                className="relative flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded"
+                aria-label="Compte"
+              >
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
               </Link>
 
               {/* Cart */}
@@ -129,7 +140,7 @@ export default function Navbar() {
               ))}
               <Link
                 href="/panier"
-                className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white"
+                className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5"
                 onClick={() => setMenuOpen(false)}
               >
                 🛒 Panier
@@ -138,6 +149,13 @@ export default function Navbar() {
                     {totalItems}
                   </span>
                 )}
+              </Link>
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white"
+                onClick={() => setMenuOpen(false)}
+              >
+                👤 Mon compte
               </Link>
               <div className="pt-2">
                 <Link
