@@ -1,6 +1,8 @@
 import './globals.css'
 import { CartProvider } from '../context/CartContext'
 import CartReminder from '../components/CartReminder'
+import ScrollObserver from '../components/ScrollObserver'
+import PageTransition from '../components/PageTransition'
 
 export const metadata = {
   title: 'ACA Wholesale - Lots de Vêtements de Seconde Main | Moselle, France',
@@ -14,7 +16,10 @@ export default function RootLayout({ children }) {
       <body>
         <CartProvider>
           <CartReminder />
-          {children}
+          <ScrollObserver />
+          <PageTransition>
+            {children}
+          </PageTransition>
         </CartProvider>
       </body>
     </html>
