@@ -58,8 +58,8 @@ export default function FAQ() {
       <section className="py-10 md:py-16">
         <div className="max-w-3xl mx-auto px-5">
           {faqCategories.map((cat, ci) => (
-            <div key={ci} className="mb-10 md:mb-12">
-              <h2 className="text-lg md:text-xl font-black mb-4 md:mb-6 flex items-center gap-3 text-white uppercase tracking-wide">
+            <div key={ci} className="mb-10 md:mb-12 fade-up">
+              <h2 className="text-lg md:text-xl font-black mb-4 md:mb-6 flex items-center gap-3 uppercase tracking-wide">
                 <span className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-xs md:text-sm font-bold rounded-full text-black flex-shrink-0" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
                   {ci + 1}
                 </span>
@@ -70,20 +70,19 @@ export default function FAQ() {
                   const key = `${ci}-${i}`
                   const isOpen = openItems[key]
                   return (
-                    <div key={key} className="rounded-xl overflow-hidden border transition-all duration-200" style={{ background: 'rgba(255,255,255,0.05)', borderColor: isOpen ? '#C4962A' : 'rgba(255,255,255,0.08)', backdropFilter: 'blur(10px)' }}>
+                    <div key={key} className={`faq-item ${isOpen ? 'open-item' : ''}`}>
                       <button
                         onClick={() => toggle(key)}
-                        className="w-full flex items-center justify-between p-4 md:p-5 text-left transition-colors"
-                        style={{ background: isOpen ? 'rgba(196,150,42,0.08)' : 'transparent' }}
+                        className="w-full flex items-center justify-between p-4 md:p-5 text-left"
                       >
                         <span className="font-semibold text-sm pr-4 text-white">{item.q}</span>
-                        <span className="text-xl flex-shrink-0 font-light" style={{ color: '#C4962A' }}>{isOpen ? '−' : '+'}</span>
+                        <span className="text-xl flex-shrink-0 font-light" style={{ color: '#C4962A', transition: 'transform 0.3s ease', display: 'inline-block', transform: isOpen ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
                       </button>
-                      {isOpen && (
-                        <div className="border-t" style={{ borderColor: 'rgba(196,150,42,0.2)' }}>
-                          <p className="px-4 md:px-5 py-4 md:py-5 text-gray-300 text-sm leading-relaxed">{item.a}</p>
+                      <div className={`faq-answer ${isOpen ? 'open' : ''}`}>
+                        <div className="px-4 md:px-5 pb-4 md:pb-5 border-t" style={{ borderColor: 'rgba(196,150,42,0.2)' }}>
+                          <p className="pt-4 text-gray-300 text-sm leading-relaxed">{item.a}</p>
                         </div>
-                      )}
+                      </div>
                     </div>
                   )
                 })}
@@ -91,8 +90,7 @@ export default function FAQ() {
             </div>
           ))}
 
-          {/* CTA bas de page */}
-          <div className="rounded-2xl p-6 md:p-8 text-center mt-6 md:mt-8 border border-white/10" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)' }}>
+          <div className="rounded-2xl p-6 md:p-8 text-center mt-6 md:mt-8 border border-white/10 fade-up" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)' }}>
             <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-white">Vous n&apos;avez pas trouvé votre réponse ?</h3>
             <p className="text-gray-400 text-sm mb-5 md:mb-6">Notre équipe est disponible pour répondre à toutes vos questions.</p>
             <Link href="/contact" className="inline-block px-8 py-3 font-bold text-sm text-black rounded-full hover:opacity-90 transition-opacity uppercase tracking-widest" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
