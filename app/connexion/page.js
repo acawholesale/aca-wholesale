@@ -1,151 +1,104 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import Navbar from '../../components/Navbar'
+import Footer from '../../components/Footer'
 
 export default function ConnexionPage() {
-  const [isLogin, setIsLogin] = useState(true)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    // Connexion client à connecter à Supabase + NextAuth
+  }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16" style={{
-      background: 'radial-gradient(ellipse at 0% 40%, rgba(196,120,10,0.25) 0%, transparent 55%), #0a0500'
-    }}>
-      {/* Logo */}
-      <Link href="/" className="mb-8">
-        <Image src="/logo.png" alt="ACA Wholesale" width={140} height={48} className="h-12 w-auto object-contain" />
-      </Link>
+    <main className="bg-transparent min-h-screen">
+      <Navbar />
 
-      {/* Card */}
-      <div className="w-full max-w-sm rounded-xl p-8" style={{
-        background: 'rgba(15,10,0,0.9)',
-        border: '1px solid rgba(196,150,42,0.2)',
-        backdropFilter: 'blur(12px)'
-      }}>
-        {/* Tabs */}
-        <div className="flex mb-8 border-b border-white/10">
-          <button
-            onClick={() => setIsLogin(true)}
-            className="flex-1 pb-3 text-xs font-black uppercase tracking-widest transition-all"
-            style={{ color: isLogin ? '#C4962A' : '#6b7280', borderBottom: isLogin ? '2px solid #C4962A' : '2px solid transparent' }}
-          >
-            Connexion
-          </button>
-          <button
-            onClick={() => setIsLogin(false)}
-            className="flex-1 pb-3 text-xs font-black uppercase tracking-widest transition-all"
-            style={{ color: !isLogin ? '#C4962A' : '#6b7280', borderBottom: !isLogin ? '2px solid #C4962A' : '2px solid transparent' }}
-          >
-            Créer un compte
-          </button>
-        </div>
+      <div className="flex items-center justify-center px-5 py-20 md:py-32">
+        <div className="w-full max-w-sm">
 
-        {isLogin ? (
-          /* LOGIN FORM */
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                Adresse email
-              </label>
-              <input
-                type="email"
-                placeholder="votre@email.com"
-                className="w-full px-4 py-3 text-white text-sm rounded-lg outline-none transition-all"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-                onFocus={(e) => e.target.style.borderColor = '#C4962A'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-              />
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="text-3xl mb-3">👤</div>
+            <h1 className="text-2xl font-black text-white uppercase tracking-wide mb-1">Connexion</h1>
+            <p className="text-gray-500 text-sm">Accédez à votre espace client</p>
+          </div>
+
+          {/* Form */}
+          <div
+            className="rounded p-6 md:p-8"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}
+          >
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1.5">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  required
+                  className="w-full px-4 py-3 rounded text-white text-sm placeholder-gray-600 outline-none transition-all"
+                  style={{
+                    background: 'rgba(255,255,255,0.07)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1.5">
+                  Mot de passe
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="w-full px-4 py-3 rounded text-white text-sm placeholder-gray-600 outline-none transition-all"
+                  style={{
+                    background: 'rgba(255,255,255,0.07)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                  }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3.5 font-black text-sm uppercase tracking-widest rounded transition-all hover:opacity-90 text-black"
+                style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
+              >
+                Se connecter
+              </button>
+            </form>
+
+            <div className="mt-4 text-center">
+              <a href="#" className="text-xs text-gray-600 hover:text-gray-400 transition-colors underline underline-offset-2">
+                Mot de passe oublié ?
+              </a>
             </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                Mot de passe
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full px-4 py-3 text-white text-sm rounded-lg outline-none transition-all"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-                onFocus={(e) => e.target.style.borderColor = '#C4962A'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full py-3 font-black text-sm uppercase tracking-widest text-black rounded-lg transition-opacity hover:opacity-90 mt-2"
-              style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
+          </div>
+
+          {/* Admin link */}
+          <div className="text-center mt-6">
+            <Link
+              href="/admin"
+              className="text-xs text-gray-600 hover:text-gray-400 transition-colors underline underline-offset-2"
             >
-              Se connecter →
-            </button>
-            <p className="text-center text-[10px] text-gray-600 pt-1">
-              Mot de passe oublié ?{' '}
-              <span className="text-gray-400 cursor-pointer hover:text-white transition-colors">Réinitialiser</span>
-            </p>
-          </form>
-        ) : (
-          /* REGISTER FORM */
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                Nom complet
-              </label>
-              <input
-                type="text"
-                placeholder="Votre nom"
-                className="w-full px-4 py-3 text-white text-sm rounded-lg outline-none transition-all"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-                onFocus={(e) => e.target.style.borderColor = '#C4962A'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                Adresse email
-              </label>
-              <input
-                type="email"
-                placeholder="votre@email.com"
-                className="w-full px-4 py-3 text-white text-sm rounded-lg outline-none transition-all"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-                onFocus={(e) => e.target.style.borderColor = '#C4962A'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                Mot de passe
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full px-4 py-3 text-white text-sm rounded-lg outline-none transition-all"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-                onFocus={(e) => e.target.style.borderColor = '#C4962A'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full py-3 font-black text-sm uppercase tracking-widest text-black rounded-lg transition-opacity hover:opacity-90 mt-2"
-              style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
-            >
-              Créer mon compte →
-            </button>
-          </form>
-        )}
+              Accès administration →
+            </Link>
+          </div>
 
-        {/* Lien admin discret */}
-        <div className="mt-8 pt-6 border-t border-white/5 text-center">
-          <Link
-            href="/admin/login"
-            className="text-[10px] text-gray-600 hover:text-gray-400 transition-colors uppercase tracking-widest"
-          >
-            Espace administrateur
-          </Link>
         </div>
       </div>
 
-      <Link href="/" className="mt-6 text-gray-600 text-xs hover:text-gray-400 transition-colors">
-        ← Retour à l&apos;accueil
-      </Link>
-    </div>
+      <Footer />
+    </main>
   )
 }
