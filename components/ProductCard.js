@@ -2,14 +2,19 @@
 import Link from 'next/link'
 import { useCart } from '../context/CartContext'
 import { useState } from 'react'
+import { getStockStatus } from '../app/data/products'
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart()
   const [added, setAdded] = useState(false)
   const stars = Array(5).fill(0)
+  const stockStatus = getStockStatus(product.stock ?? 99)
+  const pricePerPiece = product.pieces ? Math.round(product.price / product.pieces) : null
+  const isSoldOut = product.stock === 0
 
   const handleAdd = (e) => {
     e.preventDefault()
+    if (isSoldOut) return
     addToCart(product)
     setAdded(true)
     setTimeout(() => setAdded(false), 1500)
@@ -20,71 +25,57 @@ export default function ProductCard({ product }) {
     : null
 
   return (
-    <div className="product-card bg-[#111] overflow-hidden group">
+    <div className={`product-card overflow-hidden group relative ${isSoldOut ? 'opacity-75' : ''}`} style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(8px)' }}>
+
+      {/* Image zone */}
       <Link href={`/produits/${product.id}`}>
-        <div className="relative aspect-square bg-[#1a1a1a] overflow-hidden">
-          <div
-            className="w-full h-full group-hover:scale-105 transition-transform duration-500"
-            style={{ backgroundColor: product.color || '#1a1a1a' }}
-          >
+        <div className="relative aspect-square overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500" style={{ backgroundColor: isSoldOut ? '#1a1a1a' : (product.color || '#1a1a1a') }}>
             <div className="w-full h-full flex items-center justify-center">
               <div className="text-center p-3 md:p-4">
-                <div className="text-4xl md:text-5xl mb-2 md:mb-3">{product.emoji || '📦'}</div>
-                <span className="text-[10px] text-gray-300 font-black bg-black/60 px-2 py-0.5 uppercase tracking-widest">
+                <div className={`text-4xl md:text-5xl mb-2 md:mb-3 ${isSoldOut ? 'grayscale opacity-40' : ''}`}>{product.emoji || '📦'}</div>
+                <span className="text-[10px] md:text-xs text-gray-300 font-bold bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-sm uppercase tracking-wide">
                   {product.brand}
                 </span>
               </div>
             </div>
           </div>
-          {product.badge && (
+
+          {/* SOLD OUT overlay */}
+          {isSoldOut && (
+            <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)' }}>
+              <span className="text-white font-black text-sm uppercase tracking-widest border border-white/40 px-4 py-2">ÉPUISÉ</span>
+            </div>
+          )}
+
+          {/* Badges top-left */}
+          {product.badge && !isSoldOut && (
             <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 uppercase tracking-widest">
               {product.badge}
             </span>
           )}
-          {product.isNew && (
-            <span className="absolute top-2 right-2 text-black text-[10px] font-black px-2 py-0.5 uppercase tracking-widest" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+
+          {/* NEW badge top-right */}
+          {product.isNew && !isSoldOut && (
+            <span className="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 uppercase tracking-widest" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' }}>
               NEW
             </span>
+          )}
+
+          {/* Urgence stock */}
+          {!isSoldOut && product.stock <= 3 && (
+            <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+              <span className="text-[10px] font-black px-2 py-0.5 uppercase tracking-wide rounded-sm" style={{ background: 'rgba(249,115,22,0.9)', color: '#fff' }}>
+                ⚡ Plus que {product.stock} disponible{product.stock > 1 ? 's' : ''}
+              </span>
+            </div>
           )}
         </div>
       </Link>
 
+      {/* Info */}
       <div className="p-3 md:p-4">
         <Link href={`/produits/${product.id}`}>
-          <h3 className="font-black text-xs md:text-sm mb-1 text-white uppercase tracking-wide hover:text-[#E8B84B] transition-colors line-clamp-2">{product.name}</h3>
-          <p className="text-[10px] text-gray-500 mb-2">{product.description}</p>
-          <div className="flex items-center gap-0.5 mb-2">
-            {stars.map((_, i) => (
-              <span key={i} className={`text-[10px] ${i < product.rating ? 'star-filled' : 'text-white/10'}`}>★</span>
-            ))}
-            <span className="text-[10px] text-gray-600 ml-1">({product.reviews})</span>
-          </div>
-          <div className="flex items-center gap-1.5 mb-3">
-            <span className="font-black text-base md:text-lg text-white">{product.price}€</span>
-            {product.originalPrice && (
-              <span className="text-xs text-gray-600 line-through">{product.originalPrice}€</span>
-            )}
-            {discount && (
-              <span className="text-[10px] bg-red-600 text-white font-black px-1.5 py-0.5">-{discount}%</span>
-            )}
-          </div>
-        </Link>
-        <div className="flex gap-1.5">
-          <Link
-            href={`/produits/${product.id}`}
-            className="flex-1 text-center bg-black border border-white/10 text-gray-400 text-xs py-2 font-black hover:border-white/30 transition-colors uppercase tracking-wide"
-          >
-            Détails
-          </Link>
-          <button
-            onClick={handleAdd}
-            className={`flex-1 text-center text-xs py-2 font-black transition-all uppercase tracking-wide ${added ? 'bg-green-600 text-white' : 'text-black'}`}
-            style={added ? {} : { background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
-          >
-            {added ? '✓ Ajouté' : '+ Panier'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+          {/* Stock status dot */}
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <span className="w-1
