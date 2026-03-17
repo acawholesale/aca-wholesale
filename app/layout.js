@@ -1,6 +1,6 @@
 import './globals.css'
 import { CartProvider } from '../context/CartContext'
-import { AuthProvider } from '../context/AuthContext'
+import CartReminder from '../components/CartReminder'
 
 export const metadata = {
   title: 'ACA Wholesale - Lots de Vêtements de Seconde Main | Moselle, France',
@@ -12,11 +12,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="fr">
       <body>
-        <AuthProvider>
-          <CartProvider>
-            {children}
-          </CartProvider>
-        </AuthProvider>
+        <CartProvider>
+          <CartReminder />
+          {children}
+        </CartProvider>
       </body>
     </html>
   )
