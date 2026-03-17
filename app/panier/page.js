@@ -122,4 +122,105 @@ export default function Panier() {
                 <div className="space-y-2 mb-4 pb-4 border-b border-white/10">
                   {items.map(item => (
                     <div key={item.id} className="flex justify-between text-xs">
-                      <span className="text-gray-500 truncate mr-2">{item.name}
+                      <span className="text-gray-500 truncate mr-2">{item.name} ×{item.qty}</span>
+                      <span className="font-black text-white flex-shrink-0">{item.price * item.qty}€</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-[10px] text-gray-500 uppercase tracking-widest font-black">Sous-total</span>
+                  <span className="font-black text-white text-sm">{totalPrice}€</span>
+                </div>
+                <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
+                  <span className="text-[10px] text-gray-500 uppercase tracking-widest font-black">Livraison</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#C4962A' }}>À calculer</span>
+                </div>
+                <div className="flex justify-between items-center mb-6">
+                  <span className="font-black text-xs uppercase tracking-widest text-white">Total</span>
+                  <span className="font-black text-2xl text-white">{totalPrice}€</span>
+                </div>
+                <button onClick={() => setStep('form')} className="w-full text-black py-4 font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>COMMANDER →</button>
+                <div className="mt-3 flex items-center justify-center gap-1 text-[10px] text-gray-600 uppercase tracking-widest font-black"><span>🔒</span><span>Commande sécurisée</span></div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 'form' && (
+          <div className="grid md:grid-cols-3 gap-5 md:gap-8">
+            <div className="md:col-span-2">
+              <form onSubmit={handleSubmit} className="border border-white/10 p-6 md:p-8" style={{ background: 'rgba(15,10,0,0.8)', backdropFilter: 'blur(8px)' }}>
+                <h2 className="text-xs font-black uppercase tracking-widest text-white mb-6">Vos coordonnées</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div><label className={labelClass}>Prénom *</label><input name="prenom" value={form.prenom} onChange={handleChange} required type="text" className={inputClass} style={inputStyle} placeholder="Votre prénom" /></div>
+                  <div><label className={labelClass}>Nom *</label><input name="nom" value={form.nom} onChange={handleChange} required type="text" className={inputClass} style={inputStyle} placeholder="Votre nom" /></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div><label className={labelClass}>Email *</label><input name="email" value={form.email} onChange={handleChange} required type="email" className={inputClass} style={inputStyle} placeholder="votre@email.com" /></div>
+                  <div><label className={labelClass}>Téléphone</label><input name="telephone" value={form.telephone} onChange={handleChange} type="tel" className={inputClass} style={inputStyle} placeholder="+33 6 00 00 00 00" /></div>
+                </div>
+                <div className="mb-4"><label className={labelClass}>Adresse *</label><input name="adresse" value={form.adresse} onChange={handleChange} required type="text" className={inputClass} style={inputStyle} placeholder="Numéro et nom de rue" /></div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                  <div><label className={labelClass}>Code postal *</label><input name="codePostal" value={form.codePostal} onChange={handleChange} required type="text" className={inputClass} style={inputStyle} placeholder="75001" /></div>
+                  <div><label className={labelClass}>Ville *</label><input name="ville" value={form.ville} onChange={handleChange} required type="text" className={inputClass} style={inputStyle} placeholder="Paris" /></div>
+                  <div className="col-span-2 md:col-span-1">
+                    <label className={labelClass}>Pays *</label>
+                    <select name="pays" value={form.pays} onChange={handleChange} className={inputClass} style={inputStyle}>
+                      <option style={{ background: '#0a0600' }}>France</option>
+                      <option style={{ background: '#0a0600' }}>Belgique</option>
+                      <option style={{ background: '#0a0600' }}>Suisse</option>
+                      <option style={{ background: '#0a0600' }}>Luxembourg</option>
+                      <option style={{ background: '#0a0600' }}>Allemagne</option>
+                      <option style={{ background: '#0a0600' }}>Autre</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="mb-6"><label className={labelClass}>Notes / Préférences de tailles</label><textarea name="notes" value={form.notes} onChange={handleChange} rows={3} className={inputClass} style={inputStyle} placeholder="Indiquez vos préférences..."></textarea></div>
+                <div className="flex gap-3">
+                  <button type="button" onClick={() => setStep('cart')} className="flex-1 border border-white/20 py-4 font-black text-xs uppercase tracking-widest text-white hover:border-white/50 transition-colors">← Retour</button>
+                  <button type="submit" className="flex-1 text-black py-4 font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>CONFIRMER</button>
+                </div>
+                <p className="text-[10px] text-gray-600 text-center mt-4 uppercase tracking-widest font-black">Notre équipe vous contactera par email pour le paiement.</p>
+              </form>
+            </div>
+            <div className="hidden md:block md:col-span-1">
+              <div className="border border-white/10 p-5 sticky top-20" style={{ background: 'rgba(15,10,0,0.85)', backdropFilter: 'blur(8px)' }}>
+                <h3 className="font-black text-[10px] uppercase tracking-widest text-white mb-4">Votre commande</h3>
+                <div className="space-y-3 mb-4">
+                  {items.map(item => (
+                    <div key={item.id} className="flex items-center gap-2">
+                      <div className="w-10 h-10 flex items-center justify-center text-lg flex-shrink-0" style={{ backgroundColor: item.color }}>{item.emoji}</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-black text-white uppercase tracking-wide truncate">{item.name}</p>
+                        <p className="text-[10px] text-gray-500">×{item.qty}</p>
+                      </div>
+                      <span className="text-sm font-black text-white flex-shrink-0">{item.price * item.qty}€</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="border-t border-white/10 pt-3 flex justify-between items-center">
+                  <span className="font-black text-[10px] uppercase tracking-widest text-white">Total</span>
+                  <span className="font-black text-xl text-white">{totalPrice}€</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-white/10 px-4 py-3" style={{ background: 'rgba(5,3,0,0.95)', backdropFilter: 'blur(12px)' }}>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black">{totalItems} lot{totalItems > 1 ? 's' : ''}</p>
+            <p className="font-black text-lg text-white">{totalPrice}€</p>
+          </div>
+          <button onClick={() => step === 'cart' ? setStep('form') : null} className="flex-1 text-black py-3.5 font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+            {step === 'cart' ? 'COMMANDER →' : 'CONFIRMER →'}
+          </button>
+        </div>
+      </div>
+
+      <Footer />
+    </main>
+  )
+}
