@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useCart } from '../context/CartContext'
 
 const messages = [
@@ -111,20 +112,14 @@ export default function Navbar() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex items-center">
-                <div className="bg-white text-black px-2.5 py-1 font-black text-lg tracking-tighter rounded-l-lg">
-                  AC
-                </div>
-                <div
-                  className="px-1.5 py-1 font-black text-lg tracking-tighter rounded-r-lg"
-                  style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: 'white' }}
-                >
-                  A
-                </div>
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-wide hidden sm:block" style={{ color: '#C4962A' }}>
-                Wholesale
-              </span>
+              <Image
+                src="/logo.png"
+                alt="ACA Wholesale"
+                width={120}
+                height={40}
+                className="h-8 md:h-10 w-auto object-contain"
+                priority
+              />
             </Link>
 
             {/* Desktop Nav */}
@@ -146,7 +141,7 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* CTA + Cart + Toggle */}
+            {/* CTA + Login + Cart + Toggle */}
             <div className="flex items-center gap-2 md:gap-3">
               <Link
                 href="/produits"
@@ -154,6 +149,17 @@ export default function Navbar() {
                 style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
               >
                 Commander
+              </Link>
+
+              {/* Login button */}
+              <Link
+                href="/admin"
+                className="hidden sm:flex items-center gap-1.5 border border-white/20 text-gray-300 text-xs px-3 py-2 font-bold uppercase tracking-wide hover:border-white/50 hover:text-white transition-colors rounded"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Connexion
               </Link>
 
               {/* Cart */}
@@ -215,7 +221,7 @@ export default function Navbar() {
               ))}
               <Link
                 href="/panier"
-                className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white"
+                className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5"
                 onClick={() => setMenuOpen(false)}
               >
                 🛒 Panier
@@ -224,6 +230,13 @@ export default function Navbar() {
                     {totalItems}
                   </span>
                 )}
+              </Link>
+              <Link
+                href="/admin"
+                className="block text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5"
+                onClick={() => setMenuOpen(false)}
+              >
+                🔐 Connexion
               </Link>
               <div className="pt-2">
                 <Link
