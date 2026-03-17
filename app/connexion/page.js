@@ -10,7 +10,6 @@ export default function ConnexionPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Connexion client à connecter à Supabase + NextAuth
   }
 
   return (
@@ -20,14 +19,12 @@ export default function ConnexionPage() {
       <div className="flex items-center justify-center px-5 py-20 md:py-32">
         <div className="w-full max-w-sm">
 
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="text-3xl mb-3">👤</div>
             <h1 className="text-2xl font-black text-white uppercase tracking-wide mb-1">Connexion</h1>
             <p className="text-gray-500 text-sm">Accédez à votre espace client</p>
           </div>
 
-          {/* Form */}
           <div
             className="rounded p-6 md:p-8"
             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}
@@ -43,11 +40,8 @@ export default function ConnexionPage() {
                   onChange={e => setEmail(e.target.value)}
                   placeholder="votre@email.com"
                   required
-                  className="w-full px-4 py-3 rounded text-white text-sm placeholder-gray-600 outline-none transition-all"
-                  style={{
-                    background: 'rgba(255,255,255,0.07)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                  }}
+                  className="w-full px-4 py-3 rounded text-white text-sm placeholder-gray-600 outline-none"
+                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
                 />
               </div>
 
@@ -61,11 +55,8 @@ export default function ConnexionPage() {
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full px-4 py-3 rounded text-white text-sm placeholder-gray-600 outline-none transition-all"
-                  style={{
-                    background: 'rgba(255,255,255,0.07)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                  }}
+                  className="w-full px-4 py-3 rounded text-white text-sm placeholder-gray-600 outline-none"
+                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
                 />
               </div>
 
@@ -85,7 +76,6 @@ export default function ConnexionPage() {
             </div>
           </div>
 
-          {/* Admin link */}
           <div className="text-center mt-6">
             <Link
               href="/admin"
