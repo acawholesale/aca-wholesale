@@ -16,75 +16,157 @@ html {
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #fff;
-  background:
-    radial-gradient(ellipse at 0% 40%, rgba(196, 120, 10, 0.35) 0%, transparent 55%),
-    radial-gradient(ellipse at 100% 60%, rgba(160, 80, 5, 0.28) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 0%, rgba(200, 130, 10, 0.20) 0%, transparent 60%),
-    radial-gradient(ellipse at 30% 100%, rgba(140, 70, 0, 0.22) 0%, transparent 50%),
-    #0a0500;
-  background-attachment: fixed;
+  background: #000;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
+
+/* =============================
+   SCROLL ANIMATIONS
+   ============================= */
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fade-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.fade-right {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fade-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.delay-100 { transition-delay: 0.10s; }
+.delay-200 { transition-delay: 0.20s; }
+.delay-300 { transition-delay: 0.30s; }
+.delay-400 { transition-delay: 0.40s; }
+.delay-500 { transition-delay: 0.50s; }
 
 /* =============================
    DARK CARD
    ============================= */
 
 .dark-card {
-  background: rgba(15,10,0,0.85);
+  background: #111;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.07);
-  backdrop-filter: blur(4px);
 }
 
-/* Product card */
+/* =============================
+   PRODUCT CARD
+   ============================= */
+
 .product-card {
   border-radius: 12px;
-  background: rgba(15,10,0,0.85);
+  background: #111;
   border: 1px solid rgba(255,255,255,0.07);
-  backdrop-filter: blur(4px);
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s ease, box-shadow 0.35s ease;
   overflow: hidden;
 }
 
 .product-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(196,150,42,0.4);
+  transform: translateY(-6px);
+  border-color: rgba(196,150,42,0.45);
+  box-shadow: 0 16px 40px rgba(196,150,42,0.08);
 }
 
 @media (max-width: 768px) {
   .product-card:hover {
     transform: none;
     border-color: rgba(255,255,255,0.07);
+    box-shadow: none;
   }
 }
 
-/* Star rating */
+/* =============================
+   STAR RATING
+   ============================= */
+
 .star-filled {
   color: #C4962A;
 }
 
-/* FAQ accordion */
+/* =============================
+   FAQ ACCORDION
+   ============================= */
+
 .faq-answer {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+  opacity: 0;
 }
 
 .faq-answer.open {
   max-height: 500px;
+  opacity: 1;
 }
 
 .faq-item {
-  border-radius: 12px;
-  background: rgba(15,10,0,0.85);
-  border: 1px solid rgba(255,255,255,0.07);
-  backdrop-filter: blur(4px);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
   overflow: hidden;
+  transition: border-color 0.3s ease, background 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
-/* Section title underline */
+.faq-item:hover {
+  border-color: rgba(196,150,42,0.25);
+}
+
+.faq-item.open-item {
+  border-color: rgba(196,150,42,0.5);
+  background: rgba(196,150,42,0.05);
+}
+
+/* =============================
+   BUTTONS & LINKS
+   ============================= */
+
+a, button {
+  transition: opacity 0.2s ease, color 0.2s ease, border-color 0.25s ease, background-color 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #C4962A, #E8B84B);
+  color: #000;
+  font-weight: 900;
+  border-radius: 6px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.btn-gold:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* =============================
+   SECTION TITLE UNDERLINE
+   ============================= */
+
 .section-title::after {
   content: '';
   position: absolute;
@@ -96,7 +178,10 @@ body {
   border-radius: 3px;
 }
 
-/* Announcement bar animation */
+/* =============================
+   MARQUEE ANIMATIONS
+   ============================= */
+
 @keyframes scroll-left {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -105,32 +190,19 @@ body {
 .animate-scroll {
   animation: scroll-left 20s linear infinite;
   will-change: transform;
-  animation-play-state: running;
 }
 
-/* Brands marquee */
 .brands-marquee {
   display: flex;
   gap: 3rem;
   animation: scroll-left 18s linear infinite;
   will-change: transform;
-  animation-play-state: running;
 }
 
-/* Buttons */
-.btn-gold {
-  background: linear-gradient(135deg, #C4962A, #E8B84B);
-  color: #000;
-  font-weight: 900;
-  border-radius: 6px;
-  transition: opacity 0.2s ease;
-}
+/* =============================
+   FILTER SCROLL
+   ============================= */
 
-.btn-gold:hover {
-  opacity: 0.9;
-}
-
-/* Horizontal scroll filter */
 .filter-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -142,17 +214,24 @@ body {
   display: none;
 }
 
-/* Scrollbar */
+/* =============================
+   SCROLLBAR
+   ============================= */
+
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #111;
+  background: #0a0500;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C4962A;
+  background: linear-gradient(#C4962A, #E8B84B);
   border-radius: 3px;
 }
+
+/* =============================
+   MOBILE
+   ============================= */
 
 @media (max-width: 768px) {
   ::-webkit-scrollbar {
@@ -174,6 +253,14 @@ body {
 
   input, textarea, select {
     font-size: 16px !important;
+  }
+
+  .fade-up, .fade-left, .fade-right {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .fade-left.visible, .fade-right.visible {
+    transform: translateY(0);
   }
 }
 
