@@ -55,51 +55,16 @@ const buildBordereauHTML = (order) => {
   return `
     <div class="page">
       <div class="header">
-        <div class="logo-block">
-          <h1>AC<span>A</span> WHOLESALE</h1>
-          <p>Grossiste vêtements seconde main • Moselle, France</p>
-          <p>${EXPEDITEUR.tel} • ${EXPEDITEUR.email}</p>
-        </div>
-        <div class="ref-block">
-          <div style="font-size:9px;color:#999;text-transform:uppercase;letter-spacing:1px;">Bordereau d'envoi</div>
-          <div class="num">${order.id}</div>
-          <div class="date">Date : ${order.dateAff}</div>
-          <div class="badge badge-${order.livraison === 'Express' ? 'express' : 'standard'}">${order.livraison}</div>
-        </div>
+        <div class="logo-block"><h1>AC<span>A</span> WHOLESALE</h1><p>Grossiste vêtements seconde main • Moselle, France</p><p>${EXPEDITEUR.tel} • ${EXPEDITEUR.email}</p></div>
+        <div class="ref-block"><div style="font-size:9px;color:#999;text-transform:uppercase;letter-spacing:1px;">Bordereau d'envoi</div><div class="num">${order.id}</div><div class="date">Date : ${order.dateAff}</div><div class="badge badge-${order.livraison === 'Express' ? 'express' : 'standard'}">${order.livraison}</div></div>
       </div>
       <div class="addresses">
-        <div class="address-box">
-          <h3>📤 Expéditeur</h3>
-          <div class="name">${EXPEDITEUR.nom}</div>
-          <p>${EXPEDITEUR.adresse}<br>${EXPEDITEUR.codePostal} ${EXPEDITEUR.ville}<br>${EXPEDITEUR.pays}<br>${EXPEDITEUR.tel}</p>
-        </div>
-        <div class="address-box dest">
-          <h3>📬 Destinataire</h3>
-          <div class="name">${order.client.nom}</div>
-          <p>${order.client.adresse}<br>${order.client.codePostal} ${order.client.ville}<br>${order.client.pays}<br>${order.client.tel}<br>${order.client.email}</p>
-        </div>
+        <div class="address-box"><h3>📤 Expéditeur</h3><div class="name">${EXPEDITEUR.nom}</div><p>${EXPEDITEUR.adresse}<br>${EXPEDITEUR.codePostal} ${EXPEDITEUR.ville}<br>${EXPEDITEUR.pays}<br>${EXPEDITEUR.tel}</p></div>
+        <div class="address-box dest"><h3>📬 Destinataire</h3><div class="name">${order.client.nom}</div><p>${order.client.adresse}<br>${order.client.codePostal} ${order.client.ville}<br>${order.client.pays}<br>${order.client.tel}<br>${order.client.email}</p></div>
       </div>
-      <div class="section">
-        <h3>📦 Produits commandés</h3>
-        <table><thead><tr><th>Désignation</th><th>Qté</th><th>Prix</th></tr></thead>
-        <tbody>${produitsList}</tbody>
-        <tfoot><tr class="total-row"><td colspan="2">Total commande</td><td>${total} €</td></tr></tfoot></table>
-      </div>
-      <div class="section">
-        <h3>📏 Informations colis</h3>
-        <div class="colis-grid">
-          <div class="colis-item"><div class="val">${order.poids} kg</div><div class="lbl">Poids</div></div>
-          <div class="colis-item"><div class="val">${order.dimensions}</div><div class="lbl">Dimensions (cm)</div></div>
-          <div class="colis-item"><div class="val">${order.valeur} €</div><div class="lbl">Valeur déclarée</div></div>
-          <div class="colis-item"><div class="val">1</div><div class="lbl">Nb colis</div></div>
-        </div>
-        <p style="margin-top:10px;font-size:10px;color:#666;">Contenu : Vêtements de seconde main</p>
-      </div>
-      <div class="barcode-section">
-        <div style="font-size:9px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Code de suivi</div>
-        <span class="barcode">${barcode}</span>
-        <div class="barcode-num">${order.id}</div>
-      </div>
+      <div class="section"><h3>📦 Produits commandés</h3><table><thead><tr><th>Désignation</th><th>Qté</th><th>Prix</th></tr></thead><tbody>${produitsList}</tbody><tfoot><tr class="total-row"><td colspan="2">Total commande</td><td>${total} €</td></tr></tfoot></table></div>
+      <div class="section"><h3>📏 Informations colis</h3><div class="colis-grid"><div class="colis-item"><div class="val">${order.poids} kg</div><div class="lbl">Poids</div></div><div class="colis-item"><div class="val">${order.dimensions}</div><div class="lbl">Dimensions (cm)</div></div><div class="colis-item"><div class="val">${order.valeur} €</div><div class="lbl">Valeur déclarée</div></div><div class="colis-item"><div class="val">1</div><div class="lbl">Nb colis</div></div></div><p style="margin-top:10px;font-size:10px;color:#666;">Contenu : Vêtements de seconde main</p></div>
+      <div class="barcode-section"><div style="font-size:9px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Code de suivi</div><span class="barcode">${barcode}</span><div class="barcode-num">${order.id}</div></div>
       <div class="footer">ACA Wholesale • Moselle, France • contact@aca-wholesale.com<br>Document généré automatiquement — À coller sur le colis</div>
     </div>`
 }
@@ -129,8 +94,7 @@ const CSS_PRINT = `
   .section h3 { font-size:9px; text-transform:uppercase; letter-spacing:1px; color:#999; margin-bottom:10px; }
   table { width:100%; border-collapse:collapse; }
   th { background:#f5f5f5; padding:6px 8px; text-align:left; font-size:10px; text-transform:uppercase; }
-  th:nth-child(2) { text-align:center; }
-  th:nth-child(3) { text-align:right; }
+  th:nth-child(2) { text-align:center; } th:nth-child(3) { text-align:right; }
   .total-row td { padding:8px; font-weight:700; font-size:13px; border-top:2px solid #C4962A; }
   .total-row td:last-child { text-align:right; color:#C4962A; }
   .colis-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
@@ -146,9 +110,7 @@ const CSS_PRINT = `
 
 const printMultiple = (orders) => {
   const body = orders.map(buildBordereauHTML).join('')
-  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Bordereaux ACA Wholesale</title>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap" rel="stylesheet">
-  <style>${CSS_PRINT}</style></head><body>${body}<script>window.onload=function(){window.print()}<\/script></body></html>`
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Bordereaux ACA Wholesale</title><link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap" rel="stylesheet"><style>${CSS_PRINT}</style></head><body>${body}<script>window.onload=function(){window.print()}<\/script></body></html>`
   const win = window.open('', '_blank', 'width=900,height=700')
   win.document.write(html)
   win.document.close()
@@ -167,8 +129,6 @@ export default function AdminDashboard() {
   const navItems = [
     { id: 'accueil', label: 'Tableau de bord', icon: '📊' },
     { id: 'commandes', label: 'Commandes', icon: '📦' },
-    { id: 'produits', label: 'Produits', icon: '👕' },
-    { id: 'clients', label: 'Clients', icon: '👥' },
   ]
 
   return (
@@ -214,8 +174,6 @@ export default function AdminDashboard() {
         <main className="flex-1 p-5 md:p-8">
           {activeTab === 'accueil' && <DashboardHome setActiveTab={setActiveTab} />}
           {activeTab === 'commandes' && <CommandesTab />}
-          {activeTab === 'produits' && <ComingSoon label="Gestion des produits" icon="👕" />}
-          {activeTab === 'clients' && <ComingSoon label="Clients" icon="👥" />}
         </main>
       </div>
     </div>
@@ -224,18 +182,19 @@ export default function AdminDashboard() {
 
 function DashboardHome({ setActiveTab }) {
   const aExpedier = mockOrders.filter(o => o.status === 'À expédier').length
+  const expedie = mockOrders.filter(o => o.status === 'Expédié').length
   const stats = [
-    { label: 'Commandes', value: mockOrders.length, icon: '📦', sub: 'au total', tab: 'commandes' },
+    { label: 'Total commandes', value: mockOrders.length, icon: '📦', sub: 'au total', tab: 'commandes' },
     { label: 'À expédier', value: aExpedier, icon: '🚚', sub: 'en attente', tab: 'commandes' },
-    { label: 'Produits', value: '—', icon: '👕', sub: 'en ligne', tab: 'produits' },
-    { label: 'Clients', value: '—', icon: '👥', sub: 'inscrits', tab: 'clients' },
+    { label: 'Expédiées', value: expedie, icon: '✅', sub: 'livrées', tab: 'commandes' },
+    { label: 'Chiffre total', value: mockOrders.reduce((s, o) => s + o.produits.reduce((ss, p) => ss + p.prix * p.qte, 0), 0) + ' €', icon: '💰', sub: 'ce mois', tab: 'commandes' },
   ]
   return (
     <div>
       <p className="text-gray-500 text-xs uppercase tracking-widest mb-6">Vue d&apos;ensemble</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
         {stats.map(stat => (
-          <button key={stat.label} onClick={() => setActiveTab(stat.tab)} className="rounded-xl p-5 text-left transition-all" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <button key={stat.label} onClick={() => setActiveTab(stat.tab)} className="rounded-xl p-5 text-left transition-all hover:border-[#C4962A]/30" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
             <div className="text-2xl mb-3">{stat.icon}</div>
             <div className="text-2xl font-black text-white mb-1">{stat.value}</div>
             <div className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{stat.label}</div>
@@ -332,7 +291,6 @@ function CommandesTab() {
 
   return (
     <div>
-      {/* Barre d'impression groupée */}
       {checked.length > 0 && (
         <div className="rounded-xl p-4 mb-5 flex items-center justify-between flex-wrap gap-3" style={{ background: 'rgba(196,150,42,0.12)', border: '2px solid rgba(196,150,42,0.4)' }}>
           <div>
@@ -348,7 +306,6 @@ function CommandesTab() {
         </div>
       )}
 
-      {/* Filtres status */}
       <div className="flex gap-2 mb-4 flex-wrap">
         {filtres.map(f => (
           <button key={f} onClick={() => setFiltre(f)} className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all" style={filtre === f ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' } : { background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -357,7 +314,6 @@ function CommandesTab() {
         ))}
       </div>
 
-      {/* Filtre par dates */}
       <div className="rounded-xl p-4 mb-5" style={{ background: 'rgba(15,10,0,0.7)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-3">📅 Filtrer par période</p>
         <div className="flex flex-wrap items-center gap-3">
@@ -380,22 +336,16 @@ function CommandesTab() {
         </div>
       </div>
 
-      {/* Sélection tout */}
       <div className="flex items-center justify-between mb-3">
         <label className="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" checked={checked.length === filtered.length && filtered.length > 0} onChange={toggleAll} className="w-4 h-4 accent-yellow-500" />
           <span className="text-xs text-gray-400 font-bold uppercase tracking-wide">Tout sélectionner ({filtered.length})</span>
         </label>
-        {checked.length > 0 && (
-          <span className="text-xs font-bold" style={{ color: '#C4962A' }}>{checked.length} sélectionné{checked.length > 1 ? 's' : ''}</span>
-        )}
+        {checked.length > 0 && <span className="text-xs font-bold" style={{ color: '#C4962A' }}>{checked.length} sélectionné{checked.length > 1 ? 's' : ''}</span>}
       </div>
 
-      {/* Liste commandes */}
       <div className="space-y-3">
-        {filtered.length === 0 && (
-          <div className="text-center py-12 text-gray-500 text-sm">Aucune commande pour cette période.</div>
-        )}
+        {filtered.length === 0 && <div className="text-center py-12 text-gray-500 text-sm">Aucune commande pour cette période.</div>}
         {filtered.map(order => {
           const total = order.produits.reduce((s, p) => s + p.prix * p.qte, 0)
           const isChecked = checked.includes(order.id)
@@ -414,26 +364,12 @@ function CommandesTab() {
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="font-black text-base" style={{ color: '#C4962A' }}>{total} €</p>
-                  <button onClick={() => printMultiple([order])} className="text-[10px] font-bold px-3 py-1 rounded mt-1 uppercase tracking-wide text-black" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
-                    🖨️ Imprimer
-                  </button>
+                  <button onClick={() => printMultiple([order])} className="text-[10px] font-bold px-3 py-1 rounded mt-1 uppercase tracking-wide text-black" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer</button>
                 </div>
               </div>
             </div>
           )
         })}
-      </div>
-    </div>
-  )
-}
-
-function ComingSoon({ label, icon }) {
-  return (
-    <div className="flex items-center justify-center min-h-[300px]">
-      <div className="text-center">
-        <div className="text-5xl mb-4">{icon}</div>
-        <p className="text-white font-black uppercase tracking-widest text-base mb-2">{label}</p>
-        <p className="text-gray-500 text-sm">Cette section sera bientôt disponible.</p>
       </div>
     </div>
   )
