@@ -1,81 +1,270 @@
-'use client'
-import Link from 'next/link'
-import { useCart } from '../context/CartContext'
-import { useState } from 'react'
-import { getStockStatus } from '../app/data/products'
+export const allProducts = [
+  {
+    id: 1,
+    name: 'Lot Premium Nike / Adidas',
+    description: '10 pièces - Sweats & Hoodies',
+    longDescription: 'Un lot premium composé de 10 pièces Nike et Adidas soigneusement sélectionnées. Idéal pour les revendeurs Vinted à la recherche de pièces à fort potentiel. Chaque article est en très bon état et authentique.',
+    price: 189,
+    originalPrice: 249,
+    rating: 5,
+    reviews: 127,
+    badge: 'BEST SELLER',
+    emoji: '👟',
+    brand: 'Nike / Adidas',
+    color: '#f0f4ff',
+    category: 'sweats',
+    pieces: 10,
+    sizes: 'S au XL (mixte)',
+    state: 'Très bon état',
+    details: ['10 sweats/hoodies', 'Marques Nike & Adidas', 'Tailles S à XL', 'Pièces authentiques vérifiées', 'Prêt à la revente Vinted'],
+    stock: 5,
+    vinteMin: 15,
+    vinteMax: 25,
+  },
+  {
+    id: 2,
+    name: 'Lot The North Face',
+    description: '8 pièces - Doudounes & Polaires',
+    longDescription: 'Un lot exceptionnel de 8 pièces The North Face comprenant doudounes et polaires. Des articles très recherchés sur Vinted avec une forte valeur de revente unitaire.',
+    price: 299,
+    originalPrice: 399,
+    rating: 5,
+    reviews: 89,
+    badge: '-25%',
+    emoji: '🏔️',
+    brand: 'The North Face',
+    color: '#f0fdf4',
+    category: 'doudounes',
+    pieces: 8,
+    sizes: 'S au XXL',
+    state: 'Bon à très bon état',
+    details: ['8 pièces TNF', 'Doudounes & polaires', 'Tailles variées', 'Marque premium recherchée', 'Fort potentiel de revente'],
+    stock: 2,
+    vinteMin: 30,
+    vinteMax: 50,
+  },
+  {
+    id: 3,
+    name: 'Lot Ralph Lauren',
+    description: '12 pièces - Polos & Chemises',
+    longDescription: 'Lot de 12 pièces Ralph Lauren composé de polos et chemises emblématiques. Une marque incontournable qui se revend très bien à la pièce sur les plateformes de seconde main.',
+    price: 219,
+    originalPrice: 289,
+    rating: 4,
+    reviews: 64,
+    emoji: '🐎',
+    brand: 'Ralph Lauren',
+    color: '#fefce8',
+    category: 'tshirts',
+    pieces: 12,
+    sizes: 'S au XL',
+    state: 'Bon état',
+    details: ['12 pièces Ralph Lauren', 'Polos & chemises', 'Marque premium', 'Très bon rapport qualité/prix', 'Idéal Vinted'],
+    stock: 7,
+    vinteMin: 18,
+    vinteMax: 28,
+  },
+  {
+    id: 4,
+    name: 'Lot Streetwear Mix',
+    description: '15 pièces - Stüssy, Carhartt, Supreme',
+    longDescription: 'Le lot streetwear ultime ! 15 pièces issues des meilleures marques street : Stüssy, Carhartt et Supreme. Ces marques sont extrêmement populaires sur Vinted et atteignent des prix élevés à la revente.',
+    price: 349,
+    originalPrice: 449,
+    rating: 5,
+    reviews: 201,
+    badge: 'POPULAIRE',
+    isNew: true,
+    emoji: '🔥',
+    brand: 'Multi-marques',
+    color: '#fef2f2',
+    category: 'sweats',
+    pieces: 15,
+    sizes: 'S au XL (mixte)',
+    state: 'Très bon état',
+    details: ['15 pièces streetwear', 'Stüssy, Carhartt, Supreme', 'Marques très recherchées', 'Fort potentiel de revente', 'Livraison rapide'],
+    stock: 1,
+    vinteMin: 25,
+    vinteMax: 45,
+  },
+  {
+    id: 5,
+    name: 'Lot Printemps Nike',
+    description: '10 pièces - T-shirts & Shorts',
+    longDescription: 'Collection printemps/été Nike composée de 10 pièces légères. T-shirts et shorts Nike parfaits pour la saison et idéaux pour alimenter votre boutique Vinted.',
+    price: 149,
+    rating: 5,
+    reviews: 12,
+    isNew: true,
+    emoji: '☀️',
+    brand: 'Nike',
+    color: '#ecfdf5',
+    category: 'tshirts',
+    pieces: 10,
+    sizes: 'XS au XL',
+    state: 'Très bon état',
+    details: ['10 pièces Nike', 'T-shirts & shorts', 'Collection printemps/été', 'Tailles variées', 'Nouveauté'],
+    stock: 4,
+    vinteMin: 12,
+    vinteMax: 20,
+  },
+  {
+    id: 6,
+    name: "Lot Denim Levi's",
+    description: '8 pièces - Jeans & Vestes',
+    longDescription: "Un lot denim Levi's de qualité comprenant 8 pièces : jeans et vestes en denim. La marque Levi's est une valeur sûre pour la revente, très appréciée des acheteurs.",
+    price: 199,
+    originalPrice: 259,
+    rating: 4,
+    reviews: 8,
+    isNew: true,
+    emoji: '👖',
+    brand: "Levi's",
+    color: '#eff6ff',
+    category: 'jeans',
+    pieces: 8,
+    sizes: 'W28 à W36',
+    state: 'Bon à très bon état',
+    details: ["8 pièces Levi's", 'Jeans & vestes denim', 'Marque iconique', 'Tailles variées', 'Nouveauté'],
+    stock: 6,
+    vinteMin: 22,
+    vinteMax: 35,
+  },
+  {
+    id: 7,
+    name: 'Lot Adidas Originals',
+    description: '12 pièces - Tracksuits & Tees',
+    longDescription: 'Lot Adidas Originals composé de 12 pièces : tracksuits et t-shirts. La ligne Originals est très populaire et se revend facilement. Un excellent investissement pour votre activité.',
+    price: 179,
+    rating: 5,
+    reviews: 15,
+    isNew: true,
+    emoji: '⚡',
+    brand: 'Adidas',
+    color: '#f5f3ff',
+    category: 'sportswear',
+    pieces: 12,
+    sizes: 'S au XL',
+    state: 'Très bon état',
+    details: ['12 pièces Adidas', 'Tracksuits & t-shirts', 'Ligne Originals', 'Style rétro très tendance', 'Nouveauté'],
+    stock: 4,
+    vinteMin: 14,
+    vinteMax: 22,
+  },
+  {
+    id: 8,
+    name: 'Lot Luxury Mix',
+    description: '6 pièces - Burberry, Tommy, CK',
+    longDescription: 'Notre lot luxury exclusif : 6 pièces premium de Burberry, Tommy Hilfiger et Calvin Klein. Des marques de prestige qui atteignent des prix exceptionnels à la revente. Réservé aux revendeurs exigeants.',
+    price: 399,
+    originalPrice: 529,
+    rating: 5,
+    reviews: 6,
+    badge: 'EXCLUSIF',
+    isNew: true,
+    emoji: '💎',
+    brand: 'Luxury',
+    color: '#fdf4ff',
+    category: 'sweats',
+    pieces: 6,
+    sizes: 'S au XL',
+    state: 'Excellent état',
+    details: ['6 pièces luxury', 'Burberry, Tommy Hilfiger, Calvin Klein', 'Marques premium', 'Potentiel de revente maximal', 'Exclusif'],
+    stock: 0,
+    vinteMin: 60,
+    vinteMax: 100,
+  },
+  {
+    id: 9,
+    name: 'Lot Doudounes Mix',
+    description: '6 pièces - TNF, Columbia, Patagonia',
+    longDescription: 'Lot de 6 doudounes premium issues des meilleures marques outdoor : The North Face, Columbia et Patagonia. Ces marques sont très demandées et se revendent rapidement.',
+    price: 349,
+    originalPrice: 459,
+    rating: 5,
+    reviews: 43,
+    emoji: '🧥',
+    brand: 'Multi-marques',
+    color: '#f0fdf4',
+    category: 'doudounes',
+    pieces: 6,
+    sizes: 'S au XXL',
+    state: 'Bon à très bon état',
+    details: ['6 doudounes premium', 'TNF, Columbia, Patagonia', 'Marques outdoor recherchées', 'Très bon rapport qualité/prix', 'Stock limité'],
+    stock: 3,
+    vinteMin: 50,
+    vinteMax: 80,
+  },
+  {
+    id: 10,
+    name: 'Lot Jogging Nike',
+    description: '10 pièces - Pantalons & Sweats',
+    longDescription: "Lot sportswear Nike composé de 10 pantalons de jogging et sweats assortis. La tenue sportive Nike est intemporelle et se revend facilement toute l'année sur Vinted.",
+    price: 159,
+    rating: 4,
+    reviews: 31,
+    emoji: '🏃',
+    brand: 'Nike',
+    color: '#fef2f2',
+    category: 'sportswear',
+    pieces: 10,
+    sizes: 'S au XL',
+    state: 'Bon état',
+    details: ['10 pièces Nike', 'Pantalons jogging & sweats', 'Sportswear classique', 'Revente facile', 'Prix attractif'],
+    stock: 8,
+    vinteMin: 14,
+    vinteMax: 20,
+  },
+  {
+    id: 11,
+    name: 'Lot T-Shirts Premium',
+    description: '20 pièces - Multi-marques',
+    longDescription: 'Notre lot le plus accessible en termes de prix : 20 t-shirts de marques variées. Parfait pour démarrer votre activité de revendeur ou pour augmenter rapidement votre stock Vinted.',
+    price: 129,
+    rating: 4,
+    reviews: 56,
+    badge: 'PETIT PRIX',
+    emoji: '👕',
+    brand: 'Multi-marques',
+    color: '#fefce8',
+    category: 'tshirts',
+    pieces: 20,
+    sizes: 'XS au XXL',
+    state: 'Bon état',
+    details: ['20 t-shirts', 'Multi-marques', 'Tailles très variées', 'Idéal pour débuter', 'Meilleur rapport qualité/prix'],
+    stock: 5,
+    vinteMin: 8,
+    vinteMax: 15,
+  },
+  {
+    id: 12,
+    name: 'Lot Jeans Mixte',
+    description: "10 pièces - Levi's, Diesel, Lee",
+    longDescription: "Lot denim mixte composé de 10 jeans des meilleures marques : Levi's, Diesel et Lee. Un mix de styles pour maximiser vos chances de revente auprès de différents profils d'acheteurs.",
+    price: 229,
+    originalPrice: 299,
+    rating: 5,
+    reviews: 38,
+    emoji: '👖',
+    brand: 'Multi-marques',
+    color: '#eff6ff',
+    category: 'jeans',
+    pieces: 10,
+    sizes: 'W28 à W38',
+    state: 'Bon à très bon état',
+    details: ["10 jeans premium", "Levi's, Diesel, Lee", 'Mix de coupes et styles', 'Marques très populaires', 'Fort potentiel de revente'],
+    stock: 2,
+    vinteMin: 20,
+    vinteMax: 35,
+  },
+]
 
-export default function ProductCard({ product }) {
-  const { addToCart } = useCart()
-  const [added, setAdded] = useState(false)
-  const stars = Array(5).fill(0)
-  const stockStatus = getStockStatus(product.stock ?? 99)
-  const pricePerPiece = product.pieces ? Math.round(product.price / product.pieces) : null
-  const isSoldOut = product.stock === 0
+export function getProductById(id) {
+  return allProducts.find(p => p.id === parseInt(id))
+}
 
-  const handleAdd = (e) => {
-    e.preventDefault()
-    if (isSoldOut) return
-    addToCart(product)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 1500)
-  }
-
-  const discount = product.originalPrice
-    ? Math.round((1 - product.price / product.originalPrice) * 100)
-    : null
-
-  return (
-    <div className={`product-card overflow-hidden group relative ${isSoldOut ? 'opacity-75' : ''}`} style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(8px)' }}>
-
-      {/* Image zone */}
-      <Link href={`/produits/${product.id}`}>
-        <div className="relative aspect-square overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)' }}>
-          <div className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500" style={{ backgroundColor: isSoldOut ? '#1a1a1a' : (product.color || '#1a1a1a') }}>
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="text-center p-3 md:p-4">
-                <div className={`text-4xl md:text-5xl mb-2 md:mb-3 ${isSoldOut ? 'grayscale opacity-40' : ''}`}>{product.emoji || '📦'}</div>
-                <span className="text-[10px] md:text-xs text-gray-300 font-bold bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-sm uppercase tracking-wide">
-                  {product.brand}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* SOLD OUT overlay */}
-          {isSoldOut && (
-            <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)' }}>
-              <span className="text-white font-black text-sm uppercase tracking-widest border border-white/40 px-4 py-2">ÉPUISÉ</span>
-            </div>
-          )}
-
-          {/* Badges top-left */}
-          {product.badge && !isSoldOut && (
-            <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 uppercase tracking-widest">
-              {product.badge}
-            </span>
-          )}
-
-          {/* NEW badge top-right */}
-          {product.isNew && !isSoldOut && (
-            <span className="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 uppercase tracking-widest" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' }}>
-              NEW
-            </span>
-          )}
-
-          {/* Urgence stock */}
-          {!isSoldOut && product.stock <= 3 && (
-            <div className="absolute bottom-2 left-0 right-0 flex justify-center">
-              <span className="text-[10px] font-black px-2 py-0.5 uppercase tracking-wide rounded-sm" style={{ background: 'rgba(249,115,22,0.9)', color: '#fff' }}>
-                ⚡ Plus que {product.stock} disponible{product.stock > 1 ? 's' : ''}
-              </span>
-            </div>
-          )}
-        </div>
-      </Link>
-
-      {/* Info */}
-      <div className="p-3 md:p-4">
-        <Link href={`/produits/${product.id}`}>
-          {/* Stock status dot */}
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <span className="w-1
+export function getStockStatus(stock) {
+  if (stock === 0) return { label: 'ÉPUISÉ', color: '#ef4444', bg: 'rgba(239,68,68,0.15)' }
+  if (stock <= 3) return { label: `Plus que ${stock} dispo`, color: '#f97316', bg: 'rgba(249,115,22,0.15)' }
+  return { label: 'Disponible', color: '#22c55e', bg: 'rgba(34,197,94,0.15)' }
+}
