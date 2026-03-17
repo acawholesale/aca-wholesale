@@ -18,47 +18,43 @@ export default function Produits() {
   const [activeCategory, setActiveCategory] = useState('all')
   const [sortBy, setSortBy] = useState('popular')
 
-  let filtered = activeCategory === 'all'
-    ? allProducts
-    : allProducts.filter(p => p.category === activeCategory)
-
+  let filtered = activeCategory === 'all' ? allProducts : allProducts.filter(p => p.category === activeCategory)
   if (sortBy === 'price-asc') filtered = [...filtered].sort((a, b) => a.price - b.price)
   if (sortBy === 'price-desc') filtered = [...filtered].sort((a, b) => b.price - a.price)
   if (sortBy === 'popular') filtered = [...filtered].sort((a, b) => b.reviews - a.reviews)
   if (sortBy === 'new') filtered = [...filtered].filter(p => p.isNew)
 
   return (
-    <main className="bg-[#f0f0f3] overflow-x-hidden">
+    <main className="bg-black overflow-x-hidden min-h-screen">
       <Navbar />
-      <section className="bg-black text-white py-12 md:py-16 rounded-b-[24px] md:rounded-b-[40px]">
-        <div className="max-w-7xl mx-auto px-5 text-center">
-          <h1 className="text-3xl md:text-5xl font-black mb-2 md:mb-3">NOS LOTS</h1>
-          <p className="text-gray-400 max-w-xl mx-auto text-sm md:text-base">
-            {allProducts.length} lots sélectionnés avec soin, pensés pour la revente. Expédiés depuis la Moselle.
-          </p>
+
+      <section className="bg-black text-white py-12 md:py-20 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-5">
+          <p className="text-[10px] uppercase tracking-widest text-gray-600 font-black mb-3">ACA Wholesale</p>
+          <h1 className="text-3xl md:text-6xl font-black uppercase mb-2">NOS LOTS</h1>
+          <p className="text-gray-500 text-sm">{allProducts.length} lots sélectionnés — Expédiés depuis la Moselle</p>
         </div>
       </section>
-      <section className="bg-white/90 backdrop-blur-md sticky top-14 md:top-16 z-40 rounded-b-2xl border-b border-gray-100" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
-        <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
+
+      <section className="bg-black sticky top-14 md:top-16 z-40 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <div className="filter-scroll flex gap-2 flex-1">
               {categories.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`text-xs font-semibold px-3.5 md:px-4 py-2 transition-all rounded-full whitespace-nowrap flex-shrink-0 ${
-                    activeCategory === cat.id ? 'text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                  className={`text-[10px] font-black px-3.5 py-2 transition-all uppercase tracking-widest whitespace-nowrap flex-shrink-0 ${activeCategory === cat.id ? 'text-black' : 'bg-transparent text-gray-500 border border-white/10 hover:border-white/30'}`}
                   style={activeCategory === cat.id ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)' } : {}}
                 >
-                  {cat.emoji} {cat.name}
+                  {cat.name}
                 </button>
               ))}
             </div>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="text-xs md:text-sm border border-gray-200 px-2 md:px-3 py-2 bg-white rounded-full flex-shrink-0 cursor-pointer"
+              className="text-[10px] border border-white/10 px-3 py-2 bg-black text-white flex-shrink-0 cursor-pointer uppercase tracking-widest font-black"
             >
               <option value="popular">Populaires</option>
               <option value="price-asc">Prix ↑</option>
@@ -68,47 +64,43 @@ export default function Produits() {
           </div>
         </div>
       </section>
+
       <section className="py-8 md:py-12">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between mb-4 md:mb-6">
-            <p className="text-xs md:text-sm text-gray-500 font-medium">
+            <p className="text-[10px] text-gray-600 font-black uppercase tracking-widest">
               {filtered.length} lot{filtered.length > 1 ? 's' : ''} trouvé{filtered.length > 1 ? 's' : ''}
             </p>
             {activeCategory !== 'all' && (
-              <button onClick={() => setActiveCategory('all')} className="text-xs font-semibold hover:underline" style={{ color: '#C4962A' }}>
-                Voir tous →
+              <button onClick={() => setActiveCategory('all')} className="text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors" style={{ color: '#C4962A' }}>
+                VOIR TOUT →
               </button>
             )}
           </div>
           {filtered.length === 0 ? (
-            <div className="text-center py-16">
+            <div className="text-center py-20">
               <div className="text-4xl mb-4">😕</div>
-              <p className="text-gray-500 font-medium">Aucun lot trouvé dans cette catégorie.</p>
-              <button onClick={() => setActiveCategory('all')} className="mt-4 font-bold hover:underline text-sm" style={{ color: '#C4962A' }}>
-                Voir tous les lots
-              </button>
+              <p className="text-gray-500 font-black uppercase tracking-wide text-xs">Aucun lot trouvé.</p>
+              <button onClick={() => setActiveCategory('all')} className="mt-4 font-black text-xs uppercase tracking-widest hover:text-white transition-colors" style={{ color: '#C4962A' }}>Voir tous les lots →</button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-              {filtered.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+              {filtered.map((product) => (<ProductCard key={product.id} product={product} />))}
             </div>
           )}
         </div>
       </section>
-      <section
-        className="text-white py-12 md:py-16 rounded-[24px] md:rounded-[40px] mx-3 md:mx-4 mb-6 md:mb-8"
-        style={{ background: '#0a0a0a', border: '1px solid #C4962A33' }}
-      >
+
+      <section className="border-t border-white/10 py-12 md:py-16 mx-3 md:mx-4 mb-6 md:mb-8">
         <div className="max-w-4xl mx-auto px-5 text-center">
-          <h2 className="text-xl md:text-3xl font-black mb-3 md:mb-4">Vous ne trouvez pas ce que vous cherchez ?</h2>
-          <p className="text-gray-400 mb-5 md:mb-6 text-sm">Contactez-nous pour un lot personnalisé selon vos besoins.</p>
-          <a href="/contact" className="inline-block text-black px-6 md:px-8 py-3 font-bold text-sm transition-all rounded-full" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+          <h2 className="text-xl md:text-3xl font-black uppercase mb-3 text-white">Vous ne trouvez pas ce que vous cherchez ?</h2>
+          <p className="text-gray-500 mb-6 text-sm">Contactez-nous pour un lot personnalisé.</p>
+          <a href="/contact" className="inline-block text-black px-8 py-3 font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
             NOUS CONTACTER
           </a>
         </div>
       </section>
+
       <Footer />
     </main>
   )
