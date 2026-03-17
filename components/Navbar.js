@@ -97,4 +97,71 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 flex-shrink-0">
               <Image src="/logo.png" alt="ACA Wholesale" width={38} height={38} className="object-contain" priority />
-              <span className="text-[10px] font-black uppercase tracking-wide
+              <span className="text-[10px] font-black uppercase tracking-wide hidden sm:block" style={{ color: '#C4962A' }}>Wholesale</span>
+            </Link>
+
+            {/* Desktop Nav */}
+            <div className="hidden md:flex items-center gap-8">
+              {[
+                { href: '/', label: 'Accueil' },
+                { href: '/produits', label: 'Nos Lots' },
+                { href: '/a-propos', label: 'À Propos' },
+                { href: '/faq', label: 'FAQ' },
+                { href: '/contact', label: 'Contact' },
+              ].map(link => (
+                <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Right icons */}
+            <div className="flex items-center gap-3">
+              <Link href="/connexion" className="hidden md:flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="text-xs font-bold uppercase tracking-widest">Compte</span>
+              </Link>
+              <Link href="/panier" className="relative flex items-center gap-1.5 text-white hover:text-[#E8B84B] transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                {totalItems > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 text-black text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+                    {totalItems}
+                  </span>
+                )}
+              </Link>
+              <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-white p-1">
+                <div className="w-5 space-y-1">
+                  <span className={`block h-0.5 bg-white transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
+                  <span className={`block h-0.5 bg-white transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`}></span>
+                  <span className={`block h-0.5 bg-white transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        {menuOpen && (
+          <div className="md:hidden border-t border-white/10 py-4 px-4 space-y-1" style={{ background: '#0a0a0a' }}>
+            {[
+              { href: '/', label: 'Accueil' },
+              { href: '/produits', label: 'Nos Lots' },
+              { href: '/a-propos', label: 'À Propos' },
+              { href: '/faq', label: 'FAQ' },
+              { href: '/contact', label: 'Contact' },
+              { href: '/connexion', label: 'Mon Compte' },
+            ].map(link => (
+              <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className="block py-3 text-sm font-bold text-gray-300 hover:text-white border-b border-white/5 uppercase tracking-widest">
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        )}
+      </nav>
+    </>
+  )
+}
