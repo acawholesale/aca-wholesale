@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useCart } from '../context/CartContext'
 
 export default function Navbar() {
@@ -10,7 +11,7 @@ export default function Navbar() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className="text-black text-[10px] md:text-xs py-1.5 overflow-hidden font-black" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+      <div className="bg-[#C4962A] text-black text-[10px] md:text-xs py-1.5 overflow-hidden font-bold">
         <div className="animate-scroll whitespace-nowrap flex gap-8 md:gap-12">
           <span>🇫🇷 EXPÉDIÉ DEPUIS LA MOSELLE</span>
           <span>✋ LOTS SÉLECTIONNÉS À LA MAIN</span>
@@ -29,21 +30,15 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-14 md:h-16">
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex items-center">
-                <div className="bg-white text-black px-2.5 py-1 font-black text-lg tracking-tighter rounded-l-lg">
-                  AC
-                </div>
-                <div
-                  className="px-1.5 py-1 font-black text-lg tracking-tighter rounded-r-lg"
-                  style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: 'white' }}
-                >
-                  A
-                </div>
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-wide hidden sm:block" style={{ color: '#C4962A' }}>
-                Wholesale
-              </span>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="ACA Wholesale"
+                width={120}
+                height={40}
+                className="h-9 md:h-10 w-auto object-contain"
+                priority
+              />
             </Link>
 
             {/* Desktop Nav */}
@@ -58,7 +53,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-xs font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-widest"
+                  className="text-sm font-medium text-gray-300 hover:text-white transition-colors uppercase tracking-wide text-xs"
                 >
                   {link.label}
                 </Link>
@@ -69,15 +64,16 @@ export default function Navbar() {
             <div className="flex items-center gap-2 md:gap-3">
               <Link
                 href="/produits"
-                className="hidden sm:inline-block text-black text-xs px-5 py-2 font-black uppercase tracking-widest transition-all hover:opacity-90 rounded-sm"
+                className="hidden sm:inline-block text-black text-xs px-5 py-2 font-black uppercase tracking-wide transition-all rounded"
                 style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
               >
                 Commander
               </Link>
 
+              {/* Cart */}
               <Link
                 href="/panier"
-                className="relative flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded-sm"
+                className="relative flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded"
                 aria-label="Panier"
               >
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,6 +89,7 @@ export default function Navbar() {
                 )}
               </Link>
 
+              {/* Mobile menu toggle */}
               <button
                 className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-white"
                 onClick={() => setMenuOpen(!menuOpen)}
@@ -124,7 +121,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block text-sm font-bold py-3 px-3 text-gray-400 hover:text-white border-b border-white/5 uppercase tracking-widest"
+                  className="block text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5"
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
@@ -132,12 +129,12 @@ export default function Navbar() {
               ))}
               <Link
                 href="/panier"
-                className="flex items-center gap-2 text-sm font-bold py-3 px-3 text-gray-400 hover:text-white uppercase tracking-widest"
+                className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white"
                 onClick={() => setMenuOpen(false)}
               >
                 🛒 Panier
                 {totalItems > 0 && (
-                  <span className="text-black text-[10px] font-black px-1.5 py-0.5 rounded-sm" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+                  <span className="text-black text-[10px] font-black px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
                     {totalItems}
                   </span>
                 )}
@@ -145,7 +142,7 @@ export default function Navbar() {
               <div className="pt-2">
                 <Link
                   href="/produits"
-                  className="block text-black text-xs px-5 py-3 font-black text-center uppercase tracking-widest hover:opacity-90"
+                  className="block text-black text-sm px-5 py-3 font-black text-center rounded uppercase tracking-wide"
                   style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
                   onClick={() => setMenuOpen(false)}
                 >
