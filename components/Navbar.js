@@ -70,9 +70,9 @@ export default function Navbar() {
                 Commander
               </Link>
 
-              {/* Account / Admin */}
+              {/* Account / Connexion */}
               <Link
-                href="/admin"
+                href="/connexion"
                 className="relative flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded"
                 aria-label="Compte"
               >
@@ -151,7 +151,7 @@ export default function Navbar() {
                 )}
               </Link>
               <Link
-                href="/admin"
+                href="/connexion"
                 className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white"
                 onClick={() => setMenuOpen(false)}
               >
@@ -160,17 +160,4 @@ export default function Navbar() {
               <div className="pt-2">
                 <Link
                   href="/produits"
-                  className="block text-black text-sm px-5 py-3 font-black text-center rounded uppercase tracking-wide"
-                  style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Commander
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-      </nav>
-    </>
-  )
-}
+                  className="block text-black text-sm px-5 py-3 font-black text-center
