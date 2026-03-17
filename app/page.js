@@ -42,7 +42,7 @@ export default function Home() {
       <Navbar />
 
       {/* ── HERO ── */}
-      <section className="relative bg-black text-white overflow-hidden min-h-[80vh] md:min-h-screen flex items-center">
+      <section className="relative text-white overflow-hidden min-h-[80vh] md:min-h-screen flex items-center">
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)',
           backgroundSize: '60px 60px'
@@ -91,7 +91,7 @@ export default function Home() {
       </section>
 
       {/* ── TRUST BAR ── */}
-      <section className="border-y border-white/10 py-6 md:py-8 fade-up">
+      <section className="border-y border-white/10 py-6 md:py-8 fade-up" style={{ background: 'rgba(0,0,0,0.3)' }}>
         <div className="max-w-7xl mx-auto px-5">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 md:divide-x divide-white/10">
             {[
@@ -151,8 +151,8 @@ export default function Home() {
               <Link
                 key={cat.name}
                 href="/produits"
-                className="group text-center p-4 md:p-6 bg-[#111] border hover:border-yellow-600/50 hover:-translate-y-1 transition-all duration-300 rounded"
-                style={{ borderColor: 'rgba(255,255,255,0.07)', transitionDelay: `${i * 0.05}s` }}
+                className="group text-center p-4 md:p-6 border hover:border-yellow-600/50 hover:-translate-y-1 transition-all duration-300 rounded"
+                style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)', transitionDelay: `${i * 0.05}s` }}
               >
                 <div className="text-2xl md:text-3xl mb-2 md:mb-3 transition-transform duration-300 group-hover:scale-110">{cat.emoji}</div>
                 <h3 className="font-bold text-[10px] md:text-xs mb-0.5 text-white uppercase tracking-wide">{cat.name}</h3>
@@ -186,7 +186,7 @@ export default function Home() {
       </section>
 
       {/* ── BRANDS MARQUEE ── */}
-      <section className="py-10 md:py-16 border-y border-white/10 overflow-hidden fade-up">
+      <section className="py-10 md:py-16 border-y border-white/10 overflow-hidden fade-up" style={{ background: 'rgba(0,0,0,0.2)' }}>
         <div className="max-w-7xl mx-auto px-5 mb-6 md:mb-8">
           <p className="text-gray-500 text-xs uppercase tracking-widest font-bold text-center">Marques présentes dans nos lots</p>
         </div>
@@ -214,7 +214,7 @@ export default function Home() {
               { step: '02', title: 'Passez commande', desc: 'Renseignez vos coordonnées, précisez vos préférences de tailles. Notre équipe vous contacte pour le paiement.', emoji: '📋' },
               { step: '03', title: 'Revendez à la pièce', desc: 'Recevez votre lot et revendez chaque pièce individuellement sur Vinted. Multipliez votre investissement !', emoji: '🚀' },
             ].map((item) => (
-              <div key={item.step} className="bg-black p-6 md:p-10 text-center group hover:bg-[#0a0a0a] transition-colors">
+              <div key={item.step} className="p-6 md:p-10 text-center group transition-colors" style={{ background: 'rgba(0,0,0,0.4)' }}>
                 <div className="text-3xl md:text-4xl mb-4 transition-transform duration-300 group-hover:scale-110">{item.emoji}</div>
                 <div className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#C4962A' }}>ÉTAPE {item.step}</div>
                 <h3 className="text-base md:text-lg font-black text-white mb-3 uppercase">{item.title}</h3>
@@ -229,7 +229,7 @@ export default function Home() {
       <section className="py-12 md:py-20 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-5">
           <div className="grid md:grid-cols-2 gap-px bg-white/10 rounded overflow-hidden">
-            <div className="bg-black p-6 md:p-12 fade-left">
+            <div className="p-6 md:p-12 fade-left" style={{ background: 'rgba(0,0,0,0.5)' }}>
               <div className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#C4962A' }}>Pourquoi ACA Wholesale ?</div>
               <h2 className="text-xl md:text-3xl font-black text-white mb-6 uppercase leading-tight">Un fournisseur fiable, pensé pour les revendeurs</h2>
               <p className="text-gray-400 leading-relaxed mb-4 text-sm">
@@ -255,7 +255,7 @@ export default function Home() {
                 En savoir plus →
               </Link>
             </div>
-            <div className="bg-[#0a0a0a] p-6 md:p-12 flex items-center justify-center min-h-[300px] fade-right">
+            <div className="p-6 md:p-12 flex items-center justify-center min-h-[300px] fade-right" style={{ background: 'rgba(0,0,0,0.3)' }}>
               <div className="text-center">
                 <div className="text-6xl mb-6">📦</div>
                 <p className="text-white font-black text-lg uppercase">Notre entrepôt en Moselle</p>
@@ -267,7 +267,7 @@ export default function Home() {
                     { emoji: '📏', text: 'Tailles variées' },
                     { emoji: '🚚', text: 'Envoi rapide' },
                   ].map(b => (
-                    <div key={b.text} className="bg-black border border-white/10 rounded p-3 text-center hover:border-yellow-600/30 transition-colors">
+                    <div key={b.text} className="border border-white/10 rounded p-3 text-center hover:border-yellow-600/30 transition-colors" style={{ background: 'rgba(255,255,255,0.05)' }}>
                       <div className="text-lg mb-1">{b.emoji}</div>
                       <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{b.text}</div>
                     </div>
@@ -288,7 +288,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
             {testimonials.map((t, i) => (
-              <div key={i} className="bg-[#111] p-6 md:p-8 rounded hover:border-yellow-600/30 hover:-translate-y-1 transition-all duration-300 fade-up" style={{ border: '1px solid rgba(255,255,255,0.07)', transitionDelay: `${i * 0.12}s` }}>
+              <div key={i} className="p-6 md:p-8 rounded hover:border-yellow-600/30 hover:-translate-y-1 transition-all duration-300 fade-up" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(10px)', transitionDelay: `${i * 0.12}s` }}>
                 <div className="flex gap-1 mb-4">
                   {Array(t.rating).fill(0).map((_, j) => (
                     <span key={j} className="star-filled text-base">★</span>
@@ -341,7 +341,7 @@ export default function Home() {
       {/* ── CTA ── */}
       <section className="py-16 md:py-24 fade-up">
         <div className="max-w-4xl mx-auto px-5 text-center">
-          <div className="border border-white/10 rounded p-10 md:p-16 hover:border-yellow-600/20 transition-colors">
+          <div className="border border-white/10 rounded p-10 md:p-16 hover:border-yellow-600/20 transition-colors" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(10px)' }}>
             <p className="text-xs uppercase tracking-widest text-gray-500 mb-4 font-bold">ACA Wholesale</p>
             <h2 className="text-2xl md:text-5xl font-black uppercase text-white mb-4 leading-tight">
               Prêt à développer<br />votre activité ?
