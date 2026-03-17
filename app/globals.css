@@ -16,7 +16,13 @@ html {
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #fff;
-  background: #000;
+  background:
+    radial-gradient(ellipse at 0% 40%, rgba(196, 120, 10, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 100% 60%, rgba(160, 80, 5, 0.28) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 0%, rgba(200, 130, 10, 0.20) 0%, transparent 60%),
+    radial-gradient(ellipse at 30% 100%, rgba(140, 70, 0, 0.22) 0%, transparent 50%),
+    #0a0500;
+  background-attachment: fixed;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
@@ -143,6 +149,21 @@ body {
 }
 
 /* =============================
+   SECTION TITLE UNDERLINE
+   ============================= */
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: #C4962A;
+  border-radius: 3px;
+}
+
+/* =============================
    BUTTONS & LINKS
    ============================= */
 
@@ -161,21 +182,6 @@ a, button {
 .btn-gold:hover {
   opacity: 0.9;
   transform: translateY(-1px);
-}
-
-/* =============================
-   SECTION TITLE UNDERLINE
-   ============================= */
-
-.section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 40px;
-  height: 3px;
-  background: #C4962A;
-  border-radius: 3px;
 }
 
 /* =============================
@@ -259,6 +265,7 @@ a, button {
     opacity: 0;
     transform: translateY(20px);
   }
+
   .fade-left.visible, .fade-right.visible {
     transform: translateY(0);
   }
