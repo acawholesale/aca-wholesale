@@ -7,87 +7,97 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async function(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
     setError('')
+    setLoading(true)
     try {
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: password })
+        body: JSON.stringify({ password }),
       })
-      if (res.ok) {
+      const data = await res.json()
+      if (data.success) {
         window.location.href = '/admin'
       } else {
-        setError('Mot de passe incorrect.')
+        setError('Mot de passe incorrect')
         setLoading(false)
       }
     } catch (err) {
-      setError('Erreur de connexion.')
+      setError('Erreur de connexion')
       setLoading(false)
     }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4" style={{background:'#080808'}}>
-      <div className="w-full max-w-xs">
-
-        <div className="flex items-center justify-center gap-2 mb-10">
-          <div className="flex items-center">
-            <div className="bg-white text-black px-2.5 py-1 font-black text-lg tracking-tighter rounded-l-lg">AC</div>
-            <div className="px-1.5 py-1 font-black text-lg tracking-tighter rounded-r-lg" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'white'}}>A</div>
-          </div>
-          <span className="text-[10px] font-black uppercase tracking-wide" style={{color:'#C4962A'}}>Wholesale</span>
-        </div>
-
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: '#0a0a0a' }}
+    >
+      <div
+        className="w-full max-w-sm p-8 rounded"
+        style={{ background: '#111', border: '1px solid rgba(196,150,42,0.3)' }}
+      >
         <div className="text-center mb-8">
-          <div className="text-4xl mb-3">🔐</div>
-          <h1 className="text-white font-black text-xl uppercase tracking-wide mb-1">Administration</h1>
-          <p className="text-gray-600 text-xs">Accès réservé</p>
+          <div className="inline-flex items-center gap-1 mb-4">
+            <div className="bg-white text-black px-2.5 py-1 font-black text-lg tracking-tighter rounded-l-lg">
+              AC
+            </div>
+            <div
+              className="px-1.5 py-1 font-black text-lg tracking-tighter rounded-r-lg"
+              style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: 'white' }}
+            >
+              A
+            </div>
+          </div>
+          <h1 className="text-white font-black text-xl uppercase tracking-wide">Administration</h1>
+          <p className="text-gray-500 text-xs mt-1">Accès réservé</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1.5">Mot de passe</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+              Mot de passe
+            </label>
             <input
               type="password"
               value={password}
-              onChange={function(e){setPassword(e.target.value)}}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
               autoFocus
-              className="w-full px-4 py-3 text-sm text-white placeholder-gray-600 rounded-lg outline-none"
-              style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)'}}
+              className="w-full px-4 py-3 text-sm text-white rounded outline-none"
+              style={{
+                background: 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(255,255,255,0.15)',
+              }}
             />
           </div>
 
           {error && (
-            <p className="text-red-400 text-xs text-center py-2 rounded-lg" style={{background:'rgba(239,68,68,0.08)'}}>
-              {error}
-            </p>
+            <div className="text-red-400 text-xs font-bold text-center py-1">{error}</div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 font-black text-sm uppercase tracking-wide rounded-lg text-black disabled:opacity-60"
-            style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}
+            className="w-full py-3 font-black text-sm uppercase tracking-widest rounded transition-opacity"
+            style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000', opacity: loading ? 0.7 : 1 }}
           >
-            {loading ? 'Vérification...' : 'Entrer'}
+            {loading ? 'Connexion...' : 'SE CONNECTER'}
           </button>
         </form>
 
-        <div className="text-center mt-8">
+        <div className="mt-6 text-center">
           <button
-            onClick={function(){ window.location.href = '/connexion' }}
-            className="text-xs text-gray-700 hover:text-gray-500 transition-colors"
+            onClick={() => { window.location.href = '/connexion' }}
+            className="text-gray-600 text-xs hover:text-gray-400 transition-colors"
           >
             Retour connexion client
           </button>
         </div>
-
       </div>
-    </main>
+    </div>
   )
 }
