@@ -1,27 +1,15 @@
 import { NextResponse } from 'next/server'
 
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123'
+
 export async function POST(request) {
-  const { password } = await request.json()
-
-  const adminPassword = (process.env.ADMIN_PASSWORD || '').trim()
-  const inputPassword = (password || '').trim()
-
-  if (inputPassword === adminPassword) {
-    const response = NextResponse.json({ success: true })
-    response.cookies.set('admin_session', process.env.ADMIN_SECRET || 'secret', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 7
-    })
-    return response
+  try {
+    const { password } = await request.json()
+    if (password === ADMIN_PASSWORD) {
+      return NextResponse.json({ success: true })
+    }
+    return NextResponse.json({ success: false }, { status: 401 })
+  } catch {
+    return NextResponse.json({ success: false }, { status: 400 })
   }
-
-  return NextResponse.json({ error: 'Mot de passe incorrect' }, { status: 401 })
-}
-
-export async function DELETE() {
-  const response = NextResponse.json({ success: true })
-  response.cookies.delete('admin_session')
-  return response
 }
