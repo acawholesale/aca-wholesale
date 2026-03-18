@@ -26,14 +26,12 @@ export default function AdminLoginPage() {
       padding: 24,
     }}>
 
-      {/* Logo */}
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 40 }}>
         <div style={{ background: '#fff', color: '#000', padding: '6px 10px', fontWeight: 900, fontSize: 18, letterSpacing: -1, borderRadius: '6px 0 0 6px' }}>AC</div>
         <div style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#fff', padding: '6px 8px', fontWeight: 900, fontSize: 18, letterSpacing: -1, borderRadius: '0 6px 6px 0' }}>A</div>
         <span style={{ color: '#C4962A', fontWeight: 900, fontSize: 11, textTransform: 'uppercase', letterSpacing: 3, marginLeft: 10 }}>Wholesale</span>
       </div>
 
-      {/* Card */}
       <div style={{
         width: '100%',
         maxWidth: 360,
@@ -47,7 +45,6 @@ export default function AdminLoginPage() {
           <h1 style={{ color: '#fff', fontWeight: 900, fontSize: 22, textTransform: 'uppercase', letterSpacing: 3, margin: 0 }}>Administration</h1>
         </div>
 
-        {/* Password */}
         <div style={{ marginBottom: 20 }}>
           <label style={{ display: 'block', color: '#666', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 3, marginBottom: 8 }}>
             Mot de passe
@@ -76,7 +73,6 @@ export default function AdminLoginPage() {
           )}
         </div>
 
-        {/* Submit */}
         <button
           onClick={handleLogin}
           style={{
@@ -97,7 +93,6 @@ export default function AdminLoginPage() {
           SE CONNECTER
         </button>
 
-        {/* Back */}
         <div style={{ textAlign: 'center' }}>
           <button
             onClick={() => { window.location.href = '/connexion' }}
