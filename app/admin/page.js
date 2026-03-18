@@ -26,8 +26,8 @@ const mockClients = [
   { id: 5, nom: 'Chloé Leroy', email: 'chloe@email.com', commandes: 7, total: 510, segment: 'VIP', dateInscription: '2023-03-18' },
 ]
 
-function buildBordereauHTML(order) {
-  const articles = order.articles.map(a =>
+function buildBordereauHTML(order: any) {
+  const articles = order.articles.map((a: any) =>
     `<tr><td style="padding:6px 10px;border-bottom:1px solid #eee">${a.nom}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${a.taille}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${a.qty}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">${a.prix}€</td></tr>`
   ).join('')
   return `
@@ -64,11 +64,26 @@ function buildBordereauHTML(order) {
     </div>`
 }
 
-function printMultiple(orders) {
+function printMultiple(orders: any[]) {
   const html = `<!DOCTYPE html><html><head><title>Bordereaux</title><style>body{margin:0;padding:20px;background:#fff} .bordereau{margin-bottom:40px;page-break-after:always} @media print{body{padding:0} .bordereau{margin:0;page-break-after:always}}</style></head><body>${orders.map(o => `<div class="bordereau">${buildBordereauHTML(o)}</div>`).join('')}<script>window.onload=function(){window.print()}<\/script></body></html>`
   const w = window.open('', '_blank')
-  w.document.write(html)
-  w.document.close()
+  if (w) { w.document.write(html); w.document.close() }
+}
+
+function PremiumLock() {
+  return (
+    <div className="flex flex-col items-center justify-center h-96">
+      <div className="text-center p-10 rounded-2xl border border-yellow-600/30" style={{background:'rgba(196,150,42,0.07)'}}>
+        <div className="text-5xl mb-5">🔒</div>
+        <h2 className="text-2xl font-bold text-yellow-400 mb-3">Fonctionnalité Premium</h2>
+        <p className="text-gray-300 text-lg mb-2">Passez au plan supérieur pour</p>
+        <p className="text-gray-300 text-lg mb-6">bénéficier de cette fonctionnalité.</p>
+        <button className="px-8 py-3 rounded-full font-bold text-black text-base" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>
+          Mettre à niveau
+        </button>
+      </div>
+    </div>
+  )
 }
 
 function DashboardHome() {
@@ -106,8 +121,8 @@ function CommandesTab() {
   const [filtre, setFiltre] = useState('tous')
   const [dateDebut, setDateDebut] = useState('')
   const [dateFin, setDateFin] = useState('')
-  const [selected, setSelected] = useState([])
-  const [detail, setDetail] = useState(null)
+  const [selected, setSelected] = useState<string[]>([])
+  const [detail, setDetail] = useState<any>(null)
 
   const filtered = mockOrders.filter(o => {
     if (filtre !== 'tous' && o.statut !== filtre) return false
@@ -116,7 +131,7 @@ function CommandesTab() {
     return true
   })
 
-  const toggleSelect = (id) => setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id])
+  const toggleSelect = (id: string) => setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id])
   const toggleAll = () => setSelected(selected.length === filtered.length ? [] : filtered.map(o => o.id))
   const selectedOrders = mockOrders.filter(o => selected.includes(o.id))
 
@@ -142,7 +157,7 @@ function CommandesTab() {
           </div>
           <table className="w-full mb-4">
             <thead><tr className="border-b border-white/10"><th className="text-left py-2 text-gray-400 text-sm">Article</th><th className="text-center py-2 text-gray-400 text-sm">Taille</th><th className="text-center py-2 text-gray-400 text-sm">Qté</th><th className="text-right py-2 text-gray-400 text-sm">Prix</th></tr></thead>
-            <tbody>{detail.articles.map((a,i) => <tr key={i} className="border-b border-white/5"><td className="py-2">{a.nom}</td><td className="py-2 text-center">{a.taille}</td><td className="py-2 text-center">{a.qty}</td><td className="py-2 text-right">{a.prix}€</td></tr>)}</tbody>
+            <tbody>{detail.articles.map((a: any, i: number) => <tr key={i} className="border-b border-white/5"><td className="py-2">{a.nom}</td><td className="py-2 text-center">{a.taille}</td><td className="py-2 text-center">{a.qty}</td><td className="py-2 text-right">{a.prix}€</td></tr>)}</tbody>
           </table>
           <div className="text-right text-xl font-bold text-yellow-400">Total : {detail.total}€</div>
           <button onClick={() => printMultiple([detail])} className="mt-4 px-6 py-2 rounded-lg font-bold text-black" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>🖨️ Imprimer le bordereau</button>
@@ -164,7 +179,9 @@ function CommandesTab() {
         <span className="text-gray-400">→</span>
         <input type="date" value={dateFin} onChange={e => setDateFin(e.target.value)} className="px-3 py-1.5 rounded-lg text-sm text-white border border-white/20" style={{background:'rgba(255,255,255,0.07)'}} />
         {selected.length > 0 && (
-          <button onClick={() => printMultiple(selectedOrders)} className="ml-auto px-5 py-1.5 rounded-lg font-bold text-black text-sm" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>🖨️ Imprimer ({selected.length})</button>
+          <button onClick={() => printMultiple(selectedOrders)} className="ml-auto px-5 py-1.5 rounded-lg font-bold text-black text-sm" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>
+            🖨️ Imprimer ({selected.length})
+          </button>
         )}
       </div>
       <div className="rounded-xl overflow-hidden border border-white/10">
@@ -181,7 +198,7 @@ function CommandesTab() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((order, i) => (
+            {filtered.map((order) => (
               <tr key={order.id} className="border-t border-white/5 hover:bg-white/5 transition-colors">
                 <td className="p-3"><input type="checkbox" checked={selected.includes(order.id)} onChange={() => toggleSelect(order.id)} /></td>
                 <td className="p-3 font-mono text-yellow-400 text-sm">{order.id}</td>
@@ -203,164 +220,40 @@ function CommandesTab() {
 }
 
 function ClientsTab() {
-  const [view, setView] = useState('liste')
   const [segmentFiltre, setSegmentFiltre] = useState('tous')
-  const [sujet, setSujet] = useState('')
-  const [contenu, setContenu] = useState('')
-  const [destinataires, setDestinataires] = useState([])
-  const [sending, setSending] = useState(false)
-  const [campaigns, setCampaigns] = useState([
-    { id: 1, date: '2024-01-10', sujet: 'Nouveau drop disponible !', destinataires: 5, statut: 'envoyé' },
-  ])
-
   const filteredClients = mockClients.filter(c => segmentFiltre === 'tous' || c.segment === segmentFiltre)
-
-  const toggleDest = (email) => setDestinataires(d => d.includes(email) ? d.filter(x => x !== email) : [...d, email])
-  const selectAll = () => setDestinataires(filteredClients.map(c => c.email))
-  const deselectAll = () => setDestinataires([])
-
-  const sendCampaign = async () => {
-    if (!sujet || !contenu || destinataires.length === 0) return alert('Veuillez remplir le sujet, le contenu et sélectionner des destinataires.')
-    setSending(true)
-    try {
-      const res = await fetch('/api/admin/send-campaign', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ destinataires, sujet, contenu })
-      })
-      if (res.ok) {
-        setCampaigns(c => [...c, { id: Date.now(), date: new Date().toISOString().split('T')[0], sujet, destinataires: destinataires.length, statut: 'envoyé' }])
-        setSujet('')
-        setContenu('')
-        setDestinataires([])
-        setView('historique')
-        alert('Campagne envoyée avec succès !')
-      } else {
-        alert('Erreur lors de l\'envoi. Vérifiez votre clé RESEND_API_KEY.')
-      }
-    } catch {
-      alert('Erreur réseau.')
-    }
-    setSending(false)
-  }
 
   return (
     <div>
       <h2 className="text-2xl font-bold text-yellow-400 mb-6">Clients</h2>
-      <div className="flex gap-3 mb-6">
-        {[{id:'liste',label:'📋 Liste'},{id:'campagne',label:'📧 Campagne'},{id:'historique',label:'📊 Historique'}].map(v => (
-          <button key={v.id} onClick={() => setView(v.id)} className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${view === v.id ? 'text-black border-yellow-500' : 'text-gray-300 border-white/20 hover:border-yellow-500/50'}`} style={view === v.id ? {background:'linear-gradient(135deg,#C4962A,#E8B84B)'} : {}}>{v.label}</button>
+      <div className="flex gap-2 mb-4 flex-wrap">
+        {['tous','VIP','Actif','Nouveau'].map(s => (
+          <button key={s} onClick={() => setSegmentFiltre(s)} className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${segmentFiltre === s ? 'text-black border-yellow-500' : 'text-gray-300 border-white/20'}`} style={segmentFiltre === s ? {background:'linear-gradient(135deg,#C4962A,#E8B84B)'} : {}}>{s}</button>
         ))}
       </div>
-
-      {view === 'liste' && (
-        <div>
-          <div className="flex gap-2 mb-4 flex-wrap">
-            {['tous','VIP','Actif','Nouveau'].map(s => (
-              <button key={s} onClick={() => setSegmentFiltre(s)} className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${segmentFiltre === s ? 'text-black border-yellow-500' : 'text-gray-300 border-white/20'}`} style={segmentFiltre === s ? {background:'linear-gradient(135deg,#C4962A,#E8B84B)'} : {}}>{s}</button>
-            ))}
-          </div>
-          <div className="rounded-xl overflow-hidden border border-white/10">
-            <table className="w-full">
-              <thead>
-                <tr style={{background:'rgba(255,255,255,0.07)'}}>
-                  <th className="p-3 text-left text-gray-400 text-sm">Client</th>
-                  <th className="p-3 text-left text-gray-400 text-sm">Email</th>
-                  <th className="p-3 text-left text-gray-400 text-sm">Commandes</th>
-                  <th className="p-3 text-left text-gray-400 text-sm">Total dépensé</th>
-                  <th className="p-3 text-left text-gray-400 text-sm">Segment</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredClients.map(c => (
-                  <tr key={c.id} className="border-t border-white/5 hover:bg-white/5">
-                    <td className="p-3 font-medium">{c.nom}</td>
-                    <td className="p-3 text-gray-400 text-sm">{c.email}</td>
-                    <td className="p-3 text-center">{c.commandes}</td>
-                    <td className="p-3 text-yellow-400 font-medium">{c.total}€</td>
-                    <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${c.segment === 'VIP' ? 'bg-yellow-500/20 text-yellow-400' : c.segment === 'Actif' ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}`}>{c.segment}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {view === 'campagne' && (
-        <div className="space-y-5">
-          <div>
-            <label className="block text-sm text-gray-400 mb-2">Sujet de l'email</label>
-            <input value={sujet} onChange={e => setSujet(e.target.value)} placeholder="Ex: Nouveau drop disponible !" className="w-full px-4 py-3 rounded-xl border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500" style={{background:'rgba(255,255,255,0.07)'}} />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-400 mb-2">Contenu</label>
-            <textarea value={contenu} onChange={e => setContenu(e.target.value)} rows={5} placeholder="Rédigez votre message ici..." className="w-full px-4 py-3 rounded-xl border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 resize-none" style={{background:'rgba(255,255,255,0.07)'}} />
-          </div>
-          <div>
-            <div className="flex justify-between items-center mb-3">
-              <label className="text-sm text-gray-400">Destinataires ({destinataires.length} sélectionné{destinataires.length > 1 ? 's' : ''})</label>
-              <div className="flex gap-2">
-                <button onClick={selectAll} className="text-xs text-yellow-400 hover:text-yellow-300">Tous</button>
-                <button onClick={deselectAll} className="text-xs text-gray-400 hover:text-gray-300">Aucun</button>
-              </div>
-            </div>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {mockClients.map(c => (
-                <label key={c.id} className="flex items-center gap-3 p-3 rounded-lg border border-white/10 cursor-pointer hover:border-yellow-500/30 transition-colors" style={{background:'rgba(255,255,255,0.03)'}}>
-                  <input type="checkbox" checked={destinataires.includes(c.email)} onChange={() => toggleDest(c.email)} />
-                  <span className="flex-1 text-sm">{c.nom}</span>
-                  <span className="text-xs text-gray-500">{c.email}</span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs ${c.segment === 'VIP' ? 'bg-yellow-500/20 text-yellow-400' : c.segment === 'Actif' ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}`}>{c.segment}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-          <button onClick={sendCampaign} disabled={sending} className="w-full py-3 rounded-xl font-bold text-black text-base disabled:opacity-50 transition-opacity" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>
-            {sending ? 'Envoi en cours...' : `📧 Envoyer la campagne (${destinataires.length} destinataire${destinataires.length > 1 ? 's' : ''})`}
-          </button>
-        </div>
-      )}
-
-      {view === 'historique' && (
-        <div className="rounded-xl overflow-hidden border border-white/10">
-          <table className="w-full">
-            <thead>
-              <tr style={{background:'rgba(255,255,255,0.07)'}}>
-                <th className="p-3 text-left text-gray-400 text-sm">Date</th>
-                <th className="p-3 text-left text-gray-400 text-sm">Sujet</th>
-                <th className="p-3 text-left text-gray-400 text-sm">Destinataires</th>
-                <th className="p-3 text-left text-gray-400 text-sm">Statut</th>
+      <div className="rounded-xl overflow-hidden border border-white/10">
+        <table className="w-full">
+          <thead>
+            <tr style={{background:'rgba(255,255,255,0.07)'}}>
+              <th className="p-3 text-left text-gray-400 text-sm">Client</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Email</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Commandes</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Total dépensé</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Segment</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredClients.map(c => (
+              <tr key={c.id} className="border-t border-white/5 hover:bg-white/5">
+                <td className="p-3 font-medium">{c.nom}</td>
+                <td className="p-3 text-gray-400 text-sm">{c.email}</td>
+                <td className="p-3 text-center">{c.commandes}</td>
+                <td className="p-3 text-yellow-400 font-medium">{c.total}€</td>
+                <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${c.segment === 'VIP' ? 'bg-yellow-500/20 text-yellow-400' : c.segment === 'Actif' ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}`}>{c.segment}</span></td>
               </tr>
-            </thead>
-            <tbody>
-              {campaigns.map(c => (
-                <tr key={c.id} className="border-t border-white/5">
-                  <td className="p-3 text-gray-400 text-sm">{c.date}</td>
-                  <td className="p-3 font-medium">{c.sujet}</td>
-                  <td className="p-3 text-center">{c.destinataires}</td>
-                  <td className="p-3"><span className="px-2 py-0.5 rounded-full text-xs bg-green-500/20 text-green-400">{c.statut}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function ArticlesTab() {
-  return (
-    <div className="flex flex-col items-center justify-center h-96">
-      <div className="text-center p-10 rounded-2xl border border-yellow-600/30" style={{background:'rgba(196,150,42,0.07)'}}>
-        <div className="text-5xl mb-5">🔒</div>
-        <h2 className="text-2xl font-bold text-yellow-400 mb-3">Fonctionnalité Premium</h2>
-        <p className="text-gray-300 text-lg mb-2">Passez au plan supérieur pour</p>
-        <p className="text-gray-300 text-lg mb-6">bénéficier de cette fonctionnalité.</p>
-        <button className="px-8 py-3 rounded-full font-bold text-black text-base" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>
-          Mettre à niveau
-        </button>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   )
@@ -374,6 +267,7 @@ export default function AdminPage() {
     { id: 'dashboard', label: 'Tableau de bord', icon: '📊' },
     { id: 'commandes', label: 'Commandes', icon: '📦' },
     { id: 'clients', label: 'Clients', icon: '👥' },
+    { id: 'campagne', label: 'Campagne', icon: '📧' },
     { id: 'articles', label: 'Articles', icon: '🏷️' },
   ]
 
@@ -399,7 +293,7 @@ export default function AdminPage() {
           ))}
         </nav>
         <div className="p-3 border-t border-white/10">
-          <button onClick={logout} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-all`}>
+          <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-all">
             <span className="text-lg flex-shrink-0">🚪</span>
             {sidebarOpen && <span className="text-sm">Déconnexion</span>}
           </button>
@@ -411,7 +305,8 @@ export default function AdminPage() {
         {activeTab === 'dashboard' && <DashboardHome />}
         {activeTab === 'commandes' && <CommandesTab />}
         {activeTab === 'clients' && <ClientsTab />}
-        {activeTab === 'articles' && <ArticlesTab />}
+        {activeTab === 'campagne' && <PremiumLock />}
+        {activeTab === 'articles' && <PremiumLock />}
       </main>
     </div>
   )
