@@ -1,21 +1,23 @@
 'use client'
 export const dynamic = 'force-dynamic'
 import { useState } from 'react'
-import Link from 'next/link'
 
 export default function ConnexionPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = function(e) {
     e.preventDefault()
+    setLoading(true)
+    setTimeout(function() { setLoading(false) }, 1000)
   }
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4" style={{background:'#080808'}}>
       <div className="w-full max-w-sm">
 
-        <div className="flex items-center justify-center gap-2 mb-8">
+        <div className="flex items-center justify-center gap-2 mb-10">
           <div className="flex items-center">
             <div className="bg-white text-black px-2.5 py-1 font-black text-lg tracking-tighter rounded-l-lg">AC</div>
             <div className="px-1.5 py-1 font-black text-lg tracking-tighter rounded-r-lg" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'white'}}>A</div>
@@ -35,7 +37,7 @@ export default function ConnexionPage() {
               onChange={function(e){setEmail(e.target.value)}}
               placeholder="votre@email.com"
               required
-              className="w-full px-4 py-3 text-sm text-white placeholder-gray-600 rounded outline-none"
+              className="w-full px-4 py-3 text-sm text-white placeholder-gray-600 rounded-lg outline-none"
               style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)'}}
             />
           </div>
@@ -47,29 +49,27 @@ export default function ConnexionPage() {
               onChange={function(e){setPassword(e.target.value)}}
               placeholder="••••••••"
               required
-              className="w-full px-4 py-3 text-sm text-white placeholder-gray-600 rounded outline-none"
+              className="w-full px-4 py-3 text-sm text-white placeholder-gray-600 rounded-lg outline-none"
               style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)'}}
             />
           </div>
           <button
             type="submit"
-            className="w-full py-3 font-black text-sm uppercase tracking-wide rounded text-black mt-2"
+            disabled={loading}
+            className="w-full py-3 font-black text-sm uppercase tracking-wide rounded-lg text-black disabled:opacity-60"
             style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}
           >
-            Se connecter
+            {loading ? 'Connexion...' : 'Se connecter'}
           </button>
         </form>
 
-        <div className="mt-8 pt-6" style={{borderTop:'1px solid rgba(255,255,255,0.06)'}}>
-          <Link
-            href="/admin/login"
-            className="flex items-center justify-center gap-2 w-full py-3 rounded text-sm font-medium transition-all hover:opacity-80"
-            style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.12)',color:'#9ca3af'}}
+        <div className="text-center mt-10">
+          <button
+            onClick={function(){ window.location.href = '/admin/login' }}
+            className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
           >
-            <span>🔐</span>
-            <span>Accès administration</span>
-            <span>→</span>
-          </Link>
+            Accès administration
+          </button>
         </div>
 
       </div>
