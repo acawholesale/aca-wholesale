@@ -60,9 +60,15 @@ export default function ConnexionPage() {
           </button>
         </form>
 
-        <div className="text-center mt-8">
-          <Link href="/admin" className="text-xs text-gray-700 hover:text-gray-500 transition-colors">
-            Accès administration →
+        <div className="mt-8 pt-6" style={{borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+          <Link
+            href="/admin"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded text-sm font-medium transition-all hover:opacity-80"
+            style={{background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.12)', color:'#9ca3af'}}
+          >
+            <span>🔐</span>
+            <span>Accès administration</span>
+            <span>→</span>
           </Link>
         </div>
 
