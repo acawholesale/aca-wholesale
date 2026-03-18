@@ -5,74 +5,49 @@ import { useState } from 'react'
 export default function ConnexionPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-
-  const handleSubmit = function(e) {
-    e.preventDefault()
-    setLoading(true)
-    setTimeout(function() { setLoading(false) }, 1000)
-  }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4" style={{background:'#080808'}}>
-      <div className="w-full max-w-sm">
+    <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: 40, width: 380 }}>
+        <h2 style={{ color: 'white', textAlign: 'center', marginBottom: 24, fontWeight: 900, letterSpacing: 2, textTransform: 'uppercase' }}>Mon compte</h2>
 
-        <div className="flex items-center justify-center gap-2 mb-10">
-          <div className="flex items-center">
-            <div className="bg-white text-black px-2.5 py-1 font-black text-lg tracking-tighter rounded-l-lg">AC</div>
-            <div className="px-1.5 py-1 font-black text-lg tracking-tighter rounded-r-lg" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'white'}}>A</div>
-          </div>
-          <span className="text-[10px] font-black uppercase tracking-wide" style={{color:'#C4962A'}}>Wholesale</span>
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ display: 'block', color: '#aaa', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8 }}>Email</label>
+          <input
+            type="email"
+            placeholder="votre@email.com"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, color: 'white', fontSize: 14, boxSizing: 'border-box' }}
+          />
         </div>
 
-        <h1 className="text-white font-black text-2xl text-center uppercase tracking-wide mb-1">Mon compte</h1>
-        <p className="text-gray-500 text-xs text-center mb-8">Connectez-vous pour suivre vos commandes</p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1.5">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={function(e){setEmail(e.target.value)}}
-              placeholder="votre@email.com"
-              required
-              className="w-full px-4 py-3 text-sm text-white placeholder-gray-600 rounded-lg outline-none"
-              style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)'}}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1.5">Mot de passe</label>
-            <input
-              type="password"
-              value={password}
-              onChange={function(e){setPassword(e.target.value)}}
-              placeholder="••••••••"
-              required
-              className="w-full px-4 py-3 text-sm text-white placeholder-gray-600 rounded-lg outline-none"
-              style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)'}}
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 font-black text-sm uppercase tracking-wide rounded-lg text-black disabled:opacity-60"
-            style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}
-          >
-            {loading ? 'Connexion...' : 'Se connecter'}
-          </button>
-        </form>
-
-        <div className="text-center mt-10">
-          <button
-            onClick={function(){ window.location.href = '/admin/login' }}
-            className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
-          >
-            Accès administration
-          </button>
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: 'block', color: '#aaa', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8 }}>Mot de passe</label>
+          <input
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            style={{ width: '100%', padding: '12px 16px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, color: 'white', fontSize: 14, boxSizing: 'border-box' }}
+          />
         </div>
 
+        <button
+          style={{ width: '100%', padding: '13px 0', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000', fontWeight: 900, fontSize: 14, textTransform: 'uppercase', letterSpacing: 2, border: 'none', borderRadius: 6, cursor: 'pointer', marginBottom: 20 }}
+        >
+          SE CONNECTER
+        </button>
+
+        <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.1)', marginBottom: 20 }} />
+
+        <button
+          onClick={() => { window.location.href = '/admin/login' }}
+          style={{ width: '100%', padding: '13px 0', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, color: '#aaa', fontSize: 14, cursor: 'pointer', fontWeight: 600 }}
+        >
+          Acces administration
+        </button>
       </div>
-    </main>
+    </div>
   )
 }
