@@ -11,8 +11,8 @@ const EXPEDITEUR = {
 }
 
 const mockOrders = [
-  { id: 'CMD-001', date: '2024-01-15', client: 'Sophie Martin', email: 'sophie@email.com', adresse: '5 rue des Lilas, 75001 Paris', articles: [{ nom: 'Veste Vintage Levi\'s', taille: 'M', qty: 1, prix: 45 }], total: 45, statut: 'à expédier' },
-  { id: 'CMD-002', date: '2024-01-15', client: 'Lucas Bernard', email: 'lucas@email.com', adresse: '12 av Victor Hugo, 69001 Lyon', articles: [{ nom: 'Jean 501 Levi\'s', taille: '32', qty: 2, prix: 35 }], total: 70, statut: 'à expédier' },
+  { id: 'CMD-001', date: '2024-01-15', client: 'Sophie Martin', email: 'sophie@email.com', adresse: '5 rue des Lilas, 75001 Paris', articles: [{ nom: "Veste Vintage Levi's", taille: 'M', qty: 1, prix: 45 }], total: 45, statut: 'à expédier' },
+  { id: 'CMD-002', date: '2024-01-15', client: 'Lucas Bernard', email: 'lucas@email.com', adresse: '12 av Victor Hugo, 69001 Lyon', articles: [{ nom: "Jean 501 Levi's", taille: '32', qty: 2, prix: 35 }], total: 70, statut: 'à expédier' },
   { id: 'CMD-003', date: '2024-01-14', client: 'Emma Dubois', email: 'emma@email.com', adresse: '8 bd Gambetta, 13001 Marseille', articles: [{ nom: 'Hoodie Champion', taille: 'L', qty: 1, prix: 38 }], total: 38, statut: 'expédié' },
   { id: 'CMD-004', date: '2024-01-13', client: 'Noah Petit', email: 'noah@email.com', adresse: '3 rue Nationale, 59000 Lille', articles: [{ nom: 'T-shirt Vintage', taille: 'S', qty: 3, prix: 20 }], total: 60, statut: 'livré' },
   { id: 'CMD-005', date: '2024-01-12', client: 'Chloé Leroy', email: 'chloe@email.com', adresse: '17 rue Alsace, 67000 Strasbourg', articles: [{ nom: 'Bomber MA-1', taille: 'M', qty: 1, prix: 65 }], total: 65, statut: 'expédié' },
@@ -26,8 +26,8 @@ const mockClients = [
   { id: 5, nom: 'Chloé Leroy', email: 'chloe@email.com', commandes: 7, total: 510, segment: 'VIP', dateInscription: '2023-03-18' },
 ]
 
-function buildBordereauHTML(order: any) {
-  const articles = order.articles.map((a: any) =>
+function buildBordereauHTML(order) {
+  const articles = order.articles.map(a =>
     `<tr><td style="padding:6px 10px;border-bottom:1px solid #eee">${a.nom}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${a.taille}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${a.qty}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">${a.prix}€</td></tr>`
   ).join('')
   return `
@@ -64,7 +64,7 @@ function buildBordereauHTML(order: any) {
     </div>`
 }
 
-function printMultiple(orders: any[]) {
+function printMultiple(orders) {
   const html = `<!DOCTYPE html><html><head><title>Bordereaux</title><style>body{margin:0;padding:20px;background:#fff} .bordereau{margin-bottom:40px;page-break-after:always} @media print{body{padding:0} .bordereau{margin:0;page-break-after:always}}</style></head><body>${orders.map(o => `<div class="bordereau">${buildBordereauHTML(o)}</div>`).join('')}<script>window.onload=function(){window.print()}<\/script></body></html>`
   const w = window.open('', '_blank')
   if (w) { w.document.write(html); w.document.close() }
@@ -94,7 +94,7 @@ function DashboardHome() {
       {aExpedier > 0 && (
         <div className="mb-6 p-4 rounded-xl border border-yellow-500/50 flex items-center gap-3" style={{background:'rgba(196,150,42,0.1)'}}>
           <span className="text-2xl">⚠️</span>
-          <p className="text-yellow-300 font-medium">{aExpedier} commande{aExpedier > 1 ? 's' : ''} en attente d'expédition</p>
+          <p className="text-yellow-300 font-medium">{aExpedier} commande{aExpedier > 1 ? 's' : ''} en attente d&apos;expédition</p>
         </div>
       )}
       <div className="grid grid-cols-2 gap-4 mb-8">
@@ -121,8 +121,8 @@ function CommandesTab() {
   const [filtre, setFiltre] = useState('tous')
   const [dateDebut, setDateDebut] = useState('')
   const [dateFin, setDateFin] = useState('')
-  const [selected, setSelected] = useState<string[]>([])
-  const [detail, setDetail] = useState<any>(null)
+  const [selected, setSelected] = useState([])
+  const [detail, setDetail] = useState(null)
 
   const filtered = mockOrders.filter(o => {
     if (filtre !== 'tous' && o.statut !== filtre) return false
@@ -131,7 +131,7 @@ function CommandesTab() {
     return true
   })
 
-  const toggleSelect = (id: string) => setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id])
+  const toggleSelect = (id) => setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id])
   const toggleAll = () => setSelected(selected.length === filtered.length ? [] : filtered.map(o => o.id))
   const selectedOrders = mockOrders.filter(o => selected.includes(o.id))
 
@@ -157,7 +157,7 @@ function CommandesTab() {
           </div>
           <table className="w-full mb-4">
             <thead><tr className="border-b border-white/10"><th className="text-left py-2 text-gray-400 text-sm">Article</th><th className="text-center py-2 text-gray-400 text-sm">Taille</th><th className="text-center py-2 text-gray-400 text-sm">Qté</th><th className="text-right py-2 text-gray-400 text-sm">Prix</th></tr></thead>
-            <tbody>{detail.articles.map((a: any, i: number) => <tr key={i} className="border-b border-white/5"><td className="py-2">{a.nom}</td><td className="py-2 text-center">{a.taille}</td><td className="py-2 text-center">{a.qty}</td><td className="py-2 text-right">{a.prix}€</td></tr>)}</tbody>
+            <tbody>{detail.articles.map((a, i) => <tr key={i} className="border-b border-white/5"><td className="py-2">{a.nom}</td><td className="py-2 text-center">{a.taille}</td><td className="py-2 text-center">{a.qty}</td><td className="py-2 text-right">{a.prix}€</td></tr>)}</tbody>
           </table>
           <div className="text-right text-xl font-bold text-yellow-400">Total : {detail.total}€</div>
           <button onClick={() => printMultiple([detail])} className="mt-4 px-6 py-2 rounded-lg font-bold text-black" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>🖨️ Imprimer le bordereau</button>
@@ -278,7 +278,6 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen flex" style={{background:'#0a0500'}}>
-      {/* Sidebar */}
       <aside className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 flex flex-col border-r border-white/10`} style={{background:'rgba(255,255,255,0.03)'}}>
         <div className="p-4 flex items-center justify-between border-b border-white/10">
           {sidebarOpen && <span className="font-bold text-yellow-400 text-lg">ACA Admin</span>}
@@ -300,7 +299,6 @@ export default function AdminPage() {
         </div>
       </aside>
 
-      {/* Main content */}
       <main className="flex-1 p-8 overflow-y-auto">
         {activeTab === 'dashboard' && <DashboardHome />}
         {activeTab === 'commandes' && <CommandesTab />}
