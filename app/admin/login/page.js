@@ -15,24 +15,25 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ password: password })
       })
       if (res.ok) {
         window.location.href = '/admin'
       } else {
         setError('Mot de passe incorrect.')
+        setLoading(false)
       }
     } catch (err) {
       setError('Erreur de connexion.')
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4" style={{background:'#080808'}}>
       <div className="w-full max-w-xs">
 
-        <div className="flex items-center justify-center gap-2 mb-8">
+        <div className="flex items-center justify-center gap-2 mb-10">
           <div className="flex items-center">
             <div className="bg-white text-black px-2.5 py-1 font-black text-lg tracking-tighter rounded-l-lg">AC</div>
             <div className="px-1.5 py-1 font-black text-lg tracking-tighter rounded-r-lg" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'white'}}>A</div>
@@ -41,9 +42,9 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="text-center mb-8">
-          <div className="text-3xl mb-3">🔐</div>
+          <div className="text-4xl mb-3">🔐</div>
           <h1 className="text-white font-black text-xl uppercase tracking-wide mb-1">Administration</h1>
-          <p className="text-gray-500 text-xs">Accès réservé</p>
+          <p className="text-gray-600 text-xs">Accès réservé</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -56,26 +57,35 @@ export default function AdminLoginPage() {
               placeholder="••••••••"
               required
               autoFocus
-              className="w-full px-4 py-3 text-sm text-white placeholder-gray-600 rounded outline-none"
+              className="w-full px-4 py-3 text-sm text-white placeholder-gray-600 rounded-lg outline-none"
               style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)'}}
             />
           </div>
 
           {error && (
-            <div className="px-4 py-2 rounded text-xs text-red-400 text-center" style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)'}}>
+            <p className="text-red-400 text-xs text-center py-2 rounded-lg" style={{background:'rgba(239,68,68,0.08)'}}>
               {error}
-            </div>
+            </p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 font-black text-sm uppercase tracking-wide rounded text-black transition-opacity disabled:opacity-50"
+            className="w-full py-3 font-black text-sm uppercase tracking-wide rounded-lg text-black disabled:opacity-60"
             style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}
           >
             {loading ? 'Vérification...' : 'Entrer'}
           </button>
         </form>
+
+        <div className="text-center mt-8">
+          <button
+            onClick={function(){ window.location.href = '/connexion' }}
+            className="text-xs text-gray-700 hover:text-gray-500 transition-colors"
+          >
+            Retour connexion client
+          </button>
+        </div>
 
       </div>
     </main>
