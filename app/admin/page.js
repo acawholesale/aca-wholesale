@@ -1,40 +1,140 @@
-'use client'
-export const dynamic = 'force-dynamic'
-import { useState } from 'react'
+function CommandesTab() {
+  const [filtre, setFiltre] = useState('tous')
+  const [dateDebut, setDateDebut] = useState('')
+  const [dateFin, setDateFin] = useState('')
+  const [selected, setSelected] = useState([])
+  const [detail, setDetail] = useState(null)
+  const [orders, setOrders] = useState(mockOrders)
 
-const EXPEDITEUR = {
-  nom: 'ACA Wholesale',
-  adresse: '12 Rue du Commerce',
-  codePostal: '57000',
-  ville: 'Metz',
-  pays: 'France',
-  tel: '+33 6 00 00 00 00',
-}
+  const filtered = orders.filter(o => {
+    if (filtre !== 'tous' && o.statut !== filtre) return false
+    if (dateDebut && o.date < dateDebut) return false
+    if (dateFin && o.date > dateFin) return false
+    return true
+  })
 
-const mockOrders = [
-  { id: 'CMD-001', date: '2024-01-15', client: 'Sophie Martin', email: 'sophie@email.com', adresse: '5 rue des Lilas, 75001 Paris', articles: [{ nom: "Veste Vintage Levi's", taille: 'M', qty: 1, prix: 45 }], total: 45, statut: 'à expédier' },
-  { id: 'CMD-002', date: '2024-01-15', client: 'Lucas Bernard', email: 'lucas@email.com', adresse: '12 av Victor Hugo, 69001 Lyon', articles: [{ nom: "Jean 501 Levi's", taille: '32', qty: 2, prix: 35 }], total: 70, statut: 'à expédier' },
-  { id: 'CMD-003', date: '2024-01-14', client: 'Emma Dubois', email: 'emma@email.com', adresse: '8 bd Gambetta, 13001 Marseille', articles: [{ nom: 'Hoodie Champion', taille: 'L', qty: 1, prix: 38 }], total: 38, statut: 'expédié' },
-  { id: 'CMD-004', date: '2024-01-13', client: 'Noah Petit', email: 'noah@email.com', adresse: '3 rue Nationale, 59000 Lille', articles: [{ nom: 'T-shirt Vintage', taille: 'S', qty: 3, prix: 20 }], total: 60, statut: 'livré' },
-  { id: 'CMD-005', date: '2024-01-12', client: 'Chloé Leroy', email: 'chloe@email.com', adresse: '17 rue Alsace, 67000 Strasbourg', articles: [{ nom: 'Bomber MA-1', taille: 'M', qty: 1, prix: 65 }], total: 65, statut: 'expédié' },
-]
+  const toggleSelect = (id) => setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id])
+  const toggleAll = () => setSelected(selected.length === filtered.length ? [] : filtered.map(o => o.id))
+  const selectedOrders = orders.filter(o => selected.includes(o.id))
 
-const mockClients = [
-  { id: 1, nom: 'Sophie Martin', email: 'sophie@email.com', commandes: 5, total: 320, segment: 'VIP', dateInscription: '2023-06-12' },
-  { id: 2, nom: 'Lucas Bernard', email: 'lucas@email.com', commandes: 3, total: 180, segment: 'Actif', dateInscription: '2023-09-04' },
-  { id: 3, nom: 'Emma Dubois', email: 'emma@email.com', commandes: 1, total: 38, segment: 'Nouveau', dateInscription: '2024-01-14' },
-  { id: 4, nom: 'Noah Petit', email: 'noah@email.com', commandes: 4, total: 240, segment: 'Actif', dateInscription: '2023-07-22' },
-  { id: 5, nom: 'Chloé Leroy', email: 'chloe@email.com', commandes: 7, total: 510, segment: 'VIP', dateInscription: '2023-03-18' },
-]
+  const changeStatut = (id, newStatut) => {
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, statut: newStatut } : o))
+    if (detail && detail.id === id) setDetail(prev => ({ ...prev, statut: newStatut }))
+  }
 
-function buildBordereauHTML(order) {
-  const articles = order.articles.map(a =>
-    `<tr><td style="padding:6px 10px;border-bottom:1px solid #eee">${a.nom}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${a.taille}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${a.qty}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">${a.prix}€</td></tr>`
-  ).join('')
-  return `
-    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:30px;border:2px solid #C4962A;border-radius:8px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #C4962A">
-        <div><h1 style="margin:0;font-size:22px;color:#C4962A">ACA WHOLESALE</h1><p style="margin:2px 0;color:#666;font-size:12px">BORDEREAU D'ENVOI</p></div>
+  const statutOptions = ['à expédier', 'expédié', 'livré']
+  const statutColors = {
+    'à expédier': 'bg-red-500/20 text-red-400 border-red-500/30',
+    'expédié': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    'livré': 'bg-green-500/20 text-green-400 border-green-500/30',
+  }
+
+  if (detail) {
+    return (
+      <div>
+        <button onClick={() => setDetail(null)} className="mb-6 flex items-center gap-2 text-yellow-400 hover:text-yellow-300">← Retour aux commandes</button>
+        <div className="p-6 rounded-xl border border-white/10" style={{background:'rgba(255,255,255,0.05)'}}>
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-yellow-400">{detail.id}</h2>
+              <p className="text-gray-400">{detail.date}</p>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${detail.statut === 'à expédier' ? 'bg-red-500/20 text-red-400' : detail.statut === 'expédié' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'}`}>{detail.statut}</span>
+              <div className="flex gap-1">
+                {statutOptions.filter(s => s !== detail.statut).map(s => (
+                  <button key={s} onClick={() => changeStatut(detail.id, s)} className="px-3 py-1 rounded-full text-xs border transition-all hover:opacity-80" style={{background:'rgba(255,255,255,0.07)', borderColor:'rgba(255,255,255,0.15)', color:'#ccc'}}>
+                    → {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="mb-6">
+            <h3 className="text-sm text-gray-400 mb-2 uppercase">Client</h3>
+            <p className="font-medium">{detail.client}</p>
+            <p className="text-gray-400 text-sm">{detail.email}</p>
+            <p className="text-gray-400 text-sm">{detail.adresse}</p>
+          </div>
+          <table className="w-full mb-4">
+            <thead><tr className="border-b border-white/10"><th className="text-left py-2 text-gray-400 text-sm">Article</th><th className="text-center py-2 text-gray-400 text-sm">Taille</th><th className="text-center py-2 text-gray-400 text-sm">Qté</th><th className="text-right py-2 text-gray-400 text-sm">Prix</th></tr></thead>
+            <tbody>{detail.articles.map((a, i) => <tr key={i} className="border-b border-white/5"><td className="py-2">{a.nom}</td><td className="py-2 text-center">{a.taille}</td><td className="py-2 text-center">{a.qty}</td><td className="py-2 text-right">{a.prix}€</td></tr>)}</tbody>
+          </table>
+          <div className="text-right text-xl font-bold text-yellow-400">Total : {detail.total}€</div>
+          <button onClick={() => printMultiple([detail])} className="mt-4 px-6 py-2 rounded-lg font-bold text-black" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>🖨️ Imprimer le bordereau</button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-yellow-400">Commandes</h2>
+        <button onClick={() => printMultiple(filtered)} className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-black text-sm" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>
+          🖨️ Imprimer tous ({filtered.length})
+        </button>
+      </div>
+
+      <div className="flex flex-wrap gap-3 mb-4">
+        {['tous','à expédier','expédié','livré'].map(s => (
+          <button key={s} onClick={() => setFiltre(s)} className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${filtre === s ? 'text-black border-yellow-500' : 'text-gray-300 border-white/20 hover:border-yellow-500/50'}`} style={filtre === s ? {background:'linear-gradient(135deg,#C4962A,#E8B84B)'} : {}}>{s.charAt(0).toUpperCase()+s.slice(1)}</button>
+        ))}
+      </div>
+
+      <div className="flex gap-3 mb-4 flex-wrap items-center">
+        <input type="date" value={dateDebut} onChange={e => setDateDebut(e.target.value)} className="px-3 py-1.5 rounded-lg text-sm text-white border border-white/20" style={{background:'rgba(255,255,255,0.07)'}} />
+        <span className="text-gray-400">→</span>
+        <input type="date" value={dateFin} onChange={e => setDateFin(e.target.value)} className="px-3 py-1.5 rounded-lg text-sm text-white border border-white/20" style={{background:'rgba(255,255,255,0.07)'}} />
+        {selected.length > 0 && (
+          <button onClick={() => printMultiple(selectedOrders)} className="ml-auto px-5 py-1.5 rounded-lg font-bold text-black text-sm" style={{background:'linear-gradient(135deg,#C4962A,#E8B84B)'}}>
+            🖨️ Imprimer la sélection ({selected.length})
+          </button>
+        )}
+      </div>
+
+      <div className="rounded-xl overflow-hidden border border-white/10">
+        <table className="w-full">
+          <thead>
+            <tr style={{background:'rgba(255,255,255,0.07)'}}>
+              <th className="p-3 text-left"><input type="checkbox" checked={selected.length === filtered.length && filtered.length > 0} onChange={toggleAll} /></th>
+              <th className="p-3 text-left text-gray-400 text-sm">Commande</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Date</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Client</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Total</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Statut</th>
+              <th className="p-3 text-left text-gray-400 text-sm">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((order) => (
+              <tr key={order.id} className="border-t border-white/5 hover:bg-white/5 transition-colors">
+                <td className="p-3"><input type="checkbox" checked={selected.includes(order.id)} onChange={() => toggleSelect(order.id)} /></td>
+                <td className="p-3 font-mono text-yellow-400 text-sm">{order.id}</td>
+                <td className="p-3 text-gray-300 text-sm">{order.date}</td>
+                <td className="p-3 text-sm">{order.client}</td>
+                <td className="p-3 font-medium">{order.total}€</td>
+                <td className="p-3">
+                  <select
+                    value={order.statut}
+                    onChange={e => changeStatut(order.id, e.target.value)}
+                    className={`px-2 py-1 rounded-full text-xs font-medium border cursor-pointer outline-none ${statutColors[order.statut]}`}
+                    style={{background:'transparent'}}
+                  >
+                    {statutOptions.map(s => <option key={s} value={s} style={{background:'#1a1a1a', color:'#fff'}}>{s}</option>)}
+                  </select>
+                </td>
+                <td className="p-3">
+                  <button onClick={() => setDetail(order)} className="px-3 py-1 rounded text-xs border border-white/20 hover:border-yellow-500/50 transition-colors">Voir</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}        <div><h1 style="margin:0;font-size:22px;color:#C4962A">ACA WHOLESALE</h1><p style="margin:2px 0;color:#666;font-size:12px">BORDEREAU D'ENVOI</p></div>
         <div style="text-align:right"><p style="margin:0;font-weight:bold;font-size:16px">${order.id}</p><p style="margin:2px 0;color:#666;font-size:12px">${order.date}</p></div>
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:20px">
