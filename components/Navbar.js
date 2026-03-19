@@ -15,7 +15,7 @@ const messages = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [msgIndex, setMsgIndex] = useState(0)
-  const [alertModal, setAlertModal] = useState(false)
+  const [alertModal, setAlertModal] = useState(false
   const [alertEmail, setAlertEmail] = useState('')
   const [alertSent, setAlertSent] = useState(false)
   const [session, setSession] = useState(null)
@@ -223,25 +223,6 @@ export default function Navbar() {
                 Commander
               </Link>
 
-              {/* Cart */}
-              <Link
-                href="/panier"
-                className="relative flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded"
-                aria-label="Devis"
-              >
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                {totalItems > 0 && (
-                  <span
-                    className="absolute -top-1.5 -right-1.5 text-black text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full"
-                    style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
-                  >
-                    {totalItems > 9 ? '9+' : totalItems}
-                  </span>
-                )}
-              </Link>
-
               {/* Account */}
               <Link
                 href={compteHref}
@@ -316,18 +297,6 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/panier"
-                className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5"
-                onClick={() => setMenuOpen(false)}
-              >
-                🛒 Mon devis
-                {totalItems > 0 && (
-                  <span className="text-black text-[10px] font-black px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
-                    {totalItems}
-                  </span>
-                )}
-              </Link>
               <Link
                 href={compteHref}
                 className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5"
