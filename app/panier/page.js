@@ -8,277 +8,160 @@ import { useCart } from '../../context/CartContext'
 export default function Panier() {
   const { items, removeFromCart, updateQty, clearCart, totalItems, totalPrice } = useCart()
   const [step, setStep] = useState('cart')
-  const [form, setForm] = useState({
-    prenom: '', nom: '', email: '', telephone: '', adresse: '', ville: '', codePostal: '', pays: 'France', notes: ''
-  })
+  const [form, setForm] = useState({ prenom:'',nom:'',email:'',telephone:'',adresse:'',ville:'',codePostal:'',pays:'France',activite:'',notes:'' })
+  const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  const handleSubmit = (e) => { e.preventDefault(); setStep('confirm'); clearCart() }
+  const inputStyle = { width:'100%',background:'#0d0d0d',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'4px',padding:'12px 16px',fontSize:'14px',color:'#fff',outline:'none',boxSizing:'border-box' }
+  const labelStyle = { display:'block',fontSize:'10px',fontWeight:900,color:'#6b7280',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'8px' }
 
-  const handleChange = (e) => {
-    setForm(prev => {
-      const updated = { ...prev, [e.target.name]: e.target.value }
-      // Sauvegarder pour le rappel de panier abandonné
-      const emailToSave = e.target.name === 'email' ? e.target.value : prev.email
-      if (emailToSave && items.length > 0) {
-        try {
-          const existing = JSON.parse(localStorage.getItem('aca_cart_reminder') || '{}')
-          if (!existing.sent) {
-            localStorage.setItem('aca_cart_reminder', JSON.stringify({
-              email: emailToSave,
-              items: items,
-              total: totalPrice,
-              timestamp: existing.timestamp || Date.now(),
-              sent: false
-            }))
-          }
-        } catch {}
-      }
-      return updated
-    })
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Supprimer le rappel — commande confirmée
-    try { localStorage.removeItem('aca_cart_reminder') } catch {}
-    setStep('confirm')
-    clearCart()
-  }
-
-  const inputClass = "w-full bg-[#111] border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-[#C4962A] rounded-sm placeholder-gray-600"
-  const labelClass = "block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2"
-
-  if (step === 'confirm') {
-    return (
-      <main className="bg-black min-h-screen">
-        <Navbar />
-        <div className="max-w-lg mx-auto px-5 py-16 md:py-24 text-center">
-          <div className="bg-[#111] border border-white/10 rounded p-8 md:p-12">
-            <div className="text-5xl md:text-6xl mb-5">🎉</div>
-            <h1 className="text-2xl md:text-3xl font-black uppercase text-white mb-3">Commande reçue !</h1>
-            <p className="text-gray-400 text-sm mb-2">
-              Merci <strong className="text-white">{form.prenom}</strong>, votre commande a bien été enregistrée.
-            </p>
-            <p className="text-gray-500 text-sm mb-8">
-              Nous vous contacterons sous 24h à <strong className="text-gray-300">{form.email}</strong>.
-            </p>
-            <div className="border border-[#C4962A]/30 rounded p-4 mb-8 text-left" style={{ background: 'rgba(196,150,42,0.05)' }}>
-              <p className="text-xs font-black mb-1 uppercase tracking-widest" style={{ color: '#C4962A' }}>📧 Prochaine étape</p>
-              <p className="text-xs text-gray-400">Notre équipe en Moselle vous contactera rapidement pour finaliser votre commande et organiser l&apos;expédition.</p>
-            </div>
-            <Link href="/produits" className="block w-full text-black py-4 font-black text-sm uppercase tracking-widest text-center rounded-sm transition-all hover:opacity-90" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
-              Continuer mes achats
-            </Link>
+  if (step === 'confirm') return (
+    <main style={{ background:'#080808',minHeight:'100vh' }}>
+      <Navbar />
+      <div style={{ maxWidth:'520px',margin:'0 auto',padding:'80px 20px' }}>
+        <div style={{ background:'#111',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'12px',padding:'48px 32px',textAlign:'center' }}>
+          <div style={{ fontSize:'56px',marginBottom:'20px' }}>✅</div>
+          <h1 style={{ fontSize:'24px',fontWeight:900,color:'#fff',textTransform:'uppercase',marginBottom:'12px' }}>Demande envoyée !</h1>
+          <p style={{ color:'#9ca3af',fontSize:'14px',marginBottom:'8px' }}>Merci <strong style={{ color:'#fff' }}>{form.prenom}</strong>, votre demande a bien été reçue.</p>
+          <p style={{ color:'#6b7280',fontSize:'13px',marginBottom:'32px' }}>Notre équipe vous contactera sous 24h à <strong style={{ color:'#9ca3af' }}>{form.email}</strong>.</p>
+          <div style={{ background:'rgba(196,150,42,0.08)',border:'1px solid rgba(196,150,42,0.3)',borderRadius:'8px',padding:'16px',marginBottom:'32px',textAlign:'left' }}>
+            <p style={{ fontSize:'11px',fontWeight:900,color:'#C4962A',textTransform:'uppercase',marginBottom:'6px' }}>📋 Prochaine étape</p>
+            <p style={{ fontSize:'12px',color:'#9ca3af',lineHeight:1.6 }}>Notre équipe en Moselle vous contactera pour confirmer les détails de votre lot et organiser l&apos;expédition.</p>
           </div>
+          <Link href="/produits" style={{ display:'block',background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'16px',fontWeight:900,fontSize:'13px',textTransform:'uppercase',letterSpacing:'0.1em',borderRadius:'4px',textDecoration:'none' }}>Continuer mes achats →</Link>
         </div>
-        <Footer />
-      </main>
-    )
-  }
+      </div>
+      <Footer />
+    </main>
+  )
 
-  if (items.length === 0 && step === 'cart') {
-    return (
-      <main className="bg-black min-h-screen">
-        <Navbar />
-        <div className="max-w-lg mx-auto px-5 py-16 md:py-24 text-center">
-          <div className="bg-[#111] border border-white/10 rounded p-8 md:p-12">
-            <div className="text-5xl md:text-6xl mb-5">🛒</div>
-            <h1 className="text-xl md:text-2xl font-black uppercase text-white mb-3">Votre panier est vide</h1>
-            <p className="text-gray-500 text-sm mb-8">Découvrez nos lots sélectionnés avec soin pour votre activité de revente.</p>
-            <Link href="/produits" className="block w-full text-black py-4 font-black text-sm uppercase tracking-widest text-center rounded-sm hover:opacity-90 transition-all" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
-              Voir nos lots
-            </Link>
-          </div>
+  if (items.length === 0) return (
+    <main style={{ background:'#080808',minHeight:'100vh' }}>
+      <Navbar />
+      <div style={{ maxWidth:'520px',margin:'0 auto',padding:'80px 20px' }}>
+        <div style={{ background:'#111',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'12px',padding:'48px 32px',textAlign:'center' }}>
+          <div style={{ fontSize:'56px',marginBottom:'20px' }}>📋</div>
+          <h1 style={{ fontSize:'20px',fontWeight:900,color:'#fff',textTransform:'uppercase',marginBottom:'12px' }}>Votre devis est vide</h1>
+          <p style={{ color:'#6b7280',fontSize:'14px',marginBottom:'32px' }}>Ajoutez des lots à votre demande de devis.</p>
+          <Link href="/produits" style={{ display:'block',background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'16px',fontWeight:900,fontSize:'13px',textTransform:'uppercase',letterSpacing:'0.1em',borderRadius:'4px',textDecoration:'none' }}>Voir nos lots</Link>
         </div>
-        <Footer />
-      </main>
-    )
-  }
+      </div>
+      <Footer />
+    </main>
+  )
 
   return (
-    <main className="bg-black overflow-x-hidden">
+    <main style={{ background:'#080808' }} className="overflow-x-hidden">
       <Navbar />
-
-      {/* Header */}
-      <section className="bg-black text-white py-10 md:py-14 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5">
-          <h1 className="text-2xl md:text-4xl font-black uppercase mb-1">
-            {step === 'cart' ? 'MON PANIER' : 'INFORMATIONS DE LIVRAISON'}
-          </h1>
-          <p className="text-gray-500 text-sm">
-            {step === 'cart'
-              ? `${totalItems} lot${totalItems > 1 ? 's' : ''} sélectionné${totalItems > 1 ? 's' : ''}`
-              : 'Renseignez vos coordonnées pour finaliser la commande'}
-          </p>
+      <section style={{ borderBottom:'1px solid rgba(255,255,255,0.08)',padding:'40px 0 32px' }}>
+        <div style={{ maxWidth:'1280px',margin:'0 auto',padding:'0 20px' }}>
+          <p style={{ fontSize:'11px',fontWeight:900,color:'#6b7280',textTransform:'uppercase',letterSpacing:'0.12em',marginBottom:'8px' }}>ACA Wholesale</p>
+          <h1 style={{ fontSize:'clamp(24px,5vw,40px)',fontWeight:900,color:'#fff',textTransform:'uppercase',marginBottom:'6px' }}>{step==='cart'?'MA DEMANDE DE DEVIS':'MES COORDONNÉES'}</h1>
+          <p style={{ color:'#6b7280',fontSize:'14px' }}>{step==='cart'?`${totalItems} lot${totalItems>1?'s':''} sélectionné${totalItems>1?'s':''} — Notre équipe vous contacte sous 24h`:'Renseignez vos coordonnées pour finaliser votre demande'}</p>
         </div>
       </section>
 
-      {/* Steps */}
-      <div className="max-w-7xl mx-auto px-5 py-4 border-b border-white/10">
-        <div className="flex items-center gap-3 md:gap-6">
-          {['Panier', 'Livraison', 'Confirmation'].map((s, i) => {
-            const stepMap = { 0: 'cart', 1: 'form', 2: 'confirm' }
-            const isActive = stepMap[i] === step
-            const isPast = (step === 'form' && i === 0) || (step === 'confirm' && i <= 1)
-            return (
-              <div key={s} className="flex items-center gap-2">
-                <div
-                  className={`w-7 h-7 rounded-sm flex items-center justify-center text-xs font-black ${isPast ? 'bg-green-600 text-white' : !isActive ? 'bg-white/5 text-gray-600' : 'text-black'}`}
-                  style={isActive ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)' } : {}}
-                >
-                  {isPast ? '✓' : i + 1}
-                </div>
-                <span className={`text-xs font-bold hidden sm:block uppercase tracking-wide ${isActive ? 'text-white' : 'text-gray-600'}`}>{s}</span>
-                {i < 2 && <span className="text-white/10 text-xs">—</span>}
-              </div>
-            )
+      <div style={{ maxWidth:'1280px',margin:'0 auto',padding:'16px 20px',borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display:'flex',alignItems:'center',gap:'12px' }}>
+          {['Sélection','Coordonnées','Confirmation'].map((s,i) => {
+            const stepMap={0:'cart',1:'form',2:'confirm'};const isActive=stepMap[i]===step;const isPast=(step==='form'&&i===0)||(step==='confirm'&&i<=1)
+            return (<div key={s} style={{ display:'flex',alignItems:'center',gap:'8px' }}>
+              <div style={{ width:'28px',height:'28px',borderRadius:'4px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px',fontWeight:900,background:isPast?'#16a34a':isActive?'linear-gradient(135deg,#C4962A,#E8B84B)':'rgba(255,255,255,0.05)',color:isPast?'#fff':isActive?'#000':'#6b7280' }}>{isPast?'✓':i+1}</div>
+              <span style={{ fontSize:'11px',fontWeight:700,textTransform:'uppercase',color:isActive?'#fff':'#4b5563' }} className="hidden sm:inline">{s}</span>
+              {i<2&&<span style={{ color:'rgba(255,255,255,0.1)' }}>—</span>}
+            </div>)
           })}
         </div>
       </div>
 
-      <section className="max-w-7xl mx-auto px-5 pb-24 md:pb-16 py-6">
-        {step === 'cart' && (
-          <div className="grid md:grid-cols-3 gap-5 md:gap-8">
-            {/* Items */}
-            <div className="md:col-span-2 space-y-3">
-              {items.map(item => (
-                <div key={item.id} className="bg-[#111] border border-white/10 rounded p-4 flex gap-3 items-center">
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-sm flex items-center justify-center flex-shrink-0 text-2xl md:text-3xl" style={{ backgroundColor: item.color }}>
-                    {item.emoji}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-black text-sm text-white uppercase truncate">{item.name}</h3>
-                    <p className="text-xs text-gray-500 mb-2">{item.description}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 bg-black border border-white/10 rounded-sm px-1">
-                        <button onClick={() => updateQty(item.id, item.qty - 1)} className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white font-bold">−</button>
-                        <span className="w-6 text-center text-sm font-black text-white">{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, item.qty + 1)} className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white font-bold">+</button>
+      <section style={{ maxWidth:'1280px',margin:'0 auto',padding:'24px 20px 96px' }}>
+        {step==='cart'&&(
+          <div style={{ display:'grid',gridTemplateColumns:'1fr 340px',gap:'24px',alignItems:'start' }} className="cart-grid">
+            <div style={{ display:'flex',flexDirection:'column',gap:'12px' }}>
+              {items.map(item=>(
+                <div key={item.id} style={{ background:'#111',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',padding:'16px',display:'flex',gap:'12px',alignItems:'center' }}>
+                  <div style={{ width:'72px',height:'72px',borderRadius:'6px',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:'28px',backgroundColor:item.color }}>{item.emoji}</div>
+                  <div style={{ flex:1,minWidth:0 }}>
+                    <h3 style={{ fontWeight:900,fontSize:'13px',color:'#fff',textTransform:'uppercase',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',marginBottom:'4px' }}>{item.name}</h3>
+                    <p style={{ fontSize:'12px',color:'#6b7280',marginBottom:'10px' }}>{item.description}</p>
+                    <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between' }}>
+                      <div style={{ display:'flex',alignItems:'center',gap:'4px',background:'#000',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'4px',padding:'2px' }}>
+                        <button onClick={()=>updateQty(item.id,item.qty-1)} style={{ width:'28px',height:'28px',display:'flex',alignItems:'center',justifyContent:'center',color:'#9ca3af',fontWeight:700,fontSize:'16px',background:'none',border:'none',cursor:'pointer' }}>−</button>
+                        <span style={{ width:'24px',textAlign:'center',fontSize:'13px',fontWeight:900,color:'#fff' }}>{item.qty}</span>
+                        <button onClick={()=>updateQty(item.id,item.qty+1)} style={{ width:'28px',height:'28px',display:'flex',alignItems:'center',justifyContent:'center',color:'#9ca3af',fontWeight:700,fontSize:'16px',background:'none',border:'none',cursor:'pointer' }}>+</button>
                       </div>
-                      <span className="font-black text-base text-white">{item.price * item.qty}€</span>
+                      <span style={{ fontWeight:900,fontSize:'16px',color:'#fff' }}>{item.price*item.qty}€</span>
                     </div>
                   </div>
-                  <button onClick={() => removeFromCart(item.id)} className="text-gray-600 hover:text-red-500 transition-colors p-1 flex-shrink-0">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                  <button onClick={()=>removeFromCart(item.id)} style={{ background:'none',border:'none',cursor:'pointer',color:'#4b5563',padding:'4px',flexShrink:0 }}>
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
                 </div>
               ))}
-              <Link href="/produits" className="block text-center text-xs font-black py-3 uppercase tracking-widest hover:text-white transition-colors" style={{ color: '#C4962A' }}>
-                + Ajouter d&apos;autres lots
-              </Link>
+              <Link href="/produits" style={{ display:'block',textAlign:'center',fontSize:'12px',fontWeight:900,color:'#C4962A',textDecoration:'none',padding:'12px',textTransform:'uppercase' }}>+ Ajouter d&apos;autres lots</Link>
             </div>
-
-            {/* Summary desktop */}
-            <div className="hidden md:block md:col-span-1">
-              <div className="bg-[#111] border border-white/10 rounded p-5 sticky top-20">
-                <h3 className="font-black text-sm uppercase tracking-wide text-white mb-4">Récapitulatif</h3>
-                <div className="space-y-2 mb-4 pb-4 border-b border-white/10">
-                  {items.map(item => (
-                    <div key={item.id} className="flex justify-between text-xs">
-                      <span className="text-gray-400 truncate mr-2">{item.name} ×{item.qty}</span>
-                      <span className="font-bold text-white flex-shrink-0">{item.price * item.qty}€</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs text-gray-500 uppercase tracking-wide">Sous-total</span>
-                  <span className="font-bold text-white text-sm">{totalPrice}€</span>
-                </div>
-                <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
-                  <span className="text-xs text-gray-500 uppercase tracking-wide">Livraison</span>
-                  <span className="text-xs font-black uppercase" style={{ color: '#C4962A' }}>À calculer</span>
-                </div>
-                <div className="flex justify-between items-center mb-6">
-                  <span className="font-black text-sm uppercase tracking-wide text-white">Total</span>
-                  <span className="font-black text-2xl text-white">{totalPrice}€</span>
-                </div>
-                <button
-                  onClick={() => setStep('form')}
-                  className="w-full text-black py-4 font-black text-xs uppercase tracking-widest transition-all hover:opacity-90 rounded-sm"
-                  style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
-                >
-                  COMMANDER →
-                </button>
-                <div className="mt-3 flex items-center justify-center gap-1 text-xs text-gray-600 uppercase tracking-wide">
-                  <span>🔒</span><span>Commande sécurisée</span>
-                </div>
+            <div style={{ background:'#111',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',padding:'20px',position:'sticky',top:'80px' }}>
+              <h3 style={{ fontWeight:900,fontSize:'13px',textTransform:'uppercase',color:'#fff',marginBottom:'16px' }}>Récapitulatif</h3>
+              <div style={{ display:'flex',flexDirection:'column',gap:'8px',marginBottom:'16px',paddingBottom:'16px',borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+                {items.map(item=>(<div key={item.id} style={{ display:'flex',justifyContent:'space-between',fontSize:'12px' }}><span style={{ color:'#9ca3af',flex:1,marginRight:'8px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{item.name} ×{item.qty}</span><span style={{ fontWeight:700,color:'#fff',flexShrink:0 }}>{item.price*item.qty}€</span></div>))}
               </div>
+              <div style={{ background:'rgba(34,197,94,0.08)',border:'1px solid rgba(34,197,94,0.2)',borderRadius:'6px',padding:'12px',marginBottom:'16px' }}>
+                <p style={{ fontSize:'10px',fontWeight:900,color:'#22c55e',textTransform:'uppercase',marginBottom:'4px' }}>💰 Potentiel de revente estimé</p>
+                <p style={{ fontSize:'12px',color:'#9ca3af' }}>{items.reduce((sum,item)=>sum+(item.vinteMax||0)*(item.pieces||0)*item.qty,0)}€ max (si revendu à la pièce)</p>
+              </div>
+              <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px' }}><span style={{ fontSize:'12px',color:'#6b7280',textTransform:'uppercase' }}>Sous-total</span><span style={{ fontWeight:700,color:'#fff',fontSize:'14px' }}>{totalPrice}€</span></div>
+              <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px',paddingBottom:'16px',borderBottom:'1px solid rgba(255,255,255,0.08)' }}><span style={{ fontSize:'12px',color:'#6b7280',textTransform:'uppercase' }}>Livraison</span><span style={{ fontSize:'12px',fontWeight:900,color:'#C4962A',textTransform:'uppercase' }}>À calculer</span></div>
+              <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px' }}><span style={{ fontWeight:900,fontSize:'14px',textTransform:'uppercase',color:'#fff' }}>Total estimé</span><span style={{ fontWeight:900,fontSize:'24px',color:'#fff' }}>{totalPrice}€</span></div>
+              <button onClick={()=>setStep('form')} style={{ width:'100%',background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'16px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',letterSpacing:'0.1em',borderRadius:'4px',border:'none',cursor:'pointer' }}>ENVOYER MA DEMANDE →</button>
+              <p style={{ textAlign:'center',fontSize:'11px',color:'#4b5563',textTransform:'uppercase',marginTop:'12px' }}>🔒 Réponse sous 24h</p>
             </div>
           </div>
         )}
 
-        {step === 'form' && (
-          <div className="grid md:grid-cols-3 gap-5 md:gap-8">
-            <div className="md:col-span-2">
-              <form onSubmit={handleSubmit} className="bg-[#111] border border-white/10 rounded p-6 md:p-8">
-                <h2 className="text-sm md:text-base font-black uppercase tracking-wide text-white mb-6">Vos coordonnées</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div><label className={labelClass}>Prénom *</label><input name="prenom" value={form.prenom} onChange={handleChange} required type="text" className={inputClass} placeholder="Votre prénom" /></div>
-                  <div><label className={labelClass}>Nom *</label><input name="nom" value={form.nom} onChange={handleChange} required type="text" className={inputClass} placeholder="Votre nom" /></div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div><label className={labelClass}>Email *</label><input name="email" value={form.email} onChange={handleChange} required type="email" className={inputClass} placeholder="votre@email.com" /></div>
-                  <div><label className={labelClass}>Téléphone</label><input name="telephone" value={form.telephone} onChange={handleChange} type="tel" className={inputClass} placeholder="+33 6 00 00 00 00" /></div>
-                </div>
-                <div className="mb-4"><label className={labelClass}>Adresse *</label><input name="adresse" value={form.adresse} onChange={handleChange} required type="text" className={inputClass} placeholder="Numéro et nom de rue" /></div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                  <div><label className={labelClass}>Code postal *</label><input name="codePostal" value={form.codePostal} onChange={handleChange} required type="text" className={inputClass} placeholder="75001" /></div>
-                  <div><label className={labelClass}>Ville *</label><input name="ville" value={form.ville} onChange={handleChange} required type="text" className={inputClass} placeholder="Paris" /></div>
-                  <div className="col-span-2 md:col-span-1">
-                    <label className={labelClass}>Pays *</label>
-                    <select name="pays" value={form.pays} onChange={handleChange} className={inputClass}>
-                      <option>France</option><option>Belgique</option><option>Suisse</option><option>Luxembourg</option><option>Allemagne</option><option>Autre</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="mb-6"><label className={labelClass}>Notes / Préférences de tailles</label><textarea name="notes" value={form.notes} onChange={handleChange} rows={3} className={inputClass} placeholder="Indiquez vos préférences de tailles..."></textarea></div>
-                <div className="flex gap-3">
-                  <button type="button" onClick={() => setStep('cart')} className="flex-1 border border-white/20 py-4 font-black text-xs uppercase tracking-widest text-white hover:border-white/50 transition-colors rounded-sm">← Retour</button>
-                  <button type="submit" className="flex-1 text-black py-4 font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all rounded-sm" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>CONFIRMER</button>
-                </div>
-                <p className="text-xs text-gray-600 text-center mt-4 uppercase tracking-wide">Notre équipe vous contactera par email pour le paiement.</p>
-              </form>
-            </div>
-            <div className="hidden md:block md:col-span-1">
-              <div className="bg-[#111] border border-white/10 rounded p-5 sticky top-20">
-                <h3 className="font-black text-xs uppercase tracking-widest text-white mb-4">Votre commande</h3>
-                <div className="space-y-3 mb-4">
-                  {items.map(item => (
-                    <div key={item.id} className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-sm flex items-center justify-center text-lg flex-shrink-0" style={{ backgroundColor: item.color }}>{item.emoji}</div>
-                      <div className="flex-1 min-w-0"><p className="text-xs font-bold text-white uppercase truncate">{item.name}</p><p className="text-xs text-gray-500">×{item.qty}</p></div>
-                      <span className="text-sm font-black text-white flex-shrink-0">{item.price * item.qty}€</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-t border-white/10 pt-3 flex justify-between items-center">
-                  <span className="font-black text-xs uppercase tracking-wide text-white">Total</span>
-                  <span className="font-black text-xl text-white">{totalPrice}€</span>
-                </div>
+        {step==='form'&&(
+          <div style={{ display:'grid',gridTemplateColumns:'1fr 340px',gap:'24px',alignItems:'start' }} className="cart-grid">
+            <form onSubmit={handleSubmit} style={{ background:'#111',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',padding:'32px' }}>
+              <h2 style={{ fontSize:'14px',fontWeight:900,textTransform:'uppercase',letterSpacing:'0.06em',color:'#fff',marginBottom:'24px' }}>Vos coordonnées</h2>
+              <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px',marginBottom:'16px' }}>
+                <div><label style={labelStyle}>Prénom *</label><input name="prenom" value={form.prenom} onChange={handleChange} required type="text" style={inputStyle} placeholder="Votre prénom"/></div>
+                <div><label style={labelStyle}>Nom *</label><input name="nom" value={form.nom} onChange={handleChange} required type="text" style={inputStyle} placeholder="Votre nom"/></div>
               </div>
+              <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px',marginBottom:'16px' }}>
+                <div><label style={labelStyle}>Email *</label><input name="email" value={form.email} onChange={handleChange} required type="email" style={inputStyle} placeholder="votre@email.com"/></div>
+                <div><label style={labelStyle}>Téléphone</label><input name="telephone" value={form.telephone} onChange={handleChange} type="tel" style={inputStyle} placeholder="+33 6 00 00 00 00"/></div>
+              </div>
+              <div style={{ marginBottom:'16px' }}><label style={labelStyle}>Adresse *</label><input name="adresse" value={form.adresse} onChange={handleChange} required type="text" style={inputStyle} placeholder="Numéro et nom de rue"/></div>
+              <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'16px',marginBottom:'16px' }}>
+                <div><label style={labelStyle}>Code postal *</label><input name="codePostal" value={form.codePostal} onChange={handleChange} required type="text" style={inputStyle} placeholder="57000"/></div>
+                <div><label style={labelStyle}>Ville *</label><input name="ville" value={form.ville} onChange={handleChange} required type="text" style={inputStyle} placeholder="Metz"/></div>
+                <div><label style={labelStyle}>Pays *</label><select name="pays" value={form.pays} onChange={handleChange} style={inputStyle}><option>France</option><option>Belgique</option><option>Suisse</option><option>Luxembourg</option><option>Autre</option></select></div>
+              </div>
+              <div style={{ marginBottom:'16px' }}><label style={labelStyle}>Activité de revente</label><select name="activite" value={form.activite} onChange={handleChange} style={inputStyle}><option value="">Sélectionner...</option><option>Revendeur Vinted</option><option>Revendeur Leboncoin / Facebook</option><option>Boutique en ligne</option><option>Brocante / Vide-grenier</option><option>Autre</option></select></div>
+              <div style={{ marginBottom:'24px' }}><label style={labelStyle}>Préférences de tailles / Notes</label><textarea name="notes" value={form.notes} onChange={handleChange} rows={4} style={{ ...inputStyle,resize:'vertical' }} placeholder="Indiquez vos préférences de tailles, genre (homme/femme/mixte)..."></textarea></div>
+              <div style={{ display:'flex',gap:'12px' }}>
+                <button type="button" onClick={()=>setStep('cart')} style={{ flex:1,border:'1px solid rgba(255,255,255,0.15)',background:'none',padding:'16px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',color:'#fff',borderRadius:'4px',cursor:'pointer' }}>← Retour</button>
+                <button type="submit" style={{ flex:2,background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'16px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',letterSpacing:'0.1em',borderRadius:'4px',border:'none',cursor:'pointer' }}>ENVOYER MA DEMANDE ✓</button>
+              </div>
+              <p style={{ textAlign:'center',fontSize:'11px',color:'#4b5563',marginTop:'16px',textTransform:'uppercase' }}>Notre équipe vous contactera par email pour le paiement et l&apos;expédition.</p>
+            </form>
+            <div style={{ background:'#111',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',padding:'20px',position:'sticky',top:'80px' }}>
+              <h3 style={{ fontWeight:900,fontSize:'12px',textTransform:'uppercase',color:'#fff',marginBottom:'16px' }}>Votre commande</h3>
+              <div style={{ display:'flex',flexDirection:'column',gap:'12px',marginBottom:'16px' }}>
+                {items.map(item=>(<div key={item.id} style={{ display:'flex',alignItems:'center',gap:'10px' }}><div style={{ width:'40px',height:'40px',borderRadius:'4px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px',flexShrink:0,backgroundColor:item.color }}>{item.emoji}</div><div style={{ flex:1,minWidth:0 }}><p style={{ fontSize:'11px',fontWeight:700,color:'#fff',textTransform:'uppercase',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{item.name}</p><p style={{ fontSize:'11px',color:'#6b7280' }}>×{item.qty}</p></div><span style={{ fontSize:'13px',fontWeight:900,color:'#fff',flexShrink:0 }}>{item.price*item.qty}€</span></div>))}
+              </div>
+              <div style={{ borderTop:'1px solid rgba(255,255,255,0.08)',paddingTop:'12px',display:'flex',justifyContent:'space-between',alignItems:'center' }}><span style={{ fontWeight:900,fontSize:'12px',textTransform:'uppercase',color:'#fff' }}>Total</span><span style={{ fontWeight:900,fontSize:'22px',color:'#fff' }}>{totalPrice}€</span></div>
             </div>
           </div>
         )}
       </section>
 
-      {/* Floating mobile CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-black border-t border-white/10 px-4 py-3">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">{totalItems} lot{totalItems > 1 ? 's' : ''}</p>
-            <p className="font-black text-lg text-white">{totalPrice}€</p>
-          </div>
-          <button
-            onClick={() => step === 'cart' ? setStep('form') : null}
-            className="flex-1 text-black py-3.5 font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all rounded-sm"
-            style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
-          >
-            {step === 'cart' ? 'COMMANDER →' : 'CONFIRMER →'}
-          </button>
+      <div className="md:hidden" style={{ position:'fixed',bottom:0,left:0,right:0,zIndex:50,background:'#000',borderTop:'1px solid rgba(255,255,255,0.1)',padding:'12px 16px' }}>
+        <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px' }}>
+          <div><p style={{ fontSize:'11px',color:'#6b7280',textTransform:'uppercase' }}>{totalItems} lot{totalItems>1?'s':''}</p><p style={{ fontWeight:900,fontSize:'18px',color:'#fff' }}>{totalPrice}€</p></div>
+          <button onClick={()=>step==='cart'?setStep('form'):null} style={{ flex:1,background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'14px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',borderRadius:'4px',border:'none',cursor:'pointer' }}>{step==='cart'?'ENVOYER MA DEMANDE →':'CONFIRMER →'}</button>
         </div>
       </div>
-
       <Footer />
+      <style>{`@media(min-width:768px){.cart-grid{display:grid!important;grid-template-columns:1fr 340px!important}}@media(max-width:767px){.cart-grid{display:flex!important;flex-direction:column!important}}`}</style>
     </main>
   )
 }
