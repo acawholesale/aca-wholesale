@@ -1,98 +1,120 @@
 'use client'
-export const dynamic = 'force-dynamic'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
-// Auth helper - swap these functions for real API calls later
-function authLogin(email, password) {
-  // TODO: replace with real API call, e.g.:
-  // const res = await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) })
-  var users = JSON.parse(localStorage.getItem('aca_users') || '[]')
-  var user = users.find(function(u) { return u.email === email && u.password === password })
-  if (user) {
-    var session = { id: user.id, email: user.email, prenom: user.prenom, nom: user.nom }
-    localStorage.setItem('aca_session', JSON.stringify(session))
-    return { ok: true, user: session }
-  }
-  return { ok: false, error: 'Email ou mot de passe incorrect' }
-}
+export default function Login() {
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-export default function LoginPage() {
-  var emailState = useState('')
-  var email = emailState[0]; var setEmail = emailState[1]
-  var passwordState = useState('')
-  var password = passwordState[0]; var setPassword = passwordState[1]
-  var errorState = useState('')
-  var error = errorState[0]; var setError = errorState[1]
-  var loadingState = useState(false)
-  var loading = loadingState[0]; var setLoading = loadingState[1]
-  var showPwState = useState(false)
-  var showPw = showPwState[0]; var setShowPw = showPwState[1]
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem('aca_session')
+      if (s) router.push('/compte')
+    } catch {}
+  }, [router])
 
-  function handleSubmit(e) {
+  const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }))
+
+  const handleSubmit = (e) => {
     e.preventDefault()
     setError('')
-    if (!email || !password) { setError('Veuillez remplir tous les champs'); return }
     setLoading(true)
-    setTimeout(function() {
-      var result = authLogin(email.trim().toLowerCase(), password)
-      if (result.ok) {
-        window.location.href = '/compte'
-      } else {
-        setError(result.error)
+    setTimeout(() => {
+      try {
+        const users = JSON.parse(localStorage.getItem('aca_users') || '[]')
+        const user = users.find(u => u.email === form.email && u.password === form.password)
+        if (!user) {
+          setError('Email ou mot de passe incorrect.')
+          setLoading(false)
+          return
+        }
+        localStorage.setItem('aca_session', JSON.stringify({ email: user.email, prenom: user.prenom, nom: user.nom }))
+        router.push('/compte')
+      } catch {
+        setError('Une erreur est survenue.')
         setLoading(false)
       }
     }, 600)
   }
 
+  const inputStyle = {
+    width: '100%', background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '6px', padding: '13px 16px', fontSize: '14px', color: '#fff',
+    outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s',
+  }
+  const labelStyle = {
+    display: 'block', fontSize: '11px', fontWeight: 900, color: '#6b7280',
+    textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px',
+  }
+
   return (
-    <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: 'system-ui, sans-serif' }}>
-      <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', marginBottom: '40px' }}>
+    <main style={{ background: '#080808', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+      <a href="/" style={{ marginBottom: '40px', display: 'block' }}>
         <img src="/logo.png" alt="ACA Wholesale" style={{ height: '52px', width: 'auto', objectFit: 'contain' }} />
-      </Link>
+      </a>
 
-      <div style={{ width: '100%', maxWidth: '400px', background: '#111', border: '1px solid rgba(196,150,42,0.25)', borderRadius: '16px', padding: '40px' }}>
-        <h1 style={{ color: '#fff', fontWeight: 900, fontSize: '22px', textTransform: 'uppercase', letterSpacing: '2px', textAlign: 'center', margin: '0 0 6px 0' }}>Connexion</h1>
-        <p style={{ color: '#555', fontSize: '13px', textAlign: 'center', margin: '0 0 32px 0' }}>Acces a votre espace client</p>
+      <div style={{ width: '100%', maxWidth: '420px' }}>
+        <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '36px 32px' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', textAlign: 'center' }}>
+            Connexion
+          </h1>
+          <p style={{ color: '#6b7280', fontSize: '13px', textAlign: 'center', marginBottom: '28px' }}>
+            Accédez à votre espace revendeur
+          </p>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <label style={{ display: 'block', color: '#888', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}>Email</label>
-            <input type="email" value={email} onChange={function(e) { setEmail(e.target.value); setError('') }} placeholder="votre@email.com" autoComplete="email"
-              style={{ width: '100%', padding: '13px 16px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
-          </div>
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <label style={{ color: '#888', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px' }}>Mot de passe</label>
-              <Link href="/mot-de-passe-oublie" style={{ color: '#C4962A', fontSize: '11px', textDecoration: 'none' }}>Oublie ?</Link>
+          {error && (
+            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '6px', padding: '12px 16px', marginBottom: '20px', color: '#ef4444', fontSize: '13px' }}>
+              {error}
             </div>
-            <div style={{ position: 'relative' }}>
-              <input type={showPw ? 'text' : 'password'} value={password} onChange={function(e) { setPassword(e.target.value); setError('') }} placeholder="••••••••" autoComplete="current-password"
-                style={{ width: '100%', padding: '13px 44px 13px 16px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
-              <button type="button" onClick={function() { setShowPw(!showPw) }}
-                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#555', cursor: 'pointer', fontSize: '16px', padding: '4px' }}>
-                {showPw ? '🙈' : '👁'}
-              </button>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={labelStyle}>Email</label>
+              <input
+                name="email" type="email" required value={form.email} onChange={handleChange}
+                style={inputStyle} placeholder="votre@email.com"
+                onFocus={e => e.target.style.borderColor = '#C4962A'}
+                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+              />
             </div>
-          </div>
-
-          {error && <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: '8px', padding: '10px 14px', color: '#f87171', fontSize: '13px', fontWeight: 600 }}>{error}</div>}
-
-          <button type="submit" disabled={loading}
-            style={{ width: '100%', padding: '14px', background: loading ? 'rgba(196,150,42,0.5)' : 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000', fontWeight: 900, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', border: 'none', borderRadius: '8px', cursor: loading ? 'not-allowed' : 'pointer', marginTop: '4px' }}>
-            {loading ? 'Connexion...' : 'SE CONNECTER'}
-          </button>
-        </form>
-
-        <div style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
-          <span style={{ color: '#555', fontSize: '13px' }}>Pas encore de compte ? </span>
-          <Link href="/register" style={{ color: '#C4962A', fontWeight: 700, fontSize: '13px', textDecoration: 'none' }}>Creer un compte</Link>
+            <div style={{ marginBottom: '10px' }}>
+              <label style={labelStyle}>Mot de passe</label>
+              <input
+                name="password" type="password" required value={form.password} onChange={handleChange}
+                style={inputStyle} placeholder="••••••••"
+                onFocus={e => e.target.style.borderColor = '#C4962A'}
+                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+              />
+            </div>
+            <div style={{ textAlign: 'right', marginBottom: '24px' }}>
+              <Link href="/mot-de-passe-oublie" style={{ fontSize: '12px', color: '#C4962A', textDecoration: 'none' }}>
+                Mot de passe oublié ?
+              </Link>
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{ width: '100%', background: loading ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #C4962A, #E8B84B)', color: loading ? '#666' : '#000', padding: '14px', fontWeight: 900, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em', borderRadius: '6px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
+            >
+              {loading ? 'Connexion...' : 'SE CONNECTER'}
+            </button>
+          </form>
         </div>
-      </div>
 
-      <div style={{ marginTop: '20px', textAlign: 'center' }}>
-        <Link href="/" style={{ color: '#444', fontSize: '12px', textDecoration: 'none' }}>Retour a la boutique</Link>
+        <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '13px', marginTop: '20px' }}>
+          Pas encore de compte ?{' '}
+          <Link href="/register" style={{ color: '#C4962A', fontWeight: 700, textDecoration: 'none' }}>
+            Créer un compte →
+          </Link>
+        </p>
+        <p style={{ textAlign: 'center', marginTop: '16px' }}>
+          <Link href="/" style={{ color: '#4b5563', fontSize: '12px', textDecoration: 'none' }}>← Retour à l&apos;accueil</Link>
+        </p>
       </div>
-    </div>
+    </main>
   )
 }
