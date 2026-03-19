@@ -433,16 +433,8 @@ function ClientsTab({ isMobile }) {
 }
 
 export default function AdminPage() {
-  /* Auth check : redirige vers login si pas authentifie */
-  var authCheck = useState(function() {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('aca_admin_auth') === '1'
-    }
-    return false
-  })
-  var isAuth = authCheck[0]
-
-  if (typeof window !== 'undefined' && !isAuth) {
+  /* Auth check : verifie sessionStorage directement cote client */
+  if (typeof window !== 'undefined' && sessionStorage.getItem('aca_admin_auth') !== '1') {
     window.location.href = '/admin/login'
     return null
   }
