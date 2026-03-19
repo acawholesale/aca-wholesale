@@ -11,7 +11,7 @@ export default function Contact() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080808', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#080808', fontFamily: 'system-ui, sansserif' }}>
       <Navbar />
 
       {/* Header */}
@@ -31,8 +31,7 @@ export default function Contact() {
               { emoji: '📧', title: 'Email', info: 'contact@aca-wholesale.com' },
               { emoji: '💬', title: 'Instagram', info: '@aca.wholesale' },
               { emoji: '📍', title: 'Localisation', info: 'Moselle, France' },
-              { emoji: '⏰', title: 'Horaires', info: 'Lun-Ven : 9h-18h
-Sam : 10h-16h' },
+              { emoji: '⏰', title: 'Horaires', info: 'Lun-Ven : 9h-18h / Sam : 10h-16h' },
             ].map((item) => (
               <div key={item.title} style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '18px 20px', display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
                 <span style={{ fontSize: '22px', flexShrink: 0 }}>{item.emoji}</span>
