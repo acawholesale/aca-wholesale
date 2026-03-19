@@ -353,11 +353,6 @@ function ClientsTab({ isMobile }) {
 }
 
 export default function AdminPage() {
-  /* Auth check avec useEffect - fonctionne correctement avec SSR */
-  var authState = useState(false)
-  var isAuth = authState[0]
-  var setIsAuth = authState[1]
-
   var mobileState = useState(false)
   var isMobile = mobileState[0]
   var setIsMobile = mobileState[1]
@@ -375,21 +370,9 @@ export default function AdminPage() {
   var setOrders = ordersState[1]
 
   useEffect(function() {
-    /* Vérification auth côté client uniquement */
-    if (sessionStorage.getItem('aca_admin_auth') !== '1') {
-      window.location.href = '/admin/login'
-    } else {
-      setIsAuth(true)
-    }
-    /* Détection mobile */
     setIsMobile(window.innerWidth < 768)
     setSidebarOpen(window.innerWidth >= 768)
   }, [])
-
-  /* Pendant la vérification ou si non authentifié : écran vide */
-  if (!isAuth) {
-    return <div style={{ minHeight: '100vh', background: '#0a0a0a' }} />
-  }
 
   var navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -405,7 +388,10 @@ export default function AdminPage() {
   var totalCA = orders.reduce(function(acc, o) { return acc + parseInt(o.montant) }, 0)
 
   function handleNav(id) { setActiveTab(id); if (isMobile) setSidebarOpen(false) }
-  function handleDeconnexion() { sessionStorage.removeItem('aca_admin_auth'); window.location.href = '/admin/login' }
+  function handleDeconnexion() {
+    document.cookie = 'admin_session=; path=/; max-age=0'
+    window.location.href = '/admin/login'
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', position: 'relative' }}>
