@@ -73,10 +73,8 @@ export default function ComptePage() {
   return (
     <div style={{ minHeight: '100vh', background: '#080808', fontFamily: 'system-ui, sans-serif' }}>
       <div style={{ background: '#0e0e0e', borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-          <span style={{ background: '#fff', color: '#000', padding: '5px 8px', fontWeight: 900, fontSize: '15px', borderRadius: '5px 0 0 5px' }}>AC</span>
-          <span style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#fff', padding: '5px 6px', fontWeight: 900, fontSize: '15px', borderRadius: '0 5px 5px 0' }}>A</span>
-          <span style={{ color: '#C4962A', fontWeight: 900, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>Wholesale</span>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <img src="/logo.png" alt="ACA Wholesale" style={{ height: '40px', width: 'auto', objectFit: 'contain' }} />
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ color: '#888', fontSize: '13px' }}>Bonjour, <strong style={{ color: '#E8B84B' }}>{user.prenom}</strong></span>
