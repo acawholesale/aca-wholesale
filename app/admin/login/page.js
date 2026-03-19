@@ -12,7 +12,7 @@ export default function AdminLoginPage() {
 
   function handleLogin() {
     if (password === 'admin2026') {
-      sessionStorage.setItem('aca_admin_auth', '1')
+      document.cookie = 'admin_session=admin2026; path=/; max-age=86400'
       window.location.href = '/admin'
     } else {
       setError('Mot de passe incorrect')
