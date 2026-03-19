@@ -2,56 +2,93 @@
 export const dynamic = 'force-dynamic'
 import { useState } from 'react'
 
-export default function AdminLoginPage() {
-  var pw = useState('')
-  var password = pw[0]
-  var setPassword = pw[1]
-  var er = useState('')
-  var error = er[0]
-  var setError = er[1]
+var mockOrdersInit = [
+  { id: 'CMD-001', client: 'Karim B.', email: 'karim@email.com', produit: 'Lot Premium Nike/Adidas', montant: '189€', date: '2026-03-15', statut: 'a_expedier' },
+  { id: 'CMD-002', client: 'Sarah M.', email: 'sarah@email.com', produit: 'Lot Basic Multi-marques', montant: '129€', date: '2026-03-14', statut: 'expedie' },
+  { id: 'CMD-003', client: 'Thomas L.', email: 'thomas@email.com', produit: 'Lot Luxury', montant: '349€', date: '2026-03-13', statut: 'livre' },
+  { id: 'CMD-004', client: 'Marie D.', email: 'marie@email.com', produit: 'Lot Premium Nike/Adidas', montant: '189€', date: '2026-03-12', statut: 'a_expedier' },
+  { id: 'CMD-005', client: 'Lucas P.', email: 'lucas@email.com', produit: 'Lot Basic Multi-marques', montant: '129€', date: '2026-03-11', statut: 'expedie' },
+]
 
-  function handleLogin() {
-    if (password === 'admin2026') {
-      window.location.href = '/admin'
-    } else {
-      setError('Mot de passe incorrect')
-      setPassword('')
-    }
-  }
+var mockClients = [
+  { id: 1, nom: 'Karim B.', email: 'karim@email.com', commandes: 3, total: '567€', date: '2026-01-10' },
+  { id: 2, nom: 'Sarah M.', email: 'sarah@email.com', commandes: 2, total: '318€', date: '2026-01-15' },
+  { id: 3, nom: 'Thomas L.', email: 'thomas@email.com', commandes: 1, total: '349€', date: '2026-02-03' },
+  { id: 4, nom: 'Marie D.', email: 'marie@email.com', commandes: 4, total: '756€', date: '2026-02-14' },
+  { id: 5, nom: 'Lucas P.', email: 'lucas@email.com', commandes: 2, total: '258€', date: '2026-03-01' },
+]
 
-  function onType(e) {
-    setPassword(e.target.value)
-    setError('')
-  }
-
-  function onKey(e) {
-    if (e.key === 'Enter') handleLogin()
-  }
-
-  function goBack() {
-    window.location.href = '/'
-  }
-
-  return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '40px' }}>
-        <span style={{ background: '#fff', color: '#000', padding: '6px 10px', fontWeight: 900, fontSize: '18px', borderRadius: '6px 0 0 6px' }}>AC</span>
-        <span style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#fff', padding: '6px 8px', fontWeight: 900, fontSize: '18px', borderRadius: '0 6px 6px 0' }}>A</span>
-        <span style={{ color: '#C4962A', fontWeight: 900, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '3px', marginLeft: '10px' }}>Wholesale</span>
-      </div>
-      <div style={{ width: '100%', maxWidth: '360px', background: '#111', border: '1px solid rgba(196,150,42,0.35)', borderRadius: '12px', padding: '40px' }}>
-        <h1 style={{ color: '#fff', fontWeight: 900, fontSize: '20px', textTransform: 'uppercase', letterSpacing: '2px', textAlign: 'center', margin: '0 0 8px 0' }}>Administration</h1>
-        <p style={{ color: '#555', fontSize: '13px', textAlign: 'center', margin: '0 0 32px 0' }}>Entrez le mot de passe</p>
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', color: '#888', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}>Mot de passe</label>
-          <input type="password" value={password} onChange={onType} onKeyDown={onKey} placeholder="••••••••" autoFocus style={{ width: '100%', padding: '13px 16px', background: 'rgba(255,255,255,0.05)', border: error ? '1px solid #f87171' : '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
-          {error ? <div style={{ color: '#f87171', fontSize: '12px', marginTop: '8px', fontWeight: 600 }}>{error}</div> : null}
-        </div>
-        <button onClick={handleLogin} style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000', fontWeight: 900, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', border: 'none', borderRadius: '8px', cursor: 'pointer', marginBottom: '20px' }}>SE CONNECTER</button>
-        <div style={{ textAlign: 'center' }}>
-          <button onClick={goBack} style={{ background: 'none', border: 'none', color: '#444', fontSize: '12px', cursor: 'pointer' }}>Retour</button>
-        </div>
-      </div>
-    </div>
-  )
+function statutLabel(s) {
+  if (s === 'a_expedier') return { label: 'A expédier', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' }
+  if (s === 'expedie') return { label: 'Expédié', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' }
+  if (s === 'livre') return { label: 'Livré', color: '#10b981', bg: 'rgba(16,185,129,0.15)' }
+  return { label: s, color: '#888', bg: 'rgba(136,136,136,0.15)' }
 }
+
+function buildBordereauHTML(order) {
+  return '<html><head><style>' +
+    'body{font-family:Arial,sans-serif;padding:40px;color:#111;}' +
+    'h1{font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;}' +
+    '.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#f59e0b;color:#000;margin-bottom:24px;}' +
+    'table{width:100%;border-collapse:collapse;margin-top:16px;}' +
+    'td{padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;}' +
+    'td:first-child{color:#666;font-weight:600;width:40%;}' +
+    '</style></head><body>' +
+    '<h1>ACA Wholesale</h1>' +
+    '<div class="badge">Bordereau de commande</div>' +
+    '<table>' +
+    '<tr><td>N° Commande</td><td>' + order.id + '</td></tr>' +
+    '<tr><td>Client</td><td>' + order.client + '</td></tr>' +
+    '<tr><td>Email</td><td>' + order.email + '</td></tr>' +
+    '<tr><td>Produit</td><td>' + order.produit + '</td></tr>' +
+    '<tr><td>Montant</td><td>' + order.montant + '</td></tr>' +
+    '<tr><td>Date</td><td>' + order.date + '</td></tr>' +
+    '<tr><td>Statut</td><td>' + statutLabel(order.statut).label + '</td></tr>' +
+    '</table></body></html>'
+}
+
+function printOrder(order) {
+  var w = window.open('', '_blank')
+  w.document.write(buildBordereauHTML(order))
+  w.document.close()
+  w.print()
+}
+
+function printMultiple(orders) {
+  var html = '<html><head><style>' +
+    'body{font-family:Arial,sans-serif;padding:40px;color:#111;}' +
+    'h1{font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;}' +
+    '.page{page-break-after:always;margin-bottom:40px;}' +
+    '.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#f59e0b;color:#000;margin-bottom:24px;}' +
+    'table{width:100%;border-collapse:collapse;margin-top:16px;}' +
+    'td{padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;}' +
+    'td:first-child{color:#666;font-weight:600;width:40%;}' +
+    '</style></head><body>'
+  for (var i = 0; i < orders.length; i++) {
+    var o = orders[i]
+    html += '<div class="page">' +
+      '<h1>ACA Wholesale</h1>' +
+      '<div class="badge">Bordereau de commande</div>' +
+      '<table>' +
+      '<tr><td>N° Commande</td><td>' + o.id + '</td></tr>' +
+      '<tr><td>Client</td><td>' + o.client + '</td></tr>' +
+      '<tr><td>Email</td><td>' + o.email + '</td></tr>' +
+      '<tr><td>Produit</td><td>' + o.produit + '</td></tr>' +
+      '<tr><td>Montant</td><td>' + o.montant + '</td></tr>' +
+      '<tr><td>Date</td><td>' + o.date + '</td></tr>' +
+      '<tr><td>Statut</td><td>' + statutLabel(o.statut).label + '</td></tr>' +
+      '</table></div>'
+  }
+  html += '</body></html>'
+  var w = window.open('', '_blank')
+  w.document.write(html)
+  w.document.close()
+  w.print()
+}
+
+function PremiumLock() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '16px' }}>
+      <div style={{ fontSize: '48px' }}>🔒</div>
+      <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '20px', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>Fonctionnalité Premium</h2>
+      <p style={{ color: '#555', fontSize: '14px', textAlign: 'center', maxWidth: '300px' }}>Cette section est réservée aux abonnements premium
