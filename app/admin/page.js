@@ -1,6 +1,6 @@
 'use client'
 export const dynamic = 'force-dynamic'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 var mockOrdersInit = [
   { id: 'CMD-001', client: 'Karim B.', email: 'karim@email.com', produit: 'Lot Premium Nike/Adidas', montant: '189', date: '2026-03-15', statut: 'a_expedier' },
@@ -98,64 +98,33 @@ function PremiumLock() {
 
 function CommandesTab({ orders, setOrders, isMobile }) {
   var sel = useState([])
-  var selected = sel[0]
-  var setSelected = sel[1]
-
+  var selected = sel[0]; var setSelected = sel[1]
   var bc = useState(false)
-  var bulkConfirm = bc[0]
-  var setBulkConfirm = bc[1]
-
+  var bulkConfirm = bc[0]; var setBulkConfirm = bc[1]
   var fs = useState('tous')
-  var filterStatut = fs[0]
-  var setFilterStatut = fs[1]
-
+  var filterStatut = fs[0]; var setFilterStatut = fs[1]
   var fd = useState('')
-  var filterDateDebut = fd[0]
-  var setFilterDateDebut = fd[1]
-
+  var filterDateDebut = fd[0]; var setFilterDateDebut = fd[1]
   var ff = useState('')
-  var filterDateFin = ff[0]
-  var setFilterDateFin = ff[1]
+  var filterDateFin = ff[0]; var setFilterDateFin = ff[1]
 
   function toggleSelect(id) {
-    if (selected.includes(id)) {
-      setSelected(selected.filter(function(x) { return x !== id }))
-    } else {
-      setSelected(selected.concat([id]))
-    }
+    if (selected.includes(id)) { setSelected(selected.filter(function(x) { return x !== id })) }
+    else { setSelected(selected.concat([id])) }
   }
-
   function toggleAll() {
-    if (selected.length === filtered.length) {
-      setSelected([])
-    } else {
-      setSelected(filtered.map(function(o) { return o.id }))
-    }
+    if (selected.length === filtered.length) { setSelected([]) }
+    else { setSelected(filtered.map(function(o) { return o.id })) }
   }
-
   function changeStatut(id, newStatut) {
-    setOrders(orders.map(function(o) {
-      return o.id === id ? Object.assign({}, o, { statut: newStatut }) : o
-    }))
+    setOrders(orders.map(function(o) { return o.id === id ? Object.assign({}, o, { statut: newStatut }) : o }))
   }
-
   function bulkChangeStatut(newStatut) {
-    setOrders(orders.map(function(o) {
-      return selected.includes(o.id) ? Object.assign({}, o, { statut: newStatut }) : o
-    }))
+    setOrders(orders.map(function(o) { return selected.includes(o.id) ? Object.assign({}, o, { statut: newStatut }) : o }))
     setBulkConfirm(true)
-    setTimeout(function() {
-      setBulkConfirm(false)
-      setSelected([])
-    }, 1500)
+    setTimeout(function() { setBulkConfirm(false); setSelected([]) }, 1500)
   }
-
-  function resetFilters() {
-    setFilterStatut('tous')
-    setFilterDateDebut('')
-    setFilterDateFin('')
-    setSelected([])
-  }
+  function resetFilters() { setFilterStatut('tous'); setFilterDateDebut(''); setFilterDateFin(''); setSelected([]) }
 
   var filtered = orders.filter(function(o) {
     if (filterStatut !== 'tous' && o.statut !== filterStatut) return false
@@ -163,78 +132,58 @@ function CommandesTab({ orders, setOrders, isMobile }) {
     if (filterDateFin && o.date > filterDateFin) return false
     return true
   })
-
   var aExpedierOrders = orders.filter(function(o) { return o.statut === 'a_expedier' })
   var selectedOrders = orders.filter(function(o) { return selected.includes(o.id) })
   var hasFilters = filterStatut !== 'tous' || filterDateDebut !== '' || filterDateFin !== ''
 
   return (
     <div>
-
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', marginBottom: '16px', gap: '12px' }}>
-        <h2 style={{ color: '#fff', fontWeight: 900, fontSize: isMobile ? '16px' : '18px', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>
-          Commandes
-          <span style={{ marginLeft: '8px', background: 'rgba(255,255,255,0.08)', color: '#888', fontSize: '12px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px' }}>{filtered.length}/{orders.length}</span>
+        <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>
+          Commandes <span style={{ marginLeft: '8px', background: 'rgba(255,255,255,0.08)', color: '#888', fontSize: '12px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px' }}>{filtered.length}/{orders.length}</span>
         </h2>
-        <button
-          onClick={function() { if (aExpedierOrders.length > 0) printMultiple(aExpedierOrders) }}
-          disabled={aExpedierOrders.length === 0}
-          style={{ padding: '9px 14px', background: aExpedierOrders.length > 0 ? 'rgba(245,158,11,0.18)' : 'rgba(255,255,255,0.04)', border: '1px solid ' + (aExpedierOrders.length > 0 ? '#f59e0b' : 'rgba(255,255,255,0.1)'), borderRadius: '8px', color: aExpedierOrders.length > 0 ? '#f59e0b' : '#444', fontSize: '12px', fontWeight: 700, cursor: aExpedierOrders.length > 0 ? 'pointer' : 'default', width: isMobile ? '100%' : 'auto' }}
-        >
-          &#128230; Imprimer a expedier ({aExpedierOrders.length})
+        <button onClick={function() { if (aExpedierOrders.length > 0) printMultiple(aExpedierOrders) }} disabled={aExpedierOrders.length === 0}
+          style={{ padding: '9px 14px', background: aExpedierOrders.length > 0 ? 'rgba(245,158,11,0.18)' : 'rgba(255,255,255,0.04)', border: '1px solid ' + (aExpedierOrders.length > 0 ? '#f59e0b' : 'rgba(255,255,255,0.1)'), borderRadius: '8px', color: aExpedierOrders.length > 0 ? '#f59e0b' : '#444', fontSize: '12px', fontWeight: 700, cursor: 'pointer', width: isMobile ? '100%' : 'auto' }}>
+          Imprimer a expedier ({aExpedierOrders.length})
         </button>
       </div>
 
-      {/* Filtres */}
-      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: isMobile ? '12px' : '16px', marginBottom: '12px' }}>
+      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '14px', marginBottom: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
           <span style={{ color: '#888', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Filtres</span>
-          {hasFilters && (
-            <button onClick={resetFilters} style={{ background: 'rgba(255,80,80,0.12)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '6px', color: '#f87171', fontSize: '11px', fontWeight: 700, padding: '2px 10px', cursor: 'pointer' }}>
-              Reinitialiser
-            </button>
-          )}
+          {hasFilters && <button onClick={resetFilters} style={{ background: 'rgba(255,80,80,0.12)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '6px', color: '#f87171', fontSize: '11px', fontWeight: 700, padding: '2px 10px', cursor: 'pointer' }}>Reinitialiser</button>}
         </div>
-
-        {/* Boutons statut */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
           {[
-            { value: 'tous', label: 'Tous', color: '#888', bg: 'rgba(255,255,255,0.07)' },
-            { value: 'a_expedier', label: 'A expedier', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
-            { value: 'expedie', label: 'Expedie', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' },
-            { value: 'livre', label: 'Livre', color: '#10b981', bg: 'rgba(16,185,129,0.15)' },
+            { value: 'tous', label: 'Tous', color: '#888' },
+            { value: 'a_expedier', label: 'A expedier', color: '#f59e0b' },
+            { value: 'expedie', label: 'Expedie', color: '#3b82f6' },
+            { value: 'livre', label: 'Livre', color: '#10b981' },
           ].map(function(opt) {
             var isActive = filterStatut === opt.value
             var count = opt.value === 'tous' ? orders.length : orders.filter(function(o) { return o.statut === opt.value }).length
             return (
-              <button
-                key={opt.value}
-                onClick={function() { setFilterStatut(opt.value); setSelected([]) }}
-                style={{ padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', background: isActive ? opt.bg : 'transparent', border: '1px solid ' + (isActive ? opt.color : 'rgba(255,255,255,0.1)'), color: isActive ? opt.color : '#555' }}
-              >
+              <button key={opt.value} onClick={function() { setFilterStatut(opt.value); setSelected([]) }}
+                style={{ padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', background: isActive ? 'rgba(255,255,255,0.08)' : 'transparent', border: '1px solid ' + (isActive ? opt.color : 'rgba(255,255,255,0.1)'), color: isActive ? opt.color : '#555' }}>
                 {opt.label} ({count})
               </button>
             )
           })}
         </div>
-
-        {/* Filtres date */}
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
-          <span style={{ color: '#555', fontSize: '12px', fontWeight: 600 }}>Du</span>
-          <input type="date" value={filterDateDebut} onChange={function(e) { setFilterDateDebut(e.target.value); setSelected([]) }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#ccc', fontSize: '12px', padding: '5px 8px', outline: 'none', colorScheme: 'dark', flex: isMobile ? '1' : 'none' }} />
-          <span style={{ color: '#555', fontSize: '12px', fontWeight: 600 }}>au</span>
-          <input type="date" value={filterDateFin} onChange={function(e) { setFilterDateFin(e.target.value); setSelected([]) }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#ccc', fontSize: '12px', padding: '5px 8px', outline: 'none', colorScheme: 'dark', flex: isMobile ? '1' : 'none' }} />
+          <span style={{ color: '#555', fontSize: '12px' }}>Du</span>
+          <input type="date" value={filterDateDebut} onChange={function(e) { setFilterDateDebut(e.target.value); setSelected([]) }}
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#ccc', fontSize: '12px', padding: '5px 8px', outline: 'none', colorScheme: 'dark' }} />
+          <span style={{ color: '#555', fontSize: '12px' }}>au</span>
+          <input type="date" value={filterDateFin} onChange={function(e) { setFilterDateFin(e.target.value); setSelected([]) }}
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#ccc', fontSize: '12px', padding: '5px 8px', outline: 'none', colorScheme: 'dark' }} />
         </div>
       </div>
 
-      {/* Actions groupees */}
       {selected.length > 0 && (
         <div style={{ background: 'rgba(196,150,42,0.1)', border: '1px solid rgba(196,150,42,0.35)', borderRadius: '8px', padding: '10px 14px', marginBottom: '10px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
           <span style={{ color: '#E8B84B', fontWeight: 700, fontSize: '13px' }}>{selected.length} sel.</span>
-          {bulkConfirm ? (
-            <span style={{ color: '#10b981', fontWeight: 700, fontSize: '13px' }}>Mis a jour !</span>
-          ) : (
+          {bulkConfirm ? <span style={{ color: '#10b981', fontWeight: 700 }}>Mis a jour !</span> : (
             <>
               <button onClick={function() { bulkChangeStatut('a_expedier') }} style={{ padding: '5px 10px', background: 'rgba(245,158,11,0.2)', border: '1px solid #f59e0b', borderRadius: '6px', color: '#f59e0b', fontSize: '11px', cursor: 'pointer', fontWeight: 700 }}>A expedier</button>
               <button onClick={function() { bulkChangeStatut('expedie') }} style={{ padding: '5px 10px', background: 'rgba(59,130,246,0.2)', border: '1px solid #3b82f6', borderRadius: '6px', color: '#3b82f6', fontSize: '11px', cursor: 'pointer', fontWeight: 700 }}>Expedie</button>
@@ -245,12 +194,10 @@ function CommandesTab({ orders, setOrders, isMobile }) {
         </div>
       )}
 
-      {/* Vue mobile : cartes */}
       {isMobile ? (
         filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 0', color: '#444' }}>
-            <div style={{ fontSize: '28px', marginBottom: '8px' }}>&#128269;</div>
-            <div style={{ fontSize: '13px' }}>Aucune commande</div>
+            <div>Aucune commande</div>
             <button onClick={resetFilters} style={{ marginTop: '10px', background: 'none', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#666', fontSize: '12px', padding: '6px 14px', cursor: 'pointer' }}>Reinitialiser</button>
           </div>
         ) : (
@@ -259,41 +206,30 @@ function CommandesTab({ orders, setOrders, isMobile }) {
               var s = statutLabel(order.statut)
               var isSelected = selected.includes(order.id)
               return (
-                <div
-                  key={order.id}
-                  style={{ background: isSelected ? 'rgba(196,150,42,0.08)' : '#111', border: '1px solid ' + (isSelected ? 'rgba(196,150,42,0.4)' : 'rgba(255,255,255,0.07)'), borderRadius: '10px', padding: '14px' }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                <div key={order.id} style={{ background: isSelected ? 'rgba(196,150,42,0.08)' : '#111', border: '1px solid ' + (isSelected ? 'rgba(196,150,42,0.4)' : 'rgba(255,255,255,0.07)'), borderRadius: '10px', padding: '14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <input type="checkbox" checked={isSelected} onChange={function() { toggleSelect(order.id) }} style={{ cursor: 'pointer' }} />
                       <span style={{ color: '#C4962A', fontWeight: 700, fontSize: '13px' }}>{order.id}</span>
                     </div>
                     <span style={{ background: s.bg, border: '1px solid ' + s.color, borderRadius: '6px', color: s.color, fontSize: '11px', fontWeight: 700, padding: '3px 8px' }}>{s.label}</span>
                   </div>
-                  <div style={{ color: '#fff', fontWeight: 600, fontSize: '13px', marginBottom: '2px' }}>{order.client}</div>
+                  <div style={{ color: '#fff', fontWeight: 600, fontSize: '13px' }}>{order.client}</div>
                   <div style={{ color: '#555', fontSize: '11px', marginBottom: '8px' }}>{order.email}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                     <span style={{ color: '#ccc', fontSize: '12px' }}>{order.produit}</span>
-                    <span style={{ color: '#fff', fontWeight: 700, fontSize: '13px' }}>{order.montant}EUR</span>
+                    <span style={{ color: '#fff', fontWeight: 700 }}>{order.montant}EUR</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                     <span style={{ color: '#555', fontSize: '11px' }}>{order.date}</span>
                     <div style={{ display: 'flex', gap: '6px' }}>
-                      <select
-                        value={order.statut}
-                        onChange={function(e) { changeStatut(order.id, e.target.value) }}
-                        style={{ background: s.bg, border: '1px solid ' + s.color, borderRadius: '6px', color: s.color, fontSize: '11px', fontWeight: 700, padding: '4px 6px', cursor: 'pointer', outline: 'none' }}
-                      >
+                      <select value={order.statut} onChange={function(e) { changeStatut(order.id, e.target.value) }}
+                        style={{ background: s.bg, border: '1px solid ' + s.color, borderRadius: '6px', color: s.color, fontSize: '11px', fontWeight: 700, padding: '4px 6px', cursor: 'pointer', outline: 'none' }}>
                         <option value="a_expedier">A expedier</option>
                         <option value="expedie">Expedie</option>
                         <option value="livre">Livre</option>
                       </select>
-                      <button
-                        onClick={function() { printOrder(order) }}
-                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#888', fontSize: '11px', padding: '4px 10px', cursor: 'pointer' }}
-                      >
-                        Bordereau
-                      </button>
+                      <button onClick={function() { printOrder(order) }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#888', fontSize: '11px', padding: '4px 10px', cursor: 'pointer' }}>Bordereau</button>
                     </div>
                   </div>
                 </div>
@@ -302,19 +238,17 @@ function CommandesTab({ orders, setOrders, isMobile }) {
           </div>
         )
       ) : (
-        /* Vue desktop : tableau */
         filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '48px 0', color: '#444' }}>
-            <div style={{ fontSize: '32px', marginBottom: '8px' }}>&#128269;</div>
-            <div style={{ fontSize: '14px' }}>Aucune commande</div>
-            <button onClick={resetFilters} style={{ marginTop: '12px', background: 'none', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#666', fontSize: '12px', padding: '6px 16px', cursor: 'pointer' }}>Reinitialiser</button>
+            <div style={{ fontSize: '14px', marginBottom: '12px' }}>Aucune commande</div>
+            <button onClick={resetFilters} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#666', fontSize: '12px', padding: '6px 16px', cursor: 'pointer' }}>Reinitialiser</button>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', width: '36px' }}>
+                  <th style={{ padding: '10px 12px', width: '36px' }}>
                     <input type="checkbox" checked={selected.length === filtered.length && filtered.length > 0} onChange={toggleAll} style={{ cursor: 'pointer' }} />
                   </th>
                   {['Commande', 'Client', 'Produit', 'Montant', 'Date', 'Statut', 'Actions'].map(function(h) {
@@ -328,9 +262,7 @@ function CommandesTab({ orders, setOrders, isMobile }) {
                   var isSelected = selected.includes(order.id)
                   return (
                     <tr key={order.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', background: isSelected ? 'rgba(196,150,42,0.06)' : 'transparent' }}>
-                      <td style={{ padding: '12px' }}>
-                        <input type="checkbox" checked={isSelected} onChange={function() { toggleSelect(order.id) }} style={{ cursor: 'pointer' }} />
-                      </td>
+                      <td style={{ padding: '12px' }}><input type="checkbox" checked={isSelected} onChange={function() { toggleSelect(order.id) }} style={{ cursor: 'pointer' }} /></td>
                       <td style={{ padding: '12px', color: '#C4962A', fontWeight: 700, fontSize: '13px' }}>{order.id}</td>
                       <td style={{ padding: '12px' }}>
                         <div style={{ color: '#fff', fontWeight: 600, fontSize: '13px' }}>{order.client}</div>
@@ -340,23 +272,15 @@ function CommandesTab({ orders, setOrders, isMobile }) {
                       <td style={{ padding: '12px', color: '#fff', fontWeight: 700, fontSize: '13px' }}>{order.montant}EUR</td>
                       <td style={{ padding: '12px', color: '#888', fontSize: '12px' }}>{order.date}</td>
                       <td style={{ padding: '12px' }}>
-                        <select
-                          value={order.statut}
-                          onChange={function(e) { changeStatut(order.id, e.target.value) }}
-                          style={{ background: s.bg, border: '1px solid ' + s.color, borderRadius: '6px', color: s.color, fontSize: '12px', fontWeight: 700, padding: '5px 10px', cursor: 'pointer', outline: 'none' }}
-                        >
+                        <select value={order.statut} onChange={function(e) { changeStatut(order.id, e.target.value) }}
+                          style={{ background: s.bg, border: '1px solid ' + s.color, borderRadius: '6px', color: s.color, fontSize: '12px', fontWeight: 700, padding: '5px 10px', cursor: 'pointer', outline: 'none' }}>
                           <option value="a_expedier">A expedier</option>
                           <option value="expedie">Expedie</option>
                           <option value="livre">Livre</option>
                         </select>
                       </td>
                       <td style={{ padding: '12px' }}>
-                        <button
-                          onClick={function() { printOrder(order) }}
-                          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#888', fontSize: '12px', padding: '5px 12px', cursor: 'pointer', fontWeight: 600 }}
-                        >
-                          Bordereau
-                        </button>
+                        <button onClick={function() { printOrder(order) }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#888', fontSize: '12px', padding: '5px 12px', cursor: 'pointer', fontWeight: 600 }}>Bordereau</button>
                       </td>
                     </tr>
                   )
@@ -373,22 +297,20 @@ function CommandesTab({ orders, setOrders, isMobile }) {
 function ClientsTab({ isMobile }) {
   return (
     <div>
-      <h2 style={{ color: '#fff', fontWeight: 900, fontSize: isMobile ? '16px' : '18px', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 20px 0' }}>Clients ({mockClients.length})</h2>
+      <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 20px 0' }}>Clients ({mockClients.length})</h2>
       {isMobile ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {mockClients.map(function(client) {
             return (
               <div key={client.id} style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '14px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 900, fontSize: '14px', flexShrink: 0 }}>
-                  {client.nom.charAt(0)}
-                </div>
+                <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 900, fontSize: '14px', flexShrink: 0 }}>{client.nom.charAt(0)}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ color: '#fff', fontWeight: 600, fontSize: '13px' }}>{client.nom}</div>
                   <div style={{ color: '#555', fontSize: '11px', marginBottom: '4px' }}>{client.email}</div>
                   <div style={{ display: 'flex', gap: '12px' }}>
                     <span style={{ color: '#C4962A', fontWeight: 700, fontSize: '12px' }}>{client.commandes} cmd</span>
                     <span style={{ color: '#fff', fontWeight: 700, fontSize: '12px' }}>{client.total}EUR</span>
-                    <span style={{ color: '#555', fontSize: '11px' }}>Depuis {client.date}</span>
+                    <span style={{ color: '#555', fontSize: '11px' }}>{client.date}</span>
                   </div>
                 </div>
               </div>
@@ -411,9 +333,7 @@ function ClientsTab({ isMobile }) {
                   <tr key={client.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                     <td style={{ padding: '12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 900, fontSize: '13px' }}>
-                          {client.nom.charAt(0)}
-                        </div>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 900, fontSize: '13px' }}>{client.nom.charAt(0)}</div>
                         <span style={{ color: '#fff', fontWeight: 600, fontSize: '13px' }}>{client.nom}</span>
                       </div>
                     </td>
@@ -433,23 +353,20 @@ function ClientsTab({ isMobile }) {
 }
 
 export default function AdminPage() {
-  /* Tous les hooks en premier - obligatoire selon les regles React */
-  var mobileCheck = useState(function() {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 768
-    }
-    return false
-  })
-  var isMobile = mobileCheck[0]
+  /* Auth check avec useEffect - fonctionne correctement avec SSR */
+  var authState = useState(false)
+  var isAuth = authState[0]
+  var setIsAuth = authState[1]
+
+  var mobileState = useState(false)
+  var isMobile = mobileState[0]
+  var setIsMobile = mobileState[1]
 
   var tabState = useState('commandes')
   var activeTab = tabState[0]
   var setActiveTab = tabState[1]
 
-  var sidebarState = useState(function() {
-    if (typeof window !== 'undefined') return window.innerWidth >= 768
-    return true
-  })
+  var sidebarState = useState(true)
   var sidebarOpen = sidebarState[0]
   var setSidebarOpen = sidebarState[1]
 
@@ -457,18 +374,29 @@ export default function AdminPage() {
   var orders = ordersState[0]
   var setOrders = ordersState[1]
 
-  /* Auth check APRES tous les hooks */
-  if (typeof window !== 'undefined' && sessionStorage.getItem('aca_admin_auth') !== '1') {
-    window.location.href = '/admin/login'
-    return null
+  useEffect(function() {
+    /* Vérification auth côté client uniquement */
+    if (sessionStorage.getItem('aca_admin_auth') !== '1') {
+      window.location.href = '/admin/login'
+    } else {
+      setIsAuth(true)
+    }
+    /* Détection mobile */
+    setIsMobile(window.innerWidth < 768)
+    setSidebarOpen(window.innerWidth >= 768)
+  }, [])
+
+  /* Pendant la vérification ou si non authentifié : écran vide */
+  if (!isAuth) {
+    return <div style={{ minHeight: '100vh', background: '#0a0a0a' }} />
   }
 
   var navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '&#128202;' },
-    { id: 'commandes', label: 'Commandes', icon: '&#128230;' },
-    { id: 'clients', label: 'Clients', icon: '&#128101;' },
-    { id: 'campagne', label: 'Campagne', icon: '&#128227;' },
-    { id: 'articles', label: 'Articles', icon: '&#128221;' },
+    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+    { id: 'commandes', label: 'Commandes', icon: '📦' },
+    { id: 'clients', label: 'Clients', icon: '👥' },
+    { id: 'campagne', label: 'Campagne', icon: '📣' },
+    { id: 'articles', label: 'Articles', icon: '📝' },
   ]
 
   var aExpedier = orders.filter(function(o) { return o.statut === 'a_expedier' }).length
@@ -476,69 +404,29 @@ export default function AdminPage() {
   var livre = orders.filter(function(o) { return o.statut === 'livre' }).length
   var totalCA = orders.reduce(function(acc, o) { return acc + parseInt(o.montant) }, 0)
 
-  function handleNav(id) {
-    setActiveTab(id)
-    if (isMobile) setSidebarOpen(false)
-  }
-
-  function handleDeconnexion() {
-    sessionStorage.removeItem('aca_admin_auth')
-    window.location.href = '/admin/login'
-  }
+  function handleNav(id) { setActiveTab(id); if (isMobile) setSidebarOpen(false) }
+  function handleDeconnexion() { sessionStorage.removeItem('aca_admin_auth'); window.location.href = '/admin/login' }
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', position: 'relative' }}>
 
-      {/* Overlay mobile quand sidebar ouverte */}
       {isMobile && sidebarOpen && (
-        <div
-          onClick={function() { setSidebarOpen(false) }}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 40 }}
-        />
+        <div onClick={function() { setSidebarOpen(false) }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 40 }} />
       )}
 
-      {/* Sidebar */}
-      <div style={{
-        width: '220px',
-        background: '#111',
-        borderRight: '1px solid rgba(255,255,255,0.07)',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '24px 0',
-        flexShrink: 0,
-        position: isMobile ? 'fixed' : 'relative',
-        top: 0,
-        left: 0,
-        height: isMobile ? '100vh' : 'auto',
-        zIndex: 50,
-        transform: isMobile ? (sidebarOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none',
-        transition: 'transform 0.25s ease'
-      }}>
+      <div style={{ width: '220px', background: '#111', borderRight: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', padding: '24px 0', flexShrink: 0, position: isMobile ? 'fixed' : 'relative', top: 0, left: 0, height: isMobile ? '100vh' : 'auto', zIndex: 50, transform: isMobile ? (sidebarOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none', transition: 'transform 0.25s ease' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 20px', marginBottom: '32px' }}>
           <span style={{ background: '#fff', color: '#000', padding: '4px 8px', fontWeight: 900, fontSize: '14px', borderRadius: '4px 0 0 4px' }}>AC</span>
           <span style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#fff', padding: '4px 6px', fontWeight: 900, fontSize: '14px', borderRadius: '0 4px 4px 0' }}>A</span>
           <span style={{ color: '#C4962A', fontWeight: 900, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>Admin</span>
         </div>
-
         <nav style={{ flex: 1 }}>
           {navItems.map(function(item) {
             var isActive = activeTab === item.id
             return (
-              <button
-                key={item.id}
-                onClick={function() { handleNav(item.id) }}
-                style={{
-                  width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
-                  padding: '11px 20px',
-                  background: isActive ? 'rgba(196,150,42,0.15)' : 'transparent',
-                  border: 'none',
-                  borderLeft: isActive ? '3px solid #C4962A' : '3px solid transparent',
-                  color: isActive ? '#E8B84B' : '#555',
-                  fontSize: '13px', fontWeight: isActive ? 700 : 500,
-                  cursor: 'pointer', textAlign: 'left'
-                }}
-              >
-                <span dangerouslySetInnerHTML={{ __html: item.icon }} />
+              <button key={item.id} onClick={function() { handleNav(item.id) }}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 20px', background: isActive ? 'rgba(196,150,42,0.15)' : 'transparent', border: 'none', borderLeft: isActive ? '3px solid #C4962A' : '3px solid transparent', color: isActive ? '#E8B84B' : '#555', fontSize: '13px', fontWeight: isActive ? 700 : 500, cursor: 'pointer', textAlign: 'left' }}>
+                <span>{item.icon}</span>
                 <span>{item.label}</span>
                 {item.id === 'commandes' && aExpedier > 0 && (
                   <span style={{ marginLeft: 'auto', background: '#f59e0b', color: '#000', borderRadius: '10px', fontSize: '10px', fontWeight: 900, padding: '1px 7px' }}>{aExpedier}</span>
@@ -547,30 +435,16 @@ export default function AdminPage() {
             )
           })}
         </nav>
-
         <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-          <button
-            onClick={handleDeconnexion}
-            style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#444', fontSize: '12px', cursor: 'pointer' }}
-          >
-            Deconnexion
-          </button>
+          <button onClick={handleDeconnexion} style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#444', fontSize: '12px', cursor: 'pointer' }}>Deconnexion</button>
         </div>
       </div>
 
-      {/* Contenu principal */}
       <div style={{ flex: 1, padding: isMobile ? '16px' : '32px', overflowY: 'auto', minWidth: 0 }}>
-
-        {/* Barre top mobile */}
         {isMobile && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <button
-              onClick={function() { setSidebarOpen(true) }}
-              style={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '18px', padding: '8px 12px', cursor: 'pointer', lineHeight: 1 }}
-            >
-              &#9776;
-            </button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <button onClick={function() { setSidebarOpen(true) }} style={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '18px', padding: '8px 12px', cursor: 'pointer', lineHeight: 1 }}>☰</button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ background: '#fff', color: '#000', padding: '3px 6px', fontWeight: 900, fontSize: '12px', borderRadius: '4px 0 0 4px' }}>AC</span>
               <span style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#fff', padding: '3px 5px', fontWeight: 900, fontSize: '12px', borderRadius: '0 4px 4px 0' }}>A</span>
             </div>
@@ -580,7 +454,7 @@ export default function AdminPage() {
 
         {activeTab === 'dashboard' && (
           <div>
-            <h2 style={{ color: '#fff', fontWeight: 900, fontSize: isMobile ? '16px' : '18px', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 20px 0' }}>Dashboard</h2>
+            <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 20px 0' }}>Dashboard</h2>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
               {[
                 { label: 'Chiffre affaires', value: totalCA + 'EUR', color: '#C4962A' },
@@ -599,18 +473,10 @@ export default function AdminPage() {
             </div>
           </div>
         )}
-
-        {activeTab === 'commandes' && (
-          <CommandesTab orders={orders} setOrders={setOrders} isMobile={isMobile} />
-        )}
-
-        {activeTab === 'clients' && (
-          <ClientsTab isMobile={isMobile} />
-        )}
-
+        {activeTab === 'commandes' && <CommandesTab orders={orders} setOrders={setOrders} isMobile={isMobile} />}
+        {activeTab === 'clients' && <ClientsTab isMobile={isMobile} />}
         {activeTab === 'campagne' && <PremiumLock />}
         {activeTab === 'articles' && <PremiumLock />}
-
       </div>
     </div>
   )
