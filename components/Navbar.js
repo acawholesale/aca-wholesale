@@ -16,6 +16,7 @@ export default function Navbar() {
   const [alertModal, setAlertModal] = useState(false)
   const [alertEmail, setAlertEmail] = useState('')
   const [alertSent, setAlertSent] = useState(false)
+  const [session, setSession] = useState(null)
   const { totalItems } = useCart()
 
   useEffect(() => {
@@ -23,6 +24,13 @@ export default function Navbar() {
       setMsgIndex(i => (i + 1) % messages.length)
     }, 4000)
     return () => clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    try {
+      var s = localStorage.getItem('aca_session')
+      setSession(s ? JSON.parse(s) : null)
+    } catch {}
   }, [])
 
   const handleAlertSubmit = (e) => {
@@ -39,21 +47,14 @@ export default function Navbar() {
   }
 
   const currentMsg = messages[msgIndex]
+  const compteHref = session ? '/compte' : '/login'
 
   return (
     <>
       {/* Drop Alert Modal */}
       {alertModal && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)' }}
-          onClick={() => setAlertModal(false)}
-        >
-          <div
-            className="w-full max-w-sm p-6 rounded"
-            style={{ background: '#111', border: '1px solid rgba(196,150,42,0.4)' }}
-            onClick={e => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)' }} onClick={() => setAlertModal(false)} >
+          <div className="w-full max-w-sm p-6 rounded" style={{ background: '#111', border: '1px solid rgba(196,150,42,0.4)' }} onClick={e => e.stopPropagation()} >
             <div className="text-2xl mb-3 text-center">🔥</div>
             <h3 className="font-black text-white text-center uppercase tracking-wide mb-1">Alerte drop</h3>
             <p className="text-gray-400 text-xs text-center mb-4">Soyez alerté dès que le prochain drop est en ligne</p>
@@ -63,22 +64,8 @@ export default function Navbar() {
               </div>
             ) : (
               <form onSubmit={handleAlertSubmit} className="flex gap-2">
-                <input
-                  type="email"
-                  value={alertEmail}
-                  onChange={e => setAlertEmail(e.target.value)}
-                  placeholder="votre@email.com"
-                  required
-                  className="flex-1 px-3 py-2 text-xs rounded text-white placeholder-gray-500 outline-none"
-                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)' }}
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-xs font-black rounded uppercase"
-                  style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' }}
-                >
-                  OK
-                </button>
+                <input type="email" value={alertEmail} onChange={e => setAlertEmail(e.target.value)} placeholder="votre@email.com" required className="flex-1 px-3 py-2 text-xs rounded text-white placeholder-gray-500 outline-none" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)' }} />
+                <button type="submit" className="px-4 py-2 text-xs font-black rounded uppercase" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' }} >OK</button>
               </form>
             )}
           </div>
@@ -86,19 +73,12 @@ export default function Navbar() {
       )}
 
       {/* Announcement Bar */}
-      <div
-        className="text-black text-[10px] md:text-xs py-1.5 px-4 font-bold text-center flex items-center justify-center gap-3 min-h-[32px]"
-        style={{ background: 'linear-gradient(90deg, #C4962A, #E8B84B, #C4962A)' }}
-      >
+      <div className="text-black text-[10px] md:text-xs py-1.5 px-4 font-bold text-center flex items-center justify-center gap-3 min-h-[32px]" style={{ background: 'linear-gradient(90deg, #C4962A, #E8B84B, #C4962A)' }} >
         <span key={msgIndex} className="transition-opacity duration-300">
           {currentMsg.text}
         </span>
         {currentMsg.cta && (
-          <button
-            onClick={() => setAlertModal(true)}
-            className="text-[10px] font-black px-2.5 py-0.5 rounded-sm underline hover:no-underline transition-all"
-            style={{ color: '#000' }}
-          >
+          <button onClick={() => setAlertModal(true)} className="text-[10px] font-black px-2.5 py-0.5 rounded-sm underline hover:no-underline transition-all" style={{ color: '#000' }} >
             M&apos;alerter →
           </button>
         )}
@@ -112,19 +92,10 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
               <div className="flex items-center">
-                <div className="bg-white text-black px-2.5 py-1 font-black text-lg tracking-tighter rounded-l-lg">
-                  AC
-                </div>
-                <div
-                  className="px-1.5 py-1 font-black text-lg tracking-tighter rounded-r-lg"
-                  style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: 'white' }}
-                >
-                  A
-                </div>
+                <div className="bg-white text-black px-2.5 py-1 font-black text-lg tracking-tighter rounded-l-lg">AC</div>
+                <div className="px-1.5 py-1 font-black text-lg tracking-tighter rounded-r-lg" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: 'white' }}>A</div>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wide hidden sm:block" style={{ color: '#C4962A' }}>
-                Wholesale
-              </span>
+              <span className="text-[10px] font-black uppercase tracking-wide hidden sm:block" style={{ color: '#C4962A' }}>Wholesale</span>
             </Link>
 
             {/* Desktop Nav */}
@@ -136,11 +107,7 @@ export default function Navbar() {
                 { href: '/faq', label: 'FAQ' },
                 { href: '/contact', label: 'Contact' },
               ].map(link => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-xs font-medium text-gray-300 hover:text-white transition-colors uppercase tracking-wide"
-                >
+                <Link key={link.href} href={link.href} className="text-xs font-medium text-gray-300 hover:text-white transition-colors uppercase tracking-wide">
                   {link.label}
                 </Link>
               ))}
@@ -148,50 +115,37 @@ export default function Navbar() {
 
             {/* CTA + Connexion + Cart + Toggle */}
             <div className="flex items-center gap-2 md:gap-3">
-              <Link
-                href="/produits"
-                className="hidden sm:inline-block text-black text-xs px-5 py-2 font-black uppercase tracking-wide transition-all rounded"
-                style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
-              >
+              <Link href="/produits" className="hidden sm:inline-block text-black text-xs px-5 py-2 font-black uppercase tracking-wide transition-all rounded" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
                 Commander
               </Link>
 
-              {/* Connexion icône */}
-              <Link
-                href="/connexion"
-                className="flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded"
-                aria-label="Connexion"
-              >
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+              {/* Compte / Connexion icône */}
+              <Link href={compteHref} className="flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded" aria-label={session ? 'Mon compte' : 'Connexion'}>
+                {session ? (
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-black text-[10px] font-black" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+                    {session.prenom ? session.prenom[0].toUpperCase() : '?'}
+                  </div>
+                ) : (
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                )}
               </Link>
 
               {/* Cart */}
-              <Link
-                href="/panier"
-                className="relative flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded"
-                aria-label="Panier"
-              >
+              <Link href="/panier" className="relative flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded" aria-label="Panier">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 {totalItems > 0 && (
-                  <span
-                    className="absolute -top-1.5 -right-1.5 text-black text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full"
-                    style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
-                  >
+                  <span className="absolute -top-1.5 -right-1.5 text-black text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
                     {totalItems > 9 ? '9+' : totalItems}
                   </span>
                 )}
               </Link>
 
               {/* Mobile menu toggle */}
-              <button
-                className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-white"
-                onClick={() => setMenuOpen(!menuOpen)}
-                aria-label="Menu"
-              >
+              <button className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-white" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {menuOpen ? (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -215,41 +169,20 @@ export default function Navbar() {
                 { href: '/faq', label: 'FAQ' },
                 { href: '/contact', label: 'Contact' },
               ].map(link => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="block text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5"
-                  onClick={() => setMenuOpen(false)}
-                >
+                <Link key={link.href} href={link.href} className="block text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5" onClick={() => setMenuOpen(false)}>
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/connexion"
-                className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5"
-                onClick={() => setMenuOpen(false)}
-              >
-                👤 Mon compte
+              <Link href={compteHref} className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5" onClick={() => setMenuOpen(false)}>
+                👤 {session ? 'Mon espace client' : 'Connexion'}
               </Link>
-              <Link
-                href="/panier"
-                className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white"
-                onClick={() => setMenuOpen(false)}
-              >
-                🛒 Panier
-                {totalItems > 0 && (
-                  <span className="text-black text-[10px] font-black px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
-                    {totalItems}
-                  </span>
+              <Link href="/panier" className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white" onClick={() => setMenuOpen(false)}>
+                🛒 Panier {totalItems > 0 && (
+                  <span className="text-black text-[10px] font-black px-1.5 py-0.5 rounded" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>{totalItems}</span>
                 )}
               </Link>
               <div className="pt-2">
-                <Link
-                  href="/produits"
-                  className="block text-black text-sm px-5 py-3 font-black text-center rounded uppercase tracking-wide"
-                  style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
-                  onClick={() => setMenuOpen(false)}
-                >
+                <Link href="/produits" className="block text-black text-sm px-5 py-3 font-black text-center rounded uppercase tracking-wide" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }} onClick={() => setMenuOpen(false)}>
                   Commander
                 </Link>
               </div>
