@@ -401,10 +401,8 @@ export default function AdminPage() {
       )}
 
       <div style={{ width: '220px', background: '#111', borderRight: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', padding: '24px 0', flexShrink: 0, position: isMobile ? 'fixed' : 'relative', top: 0, left: 0, height: isMobile ? '100vh' : 'auto', zIndex: 50, transform: isMobile ? (sidebarOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none', transition: 'transform 0.25s ease' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 20px', marginBottom: '32px' }}>
-          <span style={{ background: '#fff', color: '#000', padding: '4px 8px', fontWeight: 900, fontSize: '14px', borderRadius: '4px 0 0 4px' }}>AC</span>
-          <span style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#fff', padding: '4px 6px', fontWeight: 900, fontSize: '14px', borderRadius: '0 4px 4px 0' }}>A</span>
-          <span style={{ color: '#C4962A', fontWeight: 900, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>Admin</span>
+        <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px', marginBottom: '32px' }}>
+          <img src="/logo.png" alt="ACA Wholesale" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
         </div>
         <nav style={{ flex: 1 }}>
           {navItems.map(function(item) {
@@ -430,9 +428,8 @@ export default function AdminPage() {
         {isMobile && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
             <button onClick={function() { setSidebarOpen(true) }} style={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '18px', padding: '8px 12px', cursor: 'pointer', lineHeight: 1 }}>☰</button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ background: '#fff', color: '#000', padding: '3px 6px', fontWeight: 900, fontSize: '12px', borderRadius: '4px 0 0 4px' }}>AC</span>
-              <span style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#fff', padding: '3px 5px', fontWeight: 900, fontSize: '12px', borderRadius: '0 4px 4px 0' }}>A</span>
+            <div>
+              <img src="/logo.png" alt="ACA Wholesale" style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
             </div>
             <div style={{ width: '42px' }} />
           </div>
