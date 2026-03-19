@@ -433,13 +433,7 @@ function ClientsTab({ isMobile }) {
 }
 
 export default function AdminPage() {
-  /* Auth check : verifie sessionStorage directement cote client */
-  if (typeof window !== 'undefined' && sessionStorage.getItem('aca_admin_auth') !== '1') {
-    window.location.href = '/admin/login'
-    return null
-  }
-
-  /* Detection mobile */
+  /* Tous les hooks en premier - obligatoire selon les regles React */
   var mobileCheck = useState(function() {
     if (typeof window !== 'undefined') {
       return window.innerWidth < 768
@@ -452,13 +446,22 @@ export default function AdminPage() {
   var activeTab = tabState[0]
   var setActiveTab = tabState[1]
 
-  var sidebarState = useState(!isMobile)
+  var sidebarState = useState(function() {
+    if (typeof window !== 'undefined') return window.innerWidth >= 768
+    return true
+  })
   var sidebarOpen = sidebarState[0]
   var setSidebarOpen = sidebarState[1]
 
   var ordersState = useState(mockOrdersInit)
   var orders = ordersState[0]
   var setOrders = ordersState[1]
+
+  /* Auth check APRES tous les hooks */
+  if (typeof window !== 'undefined' && sessionStorage.getItem('aca_admin_auth') !== '1') {
+    window.location.href = '/admin/login'
+    return null
+  }
 
   var navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '&#128202;' },
