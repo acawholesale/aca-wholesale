@@ -19,9 +19,9 @@ var mockClients = [
 ]
 
 function statutLabel(s) {
-  if (s === 'a_expedier') return { label: 'A expédier', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' }
-  if (s === 'expedie') return { label: 'Expédié', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' }
-  if (s === 'livre') return { label: 'Livré', color: '#10b981', bg: 'rgba(16,185,129,0.15)' }
+  if (s === 'a_expedier') return { label: 'A expedier', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' }
+  if (s === 'expedie') return { label: 'Expedie', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' }
+  if (s === 'livre') return { label: 'Livre', color: '#10b981', bg: 'rgba(16,185,129,0.15)' }
   return { label: s, color: '#888', bg: 'rgba(136,136,136,0.15)' }
 }
 
@@ -37,7 +37,7 @@ function buildBordereauHTML(order) {
     '<h1>ACA Wholesale</h1>' +
     '<div class="badge">Bordereau de commande</div>' +
     '<table>' +
-    '<tr><td>N° Commande</td><td>' + order.id + '</td></tr>' +
+    '<tr><td>N Commande</td><td>' + order.id + '</td></tr>' +
     '<tr><td>Client</td><td>' + order.client + '</td></tr>' +
     '<tr><td>Email</td><td>' + order.email + '</td></tr>' +
     '<tr><td>Produit</td><td>' + order.produit + '</td></tr>' +
@@ -70,7 +70,7 @@ function printMultiple(orders) {
       '<h1>ACA Wholesale</h1>' +
       '<div class="badge">Bordereau de commande</div>' +
       '<table>' +
-      '<tr><td>N° Commande</td><td>' + o.id + '</td></tr>' +
+      '<tr><td>N Commande</td><td>' + o.id + '</td></tr>' +
       '<tr><td>Client</td><td>' + o.client + '</td></tr>' +
       '<tr><td>Email</td><td>' + o.email + '</td></tr>' +
       '<tr><td>Produit</td><td>' + o.produit + '</td></tr>' +
@@ -89,9 +89,9 @@ function printMultiple(orders) {
 function PremiumLock() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '16px' }}>
-      <div style={{ fontSize: '48px' }}>🔒</div>
-      <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '20px', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>Fonctionnalité Premium</h2>
-      <p style={{ color: '#555', fontSize: '14px', textAlign: 'center', maxWidth: '300px' }}>Cette section est réservée aux abonnements premium.</p>
+      <div style={{ fontSize: '48px' }}>&#128274;</div>
+      <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '20px', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>Fonctionnalite Premium</h2>
+      <p style={{ color: '#555', fontSize: '14px', textAlign: 'center', maxWidth: '300px' }}>Cette section est reservee aux abonnements premium.</p>
     </div>
   )
 }
@@ -100,9 +100,22 @@ function CommandesTab({ orders, setOrders }) {
   var sel = useState([])
   var selected = sel[0]
   var setSelected = sel[1]
+
   var bc = useState(false)
   var bulkConfirm = bc[0]
   var setBulkConfirm = bc[1]
+
+  var fs = useState('tous')
+  var filterStatut = fs[0]
+  var setFilterStatut = fs[1]
+
+  var fd = useState('')
+  var filterDateDebut = fd[0]
+  var setFilterDateDebut = fd[1]
+
+  var ff = useState('')
+  var filterDateFin = ff[0]
+  var setFilterDateFin = ff[1]
 
   function toggleSelect(id) {
     if (selected.includes(id)) {
@@ -113,10 +126,10 @@ function CommandesTab({ orders, setOrders }) {
   }
 
   function toggleAll() {
-    if (selected.length === orders.length) {
+    if (selected.length === filtered.length) {
       setSelected([])
     } else {
-      setSelected(orders.map(function(o) { return o.id }))
+      setSelected(filtered.map(function(o) { return o.id }))
     }
   }
 
@@ -137,89 +150,205 @@ function CommandesTab({ orders, setOrders }) {
     }, 1500)
   }
 
+  function resetFilters() {
+    setFilterStatut('tous')
+    setFilterDateDebut('')
+    setFilterDateFin('')
+    setSelected([])
+  }
+
+  var filtered = orders.filter(function(o) {
+    if (filterStatut !== 'tous' && o.statut !== filterStatut) return false
+    if (filterDateDebut && o.date < filterDateDebut) return false
+    if (filterDateFin && o.date > filterDateFin) return false
+    return true
+  })
+
+  var aExpedierOrders = orders.filter(function(o) { return o.statut === 'a_expedier' })
   var selectedOrders = orders.filter(function(o) { return selected.includes(o.id) })
+
+  var hasFilters = filterStatut !== 'tous' || filterDateDebut !== '' || filterDateFin !== ''
+
+  var btnBase = { border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', padding: '9px 16px', display: 'flex', alignItems: 'center', gap: '6px' }
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-        <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>Commandes ({orders.length})</h2>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+        <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>
+          Commandes
+          <span style={{ marginLeft: '10px', background: 'rgba(255,255,255,0.08)', color: '#888', fontSize: '13px', fontWeight: 600, padding: '2px 10px', borderRadius: '20px' }}>{filtered.length} / {orders.length}</span>
+        </h2>
+
+        {/* Bouton impression rapide A expedier */}
         <button
-          onClick={function() { printMultiple(orders) }}
-          style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', color: '#fff', fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}
+          onClick={function() { if (aExpedierOrders.length > 0) printMultiple(aExpedierOrders) }}
+          disabled={aExpedierOrders.length === 0}
+          style={Object.assign({}, btnBase, {
+            background: aExpedierOrders.length > 0 ? 'rgba(245,158,11,0.18)' : 'rgba(255,255,255,0.04)',
+            border: '1px solid ' + (aExpedierOrders.length > 0 ? '#f59e0b' : 'rgba(255,255,255,0.1)'),
+            color: aExpedierOrders.length > 0 ? '#f59e0b' : '#444',
+            opacity: aExpedierOrders.length === 0 ? 0.5 : 1
+          })}
         >
-          Imprimer tous ({orders.length})
+          <span>&#128230;</span>
+          Imprimer a expedier ({aExpedierOrders.length})
         </button>
       </div>
 
+      {/* Barre de filtres */}
+      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '16px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+          <span style={{ color: '#888', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>&#128269; Filtres</span>
+          {hasFilters && (
+            <button
+              onClick={resetFilters}
+              style={{ background: 'rgba(255,80,80,0.12)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '6px', color: '#f87171', fontSize: '11px', fontWeight: 700, padding: '2px 10px', cursor: 'pointer' }}
+            >
+              Reinitialiser
+            </button>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+
+          {/* Filtres statut */}
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {[
+              { value: 'tous', label: 'Tous', color: '#888', bg: 'rgba(255,255,255,0.07)' },
+              { value: 'a_expedier', label: 'A expedier', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
+              { value: 'expedie', label: 'Expedie', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' },
+              { value: 'livre', label: 'Livre', color: '#10b981', bg: 'rgba(16,185,129,0.15)' },
+            ].map(function(opt) {
+              var isActive = filterStatut === opt.value
+              var count = opt.value === 'tous' ? orders.length : orders.filter(function(o) { return o.statut === opt.value }).length
+              return (
+                <button
+                  key={opt.value}
+                  onClick={function() { setFilterStatut(opt.value); setSelected([]) }}
+                  style={{
+                    padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, cursor: 'pointer',
+                    background: isActive ? opt.bg : 'transparent',
+                    border: '1px solid ' + (isActive ? opt.color : 'rgba(255,255,255,0.1)'),
+                    color: isActive ? opt.color : '#555',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  {opt.label} <span style={{ opacity: 0.7 }}>({count})</span>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Separateur */}
+          <div style={{ width: '1px', height: '28px', background: 'rgba(255,255,255,0.08)' }} />
+
+          {/* Filtre date */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ color: '#555', fontSize: '12px', fontWeight: 600 }}>Du</span>
+            <input
+              type="date"
+              value={filterDateDebut}
+              onChange={function(e) { setFilterDateDebut(e.target.value); setSelected([]) }}
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#ccc', fontSize: '12px', padding: '5px 10px', outline: 'none', colorScheme: 'dark' }}
+            />
+            <span style={{ color: '#555', fontSize: '12px', fontWeight: 600 }}>au</span>
+            <input
+              type="date"
+              value={filterDateFin}
+              onChange={function(e) { setFilterDateFin(e.target.value); setSelected([]) }}
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#ccc', fontSize: '12px', padding: '5px 10px', outline: 'none', colorScheme: 'dark' }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Barre actions groupees */}
       {selected.length > 0 && (
-        <div style={{ background: 'rgba(196,150,42,0.15)', border: '1px solid rgba(196,150,42,0.4)', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <span style={{ color: '#E8B84B', fontWeight: 700, fontSize: '13px' }}>{selected.length} sélectionné(s)</span>
+        <div style={{ background: 'rgba(196,150,42,0.1)', border: '1px solid rgba(196,150,42,0.35)', borderRadius: '8px', padding: '10px 16px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <span style={{ color: '#E8B84B', fontWeight: 700, fontSize: '13px' }}>{selected.length} selectionne(s)</span>
           {bulkConfirm ? (
-            <span style={{ color: '#10b981', fontWeight: 700, fontSize: '13px' }}>Statut mis à jour !</span>
+            <span style={{ color: '#10b981', fontWeight: 700, fontSize: '13px' }}>&#10003; Statut mis a jour !</span>
           ) : (
             <>
-              <button onClick={function() { bulkChangeStatut('a_expedier') }} style={{ padding: '6px 12px', background: 'rgba(245,158,11,0.2)', border: '1px solid #f59e0b', borderRadius: '6px', color: '#f59e0b', fontSize: '12px', cursor: 'pointer', fontWeight: 700 }}>A expédier</button>
-              <button onClick={function() { bulkChangeStatut('expedie') }} style={{ padding: '6px 12px', background: 'rgba(59,130,246,0.2)', border: '1px solid #3b82f6', borderRadius: '6px', color: '#3b82f6', fontSize: '12px', cursor: 'pointer', fontWeight: 700 }}>Expédié</button>
-              <button onClick={function() { bulkChangeStatut('livre') }} style={{ padding: '6px 12px', background: 'rgba(16,185,129,0.2)', border: '1px solid #10b981', borderRadius: '6px', color: '#10b981', fontSize: '12px', cursor: 'pointer', fontWeight: 700 }}>Livré</button>
-              <button onClick={function() { printMultiple(selectedOrders) }} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px', color: '#fff', fontSize: '12px', cursor: 'pointer', fontWeight: 700 }}>Imprimer ({selected.length})</button>
+              <span style={{ color: '#444', fontSize: '12px' }}>Changer statut :</span>
+              <button onClick={function() { bulkChangeStatut('a_expedier') }} style={{ padding: '5px 12px', background: 'rgba(245,158,11,0.2)', border: '1px solid #f59e0b', borderRadius: '6px', color: '#f59e0b', fontSize: '12px', cursor: 'pointer', fontWeight: 700 }}>A expedier</button>
+              <button onClick={function() { bulkChangeStatut('expedie') }} style={{ padding: '5px 12px', background: 'rgba(59,130,246,0.2)', border: '1px solid #3b82f6', borderRadius: '6px', color: '#3b82f6', fontSize: '12px', cursor: 'pointer', fontWeight: 700 }}>Expedie</button>
+              <button onClick={function() { bulkChangeStatut('livre') }} style={{ padding: '5px 12px', background: 'rgba(16,185,129,0.2)', border: '1px solid #10b981', borderRadius: '6px', color: '#10b981', fontSize: '12px', cursor: 'pointer', fontWeight: 700 }}>Livre</button>
+              <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.08)' }} />
+              <button onClick={function() { printMultiple(selectedOrders) }} style={{ padding: '5px 12px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', color: '#ccc', fontSize: '12px', cursor: 'pointer', fontWeight: 700 }}>&#128424; Imprimer ({selected.length})</button>
             </>
           )}
         </div>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              <th style={{ padding: '10px 12px', textAlign: 'left' }}>
-                <input type="checkbox" checked={selected.length === orders.length} onChange={toggleAll} />
-              </th>
-              {['Commande', 'Client', 'Produit', 'Montant', 'Date', 'Statut', 'Actions'].map(function(h) {
-                return <th key={h} style={{ padding: '10px 12px', textAlign: 'left', color: '#666', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>{h}</th>
+      {/* Tableau */}
+      {filtered.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '48px 0', color: '#444' }}>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}>&#128269;</div>
+          <div style={{ fontSize: '14px' }}>Aucune commande ne correspond aux filtres</div>
+          <button onClick={resetFilters} style={{ marginTop: '12px', background: 'none', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#666', fontSize: '12px', padding: '6px 16px', cursor: 'pointer' }}>Reinitialiser les filtres</button>
+        </div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', width: '36px' }}>
+                  <input type="checkbox" checked={selected.length === filtered.length && filtered.length > 0} onChange={toggleAll} style={{ cursor: 'pointer' }} />
+                </th>
+                {['Commande', 'Client', 'Produit', 'Montant', 'Date', 'Statut', 'Actions'].map(function(h) {
+                  return <th key={h} style={{ padding: '10px 12px', textAlign: 'left', color: '#555', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>{h}</th>
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(function(order) {
+                var s = statutLabel(order.statut)
+                var isSelected = selected.includes(order.id)
+                return (
+                  <tr
+                    key={order.id}
+                    style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', background: isSelected ? 'rgba(196,150,42,0.06)' : 'transparent', transition: 'background 0.1s' }}
+                  >
+                    <td style={{ padding: '12px' }}>
+                      <input type="checkbox" checked={isSelected} onChange={function() { toggleSelect(order.id) }} style={{ cursor: 'pointer' }} />
+                    </td>
+                    <td style={{ padding: '12px', color: '#C4962A', fontWeight: 700, fontSize: '13px' }}>{order.id}</td>
+                    <td style={{ padding: '12px' }}>
+                      <div style={{ color: '#fff', fontWeight: 600, fontSize: '13px' }}>{order.client}</div>
+                      <div style={{ color: '#555', fontSize: '11px' }}>{order.email}</div>
+                    </td>
+                    <td style={{ padding: '12px', color: '#ccc', fontSize: '13px' }}>{order.produit}</td>
+                    <td style={{ padding: '12px', color: '#fff', fontWeight: 700, fontSize: '13px' }}>{order.montant}</td>
+                    <td style={{ padding: '12px', color: '#888', fontSize: '12px' }}>{order.date}</td>
+                    <td style={{ padding: '12px' }}>
+                      <select
+                        value={order.statut}
+                        onChange={function(e) { changeStatut(order.id, e.target.value) }}
+                        style={{ background: s.bg, border: '1px solid ' + s.color, borderRadius: '6px', color: s.color, fontSize: '12px', fontWeight: 700, padding: '5px 10px', cursor: 'pointer', outline: 'none' }}
+                      >
+                        <option value="a_expedier">A expedier</option>
+                        <option value="expedie">Expedie</option>
+                        <option value="livre">Livre</option>
+                      </select>
+                    </td>
+                    <td style={{ padding: '12px' }}>
+                      <button
+                        onClick={function() { printOrder(order) }}
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#888', fontSize: '12px', padding: '5px 12px', cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        &#128424; Bordereau
+                      </button>
+                    </td>
+                  </tr>
+                )
               })}
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map(function(order) {
-              var s = statutLabel(order.statut)
-              return (
-                <tr key={order.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: selected.includes(order.id) ? 'rgba(196,150,42,0.05)' : 'transparent' }}>
-                  <td style={{ padding: '12px' }}>
-                    <input type="checkbox" checked={selected.includes(order.id)} onChange={function() { toggleSelect(order.id) }} />
-                  </td>
-                  <td style={{ padding: '12px', color: '#C4962A', fontWeight: 700, fontSize: '13px' }}>{order.id}</td>
-                  <td style={{ padding: '12px' }}>
-                    <div style={{ color: '#fff', fontWeight: 600, fontSize: '13px' }}>{order.client}</div>
-                    <div style={{ color: '#555', fontSize: '11px' }}>{order.email}</div>
-                  </td>
-                  <td style={{ padding: '12px', color: '#ccc', fontSize: '13px' }}>{order.produit}</td>
-                  <td style={{ padding: '12px', color: '#fff', fontWeight: 700, fontSize: '13px' }}>{order.montant}</td>
-                  <td style={{ padding: '12px', color: '#888', fontSize: '12px' }}>{order.date}</td>
-                  <td style={{ padding: '12px' }}>
-                    <select
-                      value={order.statut}
-                      onChange={function(e) { changeStatut(order.id, e.target.value) }}
-                      style={{ background: s.bg, border: '1px solid ' + s.color, borderRadius: '6px', color: s.color, fontSize: '12px', fontWeight: 700, padding: '4px 8px', cursor: 'pointer', outline: 'none' }}
-                    >
-                      <option value="a_expedier">A expédier</option>
-                      <option value="expedie">Expédié</option>
-                      <option value="livre">Livré</option>
-                    </select>
-                  </td>
-                  <td style={{ padding: '12px' }}>
-                    <button
-                      onClick={function() { printOrder(order) }}
-                      style={{ background: 'none', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', color: '#888', fontSize: '12px', padding: '4px 10px', cursor: 'pointer' }}
-                    >
-                      Imprimer
-                    </button>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
@@ -233,7 +362,7 @@ function ClientsTab() {
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               {['Nom', 'Email', 'Commandes', 'Total', 'Client depuis'].map(function(h) {
-                return <th key={h} style={{ padding: '10px 12px', textAlign: 'left', color: '#666', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>{h}</th>
+                return <th key={h} style={{ padding: '10px 12px', textAlign: 'left', color: '#555', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>{h}</th>
               })}
             </tr>
           </thead>
@@ -273,11 +402,11 @@ export default function AdminPage() {
   var setOrders = ordersState[1]
 
   var navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'commandes', label: 'Commandes', icon: '📦' },
-    { id: 'clients', label: 'Clients', icon: '👥' },
-    { id: 'campagne', label: 'Campagne', icon: '📣' },
-    { id: 'articles', label: 'Articles', icon: '📝' },
+    { id: 'dashboard', label: 'Dashboard', icon: '&#128202;' },
+    { id: 'commandes', label: 'Commandes', icon: '&#128230;' },
+    { id: 'clients', label: 'Clients', icon: '&#128101;' },
+    { id: 'campagne', label: 'Campagne', icon: '&#128227;' },
+    { id: 'articles', label: 'Articles', icon: '&#128221;' },
   ]
 
   var aExpedier = orders.filter(function(o) { return o.statut === 'a_expedier' }).length
@@ -298,20 +427,27 @@ export default function AdminPage() {
 
         <nav style={{ flex: 1 }}>
           {navItems.map(function(item) {
+            var isActive = activeTab === item.id
             return (
               <button
                 key={item.id}
                 onClick={function() { setActiveTab(item.id) }}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
-                  padding: '10px 20px', background: activeTab === item.id ? 'rgba(196,150,42,0.15)' : 'transparent',
-                  border: 'none', borderLeft: activeTab === item.id ? '3px solid #C4962A' : '3px solid transparent',
-                  color: activeTab === item.id ? '#E8B84B' : '#666', fontSize: '13px', fontWeight: activeTab === item.id ? 700 : 500,
+                  padding: '10px 20px',
+                  background: isActive ? 'rgba(196,150,42,0.15)' : 'transparent',
+                  border: 'none',
+                  borderLeft: isActive ? '3px solid #C4962A' : '3px solid transparent',
+                  color: isActive ? '#E8B84B' : '#555',
+                  fontSize: '13px', fontWeight: isActive ? 700 : 500,
                   cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s'
                 }}
               >
-                <span>{item.icon}</span>
+                <span dangerouslySetInnerHTML={{ __html: item.icon }} />
                 <span>{item.label}</span>
+                {item.id === 'commandes' && aExpedier > 0 && (
+                  <span style={{ marginLeft: 'auto', background: '#f59e0b', color: '#000', borderRadius: '10px', fontSize: '10px', fontWeight: 900, padding: '1px 7px' }}>{aExpedier}</span>
+                )}
               </button>
             )
           })}
@@ -320,9 +456,9 @@ export default function AdminPage() {
         <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
           <button
             onClick={function() { window.location.href = '/admin/login' }}
-            style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#555', fontSize: '12px', cursor: 'pointer' }}
+            style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#444', fontSize: '12px', cursor: 'pointer' }}
           >
-            Déconnexion
+            Deconnexion
           </button>
         </div>
       </div>
@@ -335,16 +471,16 @@ export default function AdminPage() {
             <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 24px 0' }}>Dashboard</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '32px' }}>
               {[
-                { label: 'Chiffre d\'affaires', value: totalCA + '€', color: '#C4962A' },
+                { label: 'Chiffre affaires', value: totalCA + 'EUR', color: '#C4962A' },
                 { label: 'Commandes totales', value: orders.length, color: '#3b82f6' },
-                { label: 'A expédier', value: aExpedier, color: '#f59e0b' },
-                { label: 'Expédiées', value: expedie, color: '#3b82f6' },
-                { label: 'Livrées', value: livre, color: '#10b981' },
+                { label: 'A expedier', value: aExpedier, color: '#f59e0b' },
+                { label: 'Expediees', value: expedie, color: '#3b82f6' },
+                { label: 'Livrees', value: livre, color: '#10b981' },
               ].map(function(stat) {
                 return (
                   <div key={stat.label} style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '20px' }}>
                     <div style={{ color: stat.color, fontWeight: 900, fontSize: '28px', marginBottom: '4px' }}>{stat.value}</div>
-                    <div style={{ color: '#666', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>{stat.label}</div>
+                    <div style={{ color: '#555', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>{stat.label}</div>
                   </div>
                 )
               })}
