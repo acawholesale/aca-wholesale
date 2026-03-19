@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useCart } from '../context/CartContext'
 
 const messages = [
@@ -90,12 +91,15 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-14 md:h-16">
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex items-center">
-                <div className="bg-white text-black px-2.5 py-1 font-black text-lg tracking-tighter rounded-l-lg">AC</div>
-                <div className="px-1.5 py-1 font-black text-lg tracking-tighter rounded-r-lg" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: 'white' }}>A</div>
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-wide hidden sm:block" style={{ color: '#C4962A' }}>Wholesale</span>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="ACA Wholesale"
+                width={120}
+                height={48}
+                style={{ height: '44px', width: 'auto', objectFit: 'contain' }}
+                priority
+              />
             </Link>
 
             {/* Desktop Nav */}
