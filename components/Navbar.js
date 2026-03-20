@@ -148,7 +148,7 @@ export default function Navbar() {
 
       {/* Announcement Bar */}
       <div
-        className="fixed top-0 left-0 right-0 z-[52] text-black text-[10px] md:text-xs py-1.5 px-4 font-bold text-center flex items-center justify-center gap-3 min-h-[32px]"
+        className="fixed top-0 left-0 right-0 z-[52] text-black text-[10px] md:text-xs px-4 font-bold text-center flex items-center justify-center gap-2 h-8 overflow-hidden whitespace-nowrap"
         style={{ background: 'linear-gradient(90deg, #C4962A, #E8B84B, #C4962A)' }}
       >
         <span key={msgIndex} className="transition-opacity duration-300">
@@ -157,7 +157,7 @@ export default function Navbar() {
         {currentMsg.cta && (
           <button
             onClick={() => setAlertModal(true)}
-            className="text-[10px] font-black px-2.5 py-0.5 rounded-sm underline hover:no-underline transition-all"
+            className="hidden sm:inline text-[10px] font-black px-2.5 py-0.5 rounded-sm underline hover:no-underline transition-all"
             style={{ color: '#000' }}
           >
             M&apos;alerter →
