@@ -52,7 +52,7 @@ export default function Produits() {
   const clearAll = () => { setActiveCategory('all'); setBudgetFilter('all'); setSearch(''); setSortBy('popular') }
 
   return (
-    <main className="bg-black overflow-x-hidden min-h-screen">
+    <main id="main-content" tabIndex={-1} className="bg-black overflow-x-hidden min-h-screen">
       <Navbar />
       <section className="bg-black text-white py-10 md:py-16 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-5">
