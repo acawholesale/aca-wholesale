@@ -39,7 +39,7 @@ export default function Compte() {
 
   if (loading || !session) {
     return (
-      <main style={{ background: '#080808', minHeight: '100vh' }}>
+      <main id="main-content" tabIndex={-1} style={{ background: '#080808', minHeight: '100vh' }}>
         <Navbar />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
           <div style={{ color: '#6b7280', fontSize: '14px' }}>Chargement...</div>
