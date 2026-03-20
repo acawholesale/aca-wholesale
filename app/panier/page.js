@@ -15,7 +15,7 @@ export default function Panier() {
   const labelStyle = { display:'block',fontSize:'10px',fontWeight:900,color:'#6b7280',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'8px' }
 
   if (step === 'confirm') return (
-    <main style={{ background:'#080808',minHeight:'100vh' }}>
+    <main id="main-content" tabIndex={-1} style={{ background:'#080808',minHeight:'100vh' }}>
       <Navbar />
       <div style={{ maxWidth:'520px',margin:'0 auto',padding:'80px 20px' }}>
         <div style={{ background:'#111',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'12px',padding:'48px 32px',textAlign:'center' }}>
