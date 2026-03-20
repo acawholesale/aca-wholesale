@@ -1,60 +1,79 @@
-import { Resend } from 'resend'
+import { NextResponse } from 'next/server'
+import redis from '../../../../lib/redis'
+import {
+  send1hReminder,
+  send8hReminder,
+  send16hReminder,
+  send24hExpired,
+} from '../../../../lib/emails'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
+// Endpoint appele par QStash apres le delai programme
+// Body attendu : { email, type: '1h'|'8h'|'16h'|'24h', secret }
 export async function POST(request) {
   try {
-    const { email, items, total } = await request.json()
-    if (!email || !items?.length) return Response.json({ error: 'Données manquantes' }, { status: 400 })
+    const body = await request.json()
+    const { email, type, secret } = body
 
-    const articlesHTML = items.map(item =>
-      `<tr>
-        <td style="padding:10px 8px;border-bottom:1px solid #eee">${item.name}</td>
-        <td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:center">×${item.qty}</td>
-        <td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:right;font-weight:bold">${item.price * item.qty}€</td>
-      </tr>`
-    ).join('')
+    // Verification du secret partage
+    if (!secret || secret !== process.env.CRON_SECRET) {
+      console.warn('cart/reminder: secret invalide')
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
-    await resend.emails.send({
-      from: 'ACA Wholesale <onboarding@resend.dev>',
-      to: email,
-      subject: '🛒 Vous avez oublié quelque chose...',
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#fff">
-          <div style="background:#0a0500;padding:28px 30px;text-align:center">
-            <h1 style="color:#C4962A;margin:0;font-size:22px;letter-spacing:3px">ACA WHOLESALE</h1>
-            <p style="color:#888;margin:4px 0 0;font-size:12px;letter-spacing:2px;text-transform:uppercase">Grossiste vêtements seconde main</p>
-          </div>
-          <div style="padding:32px 30px">
-            <h2 style="color:#111;margin:0 0 10px;font-size:20px">Votre panier vous attend 👀</h2>
-            <p style="color:#666;margin:0 0 24px;line-height:1.6">Vous avez laissé des articles dans votre panier. Nos lots sont en stock limité — ne les laissez pas partir !</p>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
-              <thead>
-                <tr style="background:#f9f9f9">
-                  <th style="padding:8px;text-align:left;font-size:11px;color:#999;text-transform:uppercase">Article</th>
-                  <th style="padding:8px;text-align:center;font-size:11px;color:#999;text-transform:uppercase">Qté</th>
-                  <th style="padding:8px;text-align:right;font-size:11px;color:#999;text-transform:uppercase">Prix</th>
-                </tr>
-              </thead>
-              <tbody>${articlesHTML}</tbody>
-            </table>
-            <div style="background:#fafafa;padding:14px 16px;border-radius:4px;text-align:right;margin-bottom:24px">
-              <span style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px">Total estimé</span>
-              <span style="font-size:22px;font-weight:900;color:#C4962A;margin-left:12px">${total}€</span>
-            </div>
-            <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://aca-wholesale.vercel.app'}/panier" style="display:block;background:linear-gradient(135deg,#C4962A,#E8B84B);color:#000;text-align:center;padding:16px;text-decoration:none;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border-radius:4px">
-              Finaliser ma commande →
-            </a>
-          </div>
-          <div style="padding:16px 30px;text-align:center;border-top:1px solid #eee">
-            <p style="margin:0;color:#bbb;font-size:11px">ACA Wholesale • Moselle, France • Lots sélectionnés pour les revendeurs Vinted</p>
-          </div>
-        </div>
-      `
-    })
+    if (!email || !type) {
+      return NextResponse.json({ error: 'Parametres manquants' }, { status: 400 })
+    }
 
-    return Response.json({ success: true })
-  } catch (error) {
-    return Response.json({ error: 'Erreur envoi' }, { status: 500 })
+    const key = `aca_cart:${email}`
+    const cart = await redis.get(key)
+
+    // Le client a finalise sa commande -> cle supprimee, on ne fait rien
+    if (!cart) {
+      console.log(`cart/reminder [${type}]: panier introuvable pour ${email}, skip`)
+      return NextResponse.json({ skipped: true, reason: 'cart not found' })
+    }
+
+    // Email deja envoye pour ce type -> idempotence
+    if (cart.emailsSent?.includes(type)) {
+      console.log(`cart/reminder [${type}]: email deja envoye pour ${email}, skip`)
+      return NextResponse.json({ skipped: true, reason: 'already sent' })
+    }
+
+    const payload = {
+      email: cart.email,
+      prenom: cart.prenom,
+      items: cart.items,
+      total: cart.total,
+    }
+
+    // Envoi de l'email correspondant
+    switch (type) {
+      case '1h':  await send1hReminder(payload);  break
+      case '8h':  await send8hReminder(payload);  break
+      case '16h': await send16hReminder(payload); break
+      case '24h': await send24hExpired(payload);  break
+      default:
+        return NextResponse.json({ error: 'Type inconnu' }, { status: 400 })
+    }
+
+    // Mise a jour : marquer l'email comme envoye
+    const updatedEmailsSent = [...(cart.emailsSent || []), type]
+
+    if (type === '24h') {
+      // Panier cloture -> suppression de Redis
+      await redis.del(key)
+    } else {
+      // Conserver le TTL restant (recalcul approx)
+      const elapsed = Math.floor((Date.now() - cart.firstSavedAt) / 1000)
+      const remainingTTL = Math.max(1, 86400 - elapsed)
+      await redis.set(key, { ...cart, emailsSent: updatedEmailsSent }, remainingTTL)
+    }
+
+    console.log(`cart/reminder [${type}]: email envoye a ${email}`)
+    return NextResponse.json({ success: true, type, email })
+
+  } catch (err) {
+    console.error('cart/reminder error:', err)
+    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
