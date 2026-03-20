@@ -17,7 +17,7 @@ export default function APropos() {
 
       {/* Notre histoire */}
       <section style={{ maxWidth: '960px', margin: '0 auto', padding: '56px 24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', alignItems: 'center' }}>
+        <div id="main-content" tabIndex={-1} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', alignItems: 'center' }}>
           <div style={{ background: '#111', border: '1px solid rgba(196,150,42,0.2)', borderRadius: '16px', padding: '36px' }}>
             <p style={{ color: '#C4962A', fontWeight: 700, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '12px' }}>Notre Histoire</p>
             <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '22px', margin: '0 0 16px 0', lineHeight: '1.3' }}>Née de l&apos;expérience directe dans la revente</h2>
