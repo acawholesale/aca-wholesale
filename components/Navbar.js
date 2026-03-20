@@ -348,8 +348,8 @@ export default function Navbar() {
           </div>
         )}
       </nav>
-    </>
       {/* Spacer pour compenser la navbar fixe (barre annonces 32px + gap + navbar ~64px) */}
       <div className="h-[108px] md:h-[116px]" />
+    </>
   )
 }
