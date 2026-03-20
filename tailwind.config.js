@@ -13,6 +13,10 @@ module.exports = {
         'gold-dark': '#9A7520',
         'gold-50': '#FDF8EC',
       },
+      // Améliore la visibilité du focus clavier sur fond sombre
+      ringColor: {
+        DEFAULT: '#ffffff',
+      },
     },
   },
   plugins: [],
