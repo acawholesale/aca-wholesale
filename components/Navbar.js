@@ -223,6 +223,23 @@ export default function Navbar() {
                 Commander
               </Link>
 
+              {/* Cart */}
+              <Link
+                href="/panier"
+                className="relative flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded"
+                aria-label="Panier"
+              >
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black text-black"
+                    style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+                    {totalItems}
+                  </span>
+                )}
+              </Link>
+
               {/* Account */}
               <Link
                 href={compteHref}
@@ -297,6 +314,19 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
+            <Link
+              href="/panier"
+              className="flex items-center justify-between text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5"
+              onClick={() => setMenuOpen(false)}
+            >
+              <span>🛒 Panier</span>
+              {totalItems > 0 && (
+                <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-black"
+                  style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+                  {totalItems}
+                </span>
+              )}
+            </Link>
               <Link
                 href={compteHref}
                 className="flex items-center gap-2 text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5"
