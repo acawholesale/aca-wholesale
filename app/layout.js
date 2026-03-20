@@ -3,14 +3,36 @@ import { CartProvider } from '../context/CartContext'
 
 export const metadata = {
   title: 'ACA Wholesale - Lots de Vêtements de Seconde Main | Moselle, France',
-  description: 'Grossiste en lots de vêtements de seconde main basé en Moselle. Lots sélectionnés avec soin pour les revendeurs Vinted. Expédition rapide depuis la France. Nike, Adidas, Ralph Lauren et plus.',
-  keywords: 'vêtements seconde main, lots vêtements, grossiste vinted, wholesale vêtements, revendeur vinted, ballots vêtements marque, moselle',
+  description:
+    'Grossiste en lots de vêtements de seconde main basé en Moselle. Lots sélectionnés avec soin pour les revendeurs Vinted. Expédition rapide depuis la France. Nike, Adidas, Ralph Lauren et plus.',
+  keywords:
+    'vêtements seconde main, lots vêtements, grossiste vinted, wholesale vêtements, revendeur vinted, ballots vêtements marque, moselle',
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: 'website',
+    locale: 'fr_FR',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://aca-wholesale.vercel.app',
+    siteName: 'ACA Wholesale',
+  },
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#000000',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="fr">
       <body>
+        {/* Lien d'évitement pour navigation clavier / lecteurs d'écran */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:bg-white focus:text-black focus:font-bold focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+        >
+          Aller au contenu principal
+        </a>
         <CartProvider>
           {children}
         </CartProvider>
