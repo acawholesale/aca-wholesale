@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: { unoptimized: true },
+  images: {
+    // unoptimized retiré — Next.js optimise maintenant les images (WebP, lazy, resize)
+    remotePatterns: [
+      { protocol: 'https', hostname: '**.vercel.app' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+    ],
+  },
   async headers() {
     return [
       {
