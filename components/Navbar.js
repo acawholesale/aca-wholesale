@@ -148,7 +148,7 @@ export default function Navbar() {
 
       {/* Announcement Bar */}
       <div
-        className="text-black text-[10px] md:text-xs py-1.5 px-4 font-bold text-center flex items-center justify-center gap-3 min-h-[32px]"
+        className="fixed top-0 left-0 right-0 z-[52] text-black text-[10px] md:text-xs py-1.5 px-4 font-bold text-center flex items-center justify-center gap-3 min-h-[32px]"
         style={{ background: 'linear-gradient(90deg, #C4962A, #E8B84B, #C4962A)' }}
       >
         <span key={msgIndex} className="transition-opacity duration-300">
@@ -166,7 +166,7 @@ export default function Navbar() {
       </div>
 
       {/* Main Navbar */}
-      <nav className="fixed top-3 left-3 right-3 z-50 rounded-2xl border border-white/10 backdrop-blur-xl bg-black/60">
+      <nav className="fixed top-[44px] left-3 right-3 z-50 rounded-2xl border border-white/10 backdrop-blur-xl bg-black/60">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14 md:h-16">
 
