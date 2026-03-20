@@ -50,7 +50,7 @@ export default function Register() {
   const blurHandler = e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'
 
   return (
-    <main style={{ background: '#080808', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+    <main id="main-content" tabIndex={-1} style={{ background: '#080808', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
       <a href="/" style={{ marginBottom: '40px', display: 'block' }}>
         <img src="/logo.png" alt="ACA Wholesale" style={{ height: '52px', width: 'auto', objectFit: 'contain' }} />
       </a>
