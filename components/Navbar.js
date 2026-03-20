@@ -166,7 +166,7 @@ export default function Navbar() {
       </div>
 
       {/* Main Navbar */}
-      <nav className="fixed top-[44px] left-3 right-3 z-50 rounded-2xl border border-white/10 backdrop-blur-xl bg-black/60">
+      <nav className="fixed top-[44px] left-3 right-3 z-50 rounded-2xl border border-white/15 backdrop-blur-xl bg-black/40">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14 md:h-16">
 
