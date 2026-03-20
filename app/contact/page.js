@@ -23,7 +23,7 @@ export default function Contact() {
 
       {/* Content */}
       <section style={{ maxWidth: '960px', margin: '0 auto', padding: '48px 24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+        <div id="main-content" tabIndex={-1} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
 
           {/* Infos de contact */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
