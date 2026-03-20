@@ -54,7 +54,7 @@ export default function FAQ() {
       {/* FAQ Content */}
       <section style={{ maxWidth: '760px', margin: '0 auto', padding: '48px 24px' }}>
         {faqCategories.map((cat, ci) => (
-          <div key={ci} style={{ marginBottom: '40px' }}>
+          <div id="main-content" tabIndex={-1} key={ci} style={{ marginBottom: '40px' }}>
             <h2 style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#E8B84B', fontWeight: 900, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 16px 0' }}>
               <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontSize: '12px', fontWeight: 900, flexShrink: 0 }}>
                 {ci + 1}
