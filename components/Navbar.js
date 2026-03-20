@@ -15,7 +15,7 @@ const messages = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [msgIndex, setMsgIndex] = useState(0)
-  const [alertModal, setAlertModal] = useState(false
+  const [alertModal, setAlertModal] = useState(false)
   const [alertEmail, setAlertEmail] = useState('')
   const [alertSent, setAlertSent] = useState(false)
   const [session, setSession] = useState(null)
