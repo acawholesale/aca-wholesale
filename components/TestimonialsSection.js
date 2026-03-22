@@ -155,7 +155,9 @@ export default function TestimonialsSection({ showAll = false }) {
         if (document.getElementById('aca-scroll-style')) return
         const style = document.createElement('style')
         style.id = 'aca-scroll-style'
-        style.textContent = `
+        style.textContent = 
+              @media (max-width: 640px) { .aca-track { animation-duration: 12s; } }
+            `
               @keyframes aca-scroll {
                       0%   { transform: translateX(0); }
                               100% { transform: translateX(-50%); }
@@ -164,7 +166,7 @@ export default function TestimonialsSection({ showAll = false }) {
                                                   display: flex;
                                                           gap: 16px;
                                                                   width: max-content;
-                                                                          animation: aca-scroll 30s linear infinite;
+                                                                          animation: aca-scroll 20s linear infinite;
                                                                                 }
                                                                                       .aca-track.paused {
                                                                                               animation-play-state: paused;
