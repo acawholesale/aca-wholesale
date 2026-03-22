@@ -6,7 +6,6 @@ import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 import { allProducts } from './data/products'
 import TestimonialsSection from '../components/TestimonialsSection'
-</main>
 function useCounter(target, duration = 1800, start = false) {
   const [count, setCount] = useState(0)
   useEffect(() => {
