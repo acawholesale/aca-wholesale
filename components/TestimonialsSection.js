@@ -158,20 +158,21 @@ export default function TestimonialsSection({ showAll = false }) {
         style.textContent = 
               @media (max-width: 640px) { .aca-track { animation-duration: 12s; } }
             `
-              @keyframes aca-scroll {
-                      0%   { transform: translateX(0); }
-                              100% { transform: translateX(-50%); }
-                                    }
-                                          .aca-track {
-                                                  display: flex;
-                                                          gap: 16px;
-                                                                  width: max-content;
-                                                                          animation: aca-scroll 20s linear infinite;
-                                                                                }
-                                                                                      .aca-track.paused {
-                                                                                              animation-play-state: paused;
-                                                                                                    }
-                                                                                                        `
+          @keyframes aca-scroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .aca-track {
+            display: flex;
+            gap: 16px;
+            width: max-content;
+            animation: aca-scroll 18s linear infinite;
+          }
+          .aca-track.paused { animation-play-state: paused; }
+          @media (max-width: 640px) {
+            .aca-track { animation-duration: 8s; }
+          }
+        `
         document.head.appendChild(style)
   }, [])
 
