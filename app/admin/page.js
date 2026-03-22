@@ -37,8 +37,9 @@ const CSS_PRINT = `* { margin:0; padding:0; box-sizing:border-box; } body { font
 
 const printMultiple = (orders) => {
   const body = orders.map(buildBordereauHTML).join('')
-  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Bordereaux ACA Wholesale</title><link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap" rel="stylesheet"><style>${CSS_PRINT}</style></head><body>${body}<script>window.onload=function(){window.print()}<\/script></body></html>`
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Bordereaux ACA Wholesale</title><link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap" rel="stylesheet"><style>${CSS_PRINT}</style></head><body>${body}<script>document.fonts.ready.then(function(){window.print()})<\/script></body></html>`
   const win = window.open('', '_blank', 'width=900,height=700')
+  if (!win) { alert('Veuillez autoriser les popups pour imprimer'); return }
   win.document.write(html)
   win.document.close()
 }
@@ -475,6 +476,17 @@ function CommandesTab() {
             <button onClick={() => printMultiple(selectedOrders)} className="text-black text-sm px-5 py-2 font-black uppercase tracking-wide rounded-lg flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer tout ({checked.length})</button>
           </div>
         </div>
+      )}
+
+      {/* Bouton imprimer à expédier */}
+      {orders.filter(o => o.status === 'À expédier').length > 0 && checked.length === 0 && (
+        <button
+          onClick={() => printMultiple(orders.filter(o => o.status === 'À expédier'))}
+          className="mb-4 w-full text-black text-sm px-5 py-3 font-black uppercase tracking-wide rounded-xl flex items-center justify-center gap-2"
+          style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
+        >
+          🖨️ Imprimer à expédier ({orders.filter(o => o.status === 'À expédier').length})
+        </button>
       )}
 
       {/* Filtres statut avec compteurs */}
