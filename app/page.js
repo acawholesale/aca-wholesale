@@ -5,7 +5,8 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 import { allProducts } from './data/products'
-
+import TestimonialsSection from '../components/TestimonialsSection'
+</main>
 function useCounter(target, duration = 1800, start = false) {
   const [count, setCount] = useState(0)
   useEffect(() => {
@@ -36,7 +37,7 @@ const categories = [
 
 const brands = ['NIKE', 'ADIDAS', 'THE NORTH FACE', 'RALPH LAUREN', 'CARHARTT', 'STÜSSY', "LEVI'S", 'TOMMY HILFIGER', 'PATAGONIA', "ARC'TERYX"]
 
-const testimonials = [
+
   { name: 'Karim B.', text: 'Super qualité ! Je revends sur Vinted et mes clients sont toujours satisfaits. Les lots sont bien composés avec des pièces en très bon état.', rating: 5, city: 'Revendeur Vinted' },
   { name: 'Sarah M.', text: 'Livraison rapide depuis la France et service client réactif. Enfin un fournisseur fiable pour mon activité de revente !', rating: 5, city: 'Revendeuse Vinted' },
   { name: 'Thomas L.', text: 'Bon rapport qualité/prix et sélection sérieuse. Les pièces se revendent facilement à la pièce, je recommande.', rating: 5, city: 'Revendeur Vinted' },
@@ -517,6 +518,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+                        <TestimonialsSection />
 
       <Footer />
     </main>
