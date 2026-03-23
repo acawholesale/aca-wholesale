@@ -638,14 +638,14 @@ function CommandesTab() {
                 </div>
                 {/* Colonne droite: montant + actions */}
                 <div className="flex-shrink-0 flex flex-col items-end gap-2">
-                  <p className="font-black text-base" style={+ color: '#C4962A' }}>{total} €</p>
+                  <p className="font-black text-base" style={{ color: '#C4962A' }}>{total} €</p>
                   {/* Changement statut inline */}
                   <select
                     value={order.status}
                     onChange={e => { e.stopPropagation(); updateStatut(order.id, e.target.value) }}
                     onClick={e => e.stopPropagation()}
                     className="text-[11px] font-bold px-2 py-1 rounded-lg outline-none cursor-pointer"
-                    style={+ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: '#e5e7eb' }}
+                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: '#e5e7eb' }}
                   >
                     {STATUTS.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
