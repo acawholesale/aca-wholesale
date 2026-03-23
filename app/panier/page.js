@@ -10,7 +10,29 @@ export default function Panier() {
   const [step, setStep] = useState('cart')
   const [form, setForm] = useState({ prenom:'',nom:'',email:'',telephone:'',adresse:'',ville:'',codePostal:'',pays:'France',activite:'',notes:'' })
   const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
-  const handleSubmit = (e) => { e.preventDefault(); setStep('confirm'); clearCart() }
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setCheckoutLoading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items, customer: form }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        clearCart()
+        window.location.href = data.url
+      } else {
+        alert('Erreur paiement : ' + (data.error || 'Erreur inconnue'))
+        setCheckoutLoading(false)
+      }
+    } catch (err) {
+      alert('Erreur réseau : ' + err.message)
+      setCheckoutLoading(false)
+    }
+  }
   const inputStyle = { width:'100%',background:'#0d0d0d',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'4px',padding:'12px 16px',fontSize:'14px',color:'#fff',outline:'none',boxSizing:'border-box' }
   const labelStyle = { display:'block',fontSize:'10px',fontWeight:900,color:'#6b7280',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:'8px' }
 
@@ -139,7 +161,7 @@ export default function Panier() {
               <div style={{ marginBottom:'24px' }}><label style={labelStyle}>Préférences de tailles / Notes</label><textarea name="notes" value={form.notes} onChange={handleChange} rows={4} style={{ ...inputStyle,resize:'vertical' }} placeholder="Indiquez vos préférences de tailles, genre (homme/femme/mixte)..."></textarea></div>
               <div style={{ display:'flex',gap:'12px' }}>
                 <button type="button" onClick={()=>setStep('cart')} style={{ flex:1,border:'1px solid rgba(255,255,255,0.15)',background:'none',padding:'16px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',color:'#fff',borderRadius:'4px',cursor:'pointer' }}>← Retour</button>
-                <button type="submit" style={{ flex:2,background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'16px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',letterSpacing:'0.1em',borderRadius:'4px',border:'none',cursor:'pointer' }}>ENVOYER MA DEMANDE ✓</button>
+                <button type="submit" disabled={checkoutLoading} style={{ flex:2,background:checkoutLoading?'#6b7280':'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'16px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',letterSpacing:'0.1em',borderRadius:'4px',border:'none',cursor:checkoutLoading?'not-allowed':'pointer' }}>{checkoutLoading ? '⏳ Redirection...' : '💳 PAYER MAINTENANT →'}</button>
               </div>
               <p style={{ textAlign:'center',fontSize:'11px',color:'#4b5563',marginTop:'16px',textTransform:'uppercase' }}>Notre équipe vous contactera par email pour le paiement et l&apos;expédition.</p>
             </form>
@@ -157,7 +179,7 @@ export default function Panier() {
       <div className="md:hidden" style={{ position:'fixed',bottom:0,left:0,right:0,zIndex:50,background:'#000',borderTop:'1px solid rgba(255,255,255,0.1)',padding:'12px 16px' }}>
         <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px' }}>
           <div><p style={{ fontSize:'11px',color:'#6b7280',textTransform:'uppercase' }}>{totalItems} lot{totalItems>1?'s':''}</p><p style={{ fontWeight:900,fontSize:'18px',color:'#fff' }}>{totalPrice}€</p></div>
-          <button onClick={()=>step==='cart'?setStep('form'):null} style={{ flex:1,background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'14px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',borderRadius:'4px',border:'none',cursor:'pointer' }}>{step==='cart'?'ENVOYER MA DEMANDE →':'CONFIRMER →'}</button>
+          <button onClick={()=>step==='cart'?setStep('form'):null} style={{ flex:1,background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'14px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',borderRadius:'4px',border:'none',cursor:'pointer' }}>{checkoutLoading ? '⏳ Redirection...' : step==='cart'?'ENVOYER MA DEMANDE →':'💳 PAYER MAINTENANT →'}</button>
         </div>
       </div>
       <Footer />
