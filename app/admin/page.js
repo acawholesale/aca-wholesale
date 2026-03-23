@@ -625,7 +625,7 @@ function CommandesTab() {
           return (
             <div key={order.id} className="rounded-xl p-4 transition-all" style={{ background: justChanged ? 'rgba(34,197,94,0.06)' : isChecked ? 'rgba(196,150,42,0.08)' : 'rgba(15,10,0,0.85)', border: justChanged ? '1px solid rgba(34,197,94,0.4)' : isChecked ? '1px solid rgba(196,150,42,0.4)' : '1px solid rgba(255,255,255,0.07)' }}>
               <div className="flex items-start gap-3">
-                <input type="checkbox" checked={)sChecked} onChange={() => toggleCheck(order.id)} className="w-4 h-4 accent-yellow-500 flex-shrink-0 mt-1" />
+                <input type="checkbox" checked={isChecked} onChange={() => toggleCheck(order.id)} className="w-4 h-4 accent-yellow-500 flex-shrink-0 mt-1" />
                 {/* Infos commande */}
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelected(order.id)}>
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
