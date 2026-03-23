@@ -111,6 +111,12 @@ export default function Login() {
             Créer un compte →
           </Link>
         </p>
+        <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '13px', marginTop: '16px' }}>
+          📦 Vous avez une commande ?{' '}
+          <Link href="/compte" style={{ color: '#C4962A', fontWeight: 700, textDecoration: 'none' }}>
+            Suivre mon colis →
+          </Link>
+        </p>
         <p style={{ textAlign: 'center', marginTop: '16px' }}>
           <Link href="/" style={{ color: '#4b5563', fontSize: '12px', textDecoration: 'none' }}>← Retour à l&apos;accueil</Link>
         </p>
