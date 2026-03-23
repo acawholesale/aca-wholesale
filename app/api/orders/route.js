@@ -30,7 +30,7 @@ export async function GET() {
       pays: o.pays || 'France',
       lots: o.items_summary || '',
       montant: o.total || 0,
-      statut: o.status || 'Payé',
+      status: o.status || 'Payé',
       date: new Date(o.created_at).toLocaleDateString('fr-FR'),
       notes: o.notes || '',
       activite: o.activite || '',
