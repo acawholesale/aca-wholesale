@@ -190,10 +190,6 @@ function ClientsTab() {
   const [vue, setVue] = useState('liste')
   const [filtre, setFiltre] = useState('Tous')
   const [checked, setChecked] = useState([])
-  const [sujet, setSujet] = useState('')
-  const [contenu, setContenu] = useState('')
-  const [envoi, setEnvoi] = useState(null)
-  const [loading, setLoading] = useState(false)
   const [historique, setHistorique] = useState([])
 
   const filtres = ['Tous', 'VIP', 'Actif', 'Nouveau']
@@ -208,38 +204,10 @@ function ClientsTab() {
     return { background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)' }
   }
 
-  const envoyerCampagne = async () => {
-    if (!sujet.trim() || !contenu.trim()) return
-    setLoading(true)
-    setEnvoi(null)
-    try {
-      const res = await fetch('/api/admin/send-campaign', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ destinataires: selectedClients, sujet, contenu }),
-      })
-      const data = await res.json()
-      setEnvoi(data)
-      if (data.success) {
-        setHistorique(prev => [{
-          id: Date.now(), date: new Date().toLocaleDateString('fr-FR'),
-          heure: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-          sujet, destinataires: selectedClients.length, succes: data.succes, echecs: data.echecs,
-        }, ...prev])
-        setSujet('')
-        setContenu('')
-        setChecked([])
-      }
-    } catch {
-      setEnvoi({ error: 'Erreur réseau' })
-    }
-    setLoading(false)
-  }
-
   return (
     <div>
       <div className="flex gap-2 mb-6">
-        {[{ id: 'liste', label: '👥 Clients', count: mockClients.length }, { id: 'campagne', label: '✉️ Campagne', count: null }, { id: 'historique', label: '📋 Historique', count: historique.length }].map(t => (
+        {[{ id: 'liste', label: '👥 Clients', count: mockClients.length }, { id: 'historique', label: '📋 Historique', count: historique.length }].map(t => (
           <button key={t.id} onClick={() => setVue(t.id)} className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all" style={vue === t.id ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' } : { background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)' }}>
             {t.label}{t.count !== null && <span className="px-1.5 py-0.5 rounded-full text-[10px]" style={vue === t.id ? { background: 'rgba(0,0,0,0.2)' } : { background: 'rgba(196,150,42,0.2)', color: '#E8B84B' }}>{t.count}</span>}
           </button>
@@ -298,59 +266,6 @@ function ClientsTab() {
               )
             })}
           </div>
-        </div>
-      )}
-
-      {vue === 'campagne' && (
-        <div className="max-w-2xl">
-          <div className="rounded-xl p-5 mb-4" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-3 font-bold">👥 Destinataires</p>
-            {selectedClients.length > 0 ? (
-              <div>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {selectedClients.map(c => (
-                    <span key={c.id} className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold" style={{ background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }}>
-                      {c.nom}
-                    </span>
-                  ))}
-                </div>
-                <p className="text-gray-500 text-xs">{selectedClients.length} client{selectedClients.length > 1 ? 's' : ''} • Sélectionnez d&apos;autres dans la liste si besoin</p>
-              </div>
-            ) : (
-              <div className="rounded-lg p-4 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)' }}>
-                <p className="text-gray-500 text-sm mb-2">Aucun client sélectionné</p>
-                <button onClick={() => setVue('liste')} className="text-xs font-bold uppercase tracking-wide px-4 py-2 rounded" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' }}>
-                  ← Sélectionner des clients
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-xl p-5 mb-4 space-y-4" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <div>
-              <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-bold">Objet de l&apos;email</label>
-              <input type="text" value={sujet} onChange={e => setSujet(e.target.value)} placeholder="Ex: 🔥 Nouveau drop — Lots disponibles maintenant !" className="w-full px-4 py-3 text-white text-sm rounded-lg outline-none transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }} onFocus={e => e.target.style.borderColor = '#C4962A'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
-            </div>
-            <div>
-              <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-bold">Contenu du message</label>
-              <textarea value={contenu} onChange={e => setContenu(e.target.value)} rows={8} placeholder="Bonjour,&#10;&#10;Nous avons de nouveaux lots disponibles...&#10;&#10;Cordialement,&#10;L'équipe ACA Wholesale" className="w-full px-4 py-3 text-white text-sm rounded-lg outline-none transition-all resize-none" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }} onFocus={e => e.target.style.borderColor = '#C4962A'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
-              <p className="text-gray-600 text-[10px] mt-1">Un bouton &quot;VOIR NOS LOTS&quot; sera automatiquement ajouté en bas de l&apos;email.</p>
-            </div>
-          </div>
-
-          {envoi && (
-            <div className="rounded-xl p-4 mb-4" style={{ background: envoi.success ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${envoi.success ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}` }}>
-              {envoi.success ? (
-                <p className="text-green-400 font-bold text-sm">✅ Campagne envoyée ! {envoi.succes} email{envoi.succes > 1 ? 's' : ''} envoyé{envoi.succes > 1 ? 's' : ''} avec succès{envoi.echecs > 0 ? ` (${envoi.echecs} échec${envoi.echecs > 1 ? 's' : ''})` : ''}.</p>
-              ) : (
-                <p className="text-red-400 font-bold text-sm">❌ Erreur : {envoi.error}</p>
-              )}
-            </div>
-          )}
-
-          <button onClick={envoyerCampagne} disabled={loading || !sujet.trim() || !contenu.trim() || selectedClients.length === 0} className="w-full py-4 font-black text-base uppercase tracking-widest text-black rounded-xl transition-opacity hover:opacity-90 disabled:opacity-40 flex items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
-            {loading ? 'Envoi en cours...' : `✉️ Envoyer à ${selectedClients.length} client${selectedClients.length > 1 ? 's' : ''}`}
-          </button>
         </div>
       )}
 
