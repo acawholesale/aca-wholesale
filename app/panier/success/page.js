@@ -1,67 +1,59 @@
 'use client'
+import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Navbar from '../../../components/Navbar'
 import Footer from '../../../components/Footer'
 
-export default function PanierSuccess() {
+function SuccessContent() {
   const searchParams = useSearchParams()
   const orderId = searchParams.get('order_id')
-  const [dots, setDots] = useState('.')
+  const sessionId = searchParams.get('session_id')
+  const [countdown, setCountdown] = useState(5)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setDots(d => d.length >= 3 ? '.' : d + '.')
-    }, 500)
-    return () => clearInterval(interval)
-  }, [])
+    if (countdown > 0) {
+      const t = setTimeout(() => setCountdown(c => c - 1), 1000)
+      return () => clearTimeout(t)
+    }
+  }, [countdown])
 
   return (
-    <main style={{ background:'#080808', minHeight:'100vh' }}>
-      <Navbar />
-      <div style={{ maxWidth:'560px', margin:'0 auto', padding:'80px 20px' }}>
-        <div style={{ background:'#111', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'12px', padding:'48px 32px', textAlign:'center' }}>
-          <div style={{ fontSize:'64px', marginBottom:'20px' }}>✅</div>
-          <h1 style={{ fontSize:'26px', fontWeight:900, color:'#fff', textTransform:'uppercase', marginBottom:'12px' }}>
-            Paiement confirmé !
-          </h1>
-          <p style={{ color:'#9ca3af', fontSize:'14px', marginBottom:'8px' }}>
-            Merci pour votre commande. Votre paiement a bien été reçu.
-          </p>
-
-          {orderId && (
-            <div style={{ background:'rgba(196,150,42,0.08)', border:'1px solid rgba(196,150,42,0.3)', borderRadius:'8px', padding:'16px', margin:'24px 0', textAlign:'left' }}>
-              <p style={{ fontSize:'11px', fontWeight:900, color:'#C4962A', textTransform:'uppercase', marginBottom:'6px' }}>
-                📦 Référence commande
-              </p>
-              <p style={{ fontSize:'18px', fontWeight:900, color:'#fff', fontFamily:'monospace' }}>
-                {orderId}
-              </p>
-            </div>
-          )}
-
-          <div style={{ background:'rgba(34,197,94,0.08)', border:'1px solid rgba(34,197,94,0.2)', borderRadius:'8px', padding:'16px', marginBottom:'28px', textAlign:'left' }}>
-            <p style={{ fontSize:'11px', fontWeight:900, color:'#22c55e', textTransform:'uppercase', marginBottom:'8px' }}>
-              🚚 Expédition automatique
-            </p>
-            <p style={{ fontSize:'13px', color:'#9ca3af', lineHeight:1.6 }}>
-              Notre système prépare automatiquement votre étiquette GLS. 
-              Votre colis sera expédié depuis notre entrepôt en Moselle sous 24-48h.
-            </p>
-          </div>
-
-          <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
-            <Link href="/compte" style={{ display:'block', background:'linear-gradient(135deg,#C4962A,#E8B84B)', color:'#000', padding:'16px', fontWeight:900, fontSize:'13px', textTransform:'uppercase', letterSpacing:'0.1em', borderRadius:'4px', textDecoration:'none' }}>
-              📦 Suivre ma commande →
-            </Link>
-            <Link href="/produits" style={{ display:'block', border:'1px solid rgba(255,255,255,0.15)', color:'#fff', padding:'14px', fontWeight:700, fontSize:'12px', textTransform:'uppercase', letterSpacing:'0.1em', borderRadius:'4px', textDecoration:'none' }}>
-              Continuer mes achats
-            </Link>
-          </div>
-        </div>
+    <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', textAlign: 'center' }}>
+      <div style={{ fontSize: '64px', marginBottom: '20px' }}>✅</div>
+      <h1 style={{ fontSize: '2rem', color: '#2d6a4f', marginBottom: '12px' }}>Paiement confirmé !</h1>
+      {orderId && (
+        <p style={{ fontSize: '1.1rem', color: '#555', marginBottom: '8px' }}>
+          Numéro de commande : <strong>{orderId}</strong>
+        </p>
+      )}
+      <p style={{ color: '#777', marginBottom: '32px', maxWidth: '500px' }}>
+        Merci pour votre commande. Vous recevrez un email de confirmation sous peu. 
+        Votre colis sera expédié dès que votre commande sera traitée.
+      </p>
+      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <Link href="/compte" style={{ padding: '12px 24px', background: '#2d6a4f', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 600 }}>
+          📦 Suivre ma commande
+        </Link>
+        <Link href="/produits" style={{ padding: '12px 24px', background: '#f0f0f0', color: '#333', borderRadius: '8px', textDecoration: 'none', fontWeight: 600 }}>
+          🛍️ Continuer mes achats
+        </Link>
       </div>
+    </div>
+  )
+}
+
+export default function PanierSuccess() {
+  return (
+    <>
+      <Navbar />
+      <main>
+        <Suspense fallback={<div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Chargement...</div>}>
+          <SuccessContent />
+        </Suspense>
+      </main>
       <Footer />
-    </main>
+    </>
   )
 }
