@@ -1,235 +1,165 @@
 'use client'
-export const dynamic = 'force-dynamic'
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import Navbar from '../../components/Navbar'
-import Footer from '../../components/Footer'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 
-const mockOrders = [
-  { id: 'ACA-2026-001', date: '12 Mar 2026', status: 'Livré', items: [{ name: 'Lot Premium Nike / Adidas', qty: 1, price: 189 }], total: 189 },
-  { id: 'ACA-2026-002', date: '28 Fév 2026', status: 'En cours', items: [{ name: 'Lot Streetwear Mix', qty: 2, price: 349 }], total: 698 },
-]
+function TrackingContent() {
+  const searchParams = useSearchParams()
+  const refParam = searchParams.get('ref') || ''
 
-const statusColor = {
-  'Livré': { color: '#22c55e', bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.2)' },
-  'En cours': { color: '#f97316', bg: 'rgba(249,115,22,0.1)', border: 'rgba(249,115,22,0.2)' },
-  'En attente': { color: '#C4962A', bg: 'rgba(196,150,42,0.1)', border: 'rgba(196,150,42,0.2)' },
-}
-
-export default function Compte() {
-  const [session, setSession] = useState(null)
-  const [activeTab, setActiveTab] = useState('dashboard')
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
+  const [ref, setRef] = useState(refParam)
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState('')
 
   useEffect(() => {
+    if (refParam) doSearch(refParam)
+  }, [refParam])
+
+  const doSearch = async (searchRef) => {
+    const val = (searchRef || ref).trim()
+    if (!val) return
+    setLoading(true)
+    setError('')
+    setResult(null)
     try {
-      const s = localStorage.getItem('aca_session')
-      if (!s) { router.push('/login'); return }
-      setSession(JSON.parse(s))
-    } catch { router.push('/login') }
-    setLoading(false)
-  }, [router])
-
-  const handleLogout = () => {
-    localStorage.removeItem('aca_session')
-    router.push('/')
+      const res = await fetch('/api/gls/track?id=' + encodeURIComponent(val))
+      const data = await res.json()
+      if (data.error && !data.trackID) {
+        setError(data.error)
+      } else {
+        setResult(data)
+      }
+    } catch (e) {
+      setError('Erreur de connexion. Veuillez réessayer.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  if (loading || !session) {
-    return (
-      <main id="main-content" tabIndex={-1} style={{ background: '#080808', minHeight: '100vh' }}>
-        <Navbar />
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-          <div style={{ color: '#6b7280', fontSize: '14px' }}>Chargement...</div>
-        </div>
-      </main>
-    )
+  const statusColors = {
+    DELIVERED: { bg: 'rgba(34,197,94,0.12)', border: 'rgba(34,197,94,0.35)', text: '#4ade80', icon: '✅' },
+    IN_TRANSIT: { bg: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.35)', text: '#60a5fa', icon: '🚚' },
+    OUT_FOR_DELIVERY: { bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.35)', text: '#fbbf24', icon: '📦' },
+    EXCEPTION: { bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.35)', text: '#f87171', icon: '⚠️' },
+    CREATED: { bg: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.35)', text: '#a78bfa', icon: '🏷️' },
+    PICKED_UP: { bg: 'rgba(6,182,212,0.12)', border: 'rgba(6,182,212,0.35)', text: '#22d3ee', icon: '📬' },
+    AT_PARCELSHOP: { bg: 'rgba(249,115,22,0.12)', border: 'rgba(249,115,22,0.35)', text: '#fb923c', icon: '🏪' },
   }
-
-  const tabs = [
-    { id: 'dashboard', label: '📊 Tableau de bord' },
-    { id: 'orders', label: '📦 Mes commandes' },
-    { id: 'profile', label: '👤 Mon profil' },
-  ]
+  const sc = result ? (statusColors[result.status] || { bg: 'rgba(107,114,128,0.12)', border: 'rgba(107,114,128,0.3)', text: '#9ca3af', icon: '📋' }) : null
 
   return (
-    <main style={{ background: '#080808', minHeight: '100vh' }}>
-      <Navbar />
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%)', fontFamily: "'Inter', sans-serif", padding: '24px 16px' }}>
 
       {/* Header */}
-      <section style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '36px 0 28px' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '8px', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: 900, color: '#000', flexShrink: 0 }}>
-                {(session.prenom || session.email).charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <p style={{ fontSize: '11px', color: '#C4962A', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Mon espace revendeur</p>
-                <h1 style={{ fontSize: 'clamp(18px, 4vw, 28px)', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                  Bonjour, {session.prenom || session.email.split('@')[0]} 👋
-                </h1>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              style={{ background: 'none', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', padding: '10px 18px', color: '#9ca3af', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', cursor: 'pointer', transition: 'all 0.2s' }}
-              onMouseEnter={e => { e.target.style.borderColor = '#ef4444'; e.target.style.color = '#ef4444' }}
-              onMouseLeave={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.color = '#9ca3af' }}
-            >
-              Déconnexion
-            </button>
-          </div>
-        </div>
-      </section>
+      <div style={{ maxWidth: 640, margin: '0 auto 32px' }}>
+        <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', marginBottom: 28 }}>
+          <div style={{ width: 36, height: 36, background: 'linear-gradient(135deg, #C4962A, #E8B84B)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#000', fontSize: 14 }}>A</div>
+          <span style={{ color: '#C4962A', fontWeight: 800, fontSize: 18, letterSpacing: '0.05em' }}>ACA WHOLESALE</span>
+        </a>
+        <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 900, margin: '0 0 6px', letterSpacing: '-0.02em' }}>Suivi de colis</h1>
+        <p style={{ color: '#6b7280', fontSize: 14, margin: 0 }}>Entrez votre numéro de commande (ex&nbsp;: ACA-2026-001) ou votre numéro de suivi GLS.</p>
+      </div>
 
-      {/* Tabs */}
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 20px' }}>
-        <div style={{ display: 'flex', gap: '4px', borderBottom: '1px solid rgba(255,255,255,0.07)', paddingTop: '16px' }}>
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer', padding: '10px 16px', fontSize: '13px', fontWeight: 700, borderRadius: '4px 4px 0 0',
-                color: activeTab === tab.id ? '#fff' : '#6b7280',
-                borderBottom: activeTab === tab.id ? '2px solid #C4962A' : '2px solid transparent',
-                transition: 'all 0.2s',
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div style={{ padding: '28px 0 60px' }}>
-          {/* Dashboard */}
-          {activeTab === 'dashboard' && (
-            <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
-                {[
-                  { label: 'Commandes', value: mockOrders.length, emoji: '📦', color: '#C4962A' },
-                  { label: 'Total investi', value: `${mockOrders.reduce((s, o) => s + o.total, 0)}€`, emoji: '💰', color: '#22c55e' },
-                  { label: 'Lots achetés', value: mockOrders.reduce((s, o) => s + o.items.reduce((a, i) => a + i.qty, 0), 0), emoji: '🛍️', color: '#E8B84B' },
-                  { label: 'Statut', value: 'Revendeur', emoji: '⭐', color: '#a78bfa' },
-                ].map(stat => (
-                  <div key={stat.label} style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '20px' }}>
-                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>{stat.emoji}</div>
-                    <div style={{ fontSize: '22px', fontWeight: 900, color: stat.color, marginBottom: '4px' }}>{stat.value}</div>
-                    <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              <h2 style={{ fontSize: '14px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '16px' }}>Actions rapides</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '32px' }}>
-                {[
-                  { href: '/produits', label: 'Voir les lots', emoji: '🛍️' },
-                  { href: '/panier', label: 'Mon devis', emoji: '📋' },
-                  { href: '/contact', label: 'Nous contacter', emoji: '💬' },
-                  { href: '/faq', label: 'Aide & FAQ', emoji: '❓' },
-                ].map(action => (
-                  <Link
-                    key={action.href}
-                    href={action.href}
-                    style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '16px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', transition: 'border-color 0.2s' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(196,150,42,0.4)'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'}
-                  >
-                    <span style={{ fontSize: '20px' }}>{action.emoji}</span>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{action.label}</span>
-                  </Link>
-                ))}
-              </div>
-
-              <h2 style={{ fontSize: '14px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '16px' }}>Commandes récentes</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {mockOrders.map(order => {
-                  const sc = statusColor[order.status] || statusColor['En attente']
-                  return (
-                    <div key={order.id} style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-                      <div>
-                        <p style={{ fontSize: '13px', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>{order.id}</p>
-                        <p style={{ fontSize: '12px', color: '#6b7280' }}>{order.date} · {order.items.map(i => `${i.name} ×${i.qty}`).join(', ')}</p>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <span style={{ fontSize: '14px', fontWeight: 900, color: '#fff' }}>{order.total}€</span>
-                        <span style={{ fontSize: '11px', fontWeight: 900, color: sc.color, background: sc.bg, border: `1px solid ${sc.border}`, borderRadius: '4px', padding: '4px 10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{order.status}</span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Orders */}
-          {activeTab === 'orders' && (
-            <div>
-              <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', marginBottom: '20px' }}>Historique des commandes</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {mockOrders.map(order => {
-                  const sc = statusColor[order.status] || statusColor['En attente']
-                  return (
-                    <div key={order.id} style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', overflow: 'hidden' }}>
-                      <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                        <div>
-                          <p style={{ fontSize: '13px', fontWeight: 900, color: '#fff', marginBottom: '2px' }}>{order.id}</p>
-                          <p style={{ fontSize: '12px', color: '#6b7280' }}>Passée le {order.date}</p>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <span style={{ fontSize: '11px', fontWeight: 900, color: sc.color, background: sc.bg, border: `1px solid ${sc.border}`, borderRadius: '4px', padding: '4px 10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{order.status}</span>
-                          <span style={{ fontSize: '16px', fontWeight: 900, color: '#fff' }}>{order.total}€</span>
-                        </div>
-                      </div>
-                      <div style={{ padding: '16px 20px' }}>
-                        {order.items.map((item, i) => (
-                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#9ca3af' }}>
-                            <span>{item.name} ×{item.qty}</span>
-                            <span style={{ fontWeight: 700, color: '#fff' }}>{item.price * item.qty}€</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Profile */}
-          {activeTab === 'profile' && (
-            <div style={{ maxWidth: '500px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', marginBottom: '20px' }}>Informations du compte</h2>
-              <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '24px' }}>
-                {[
-                  { label: 'Prénom', value: session.prenom || '—' },
-                  { label: 'Nom', value: session.nom || '—' },
-                  { label: 'Email', value: session.email },
-                  { label: 'Statut', value: 'Revendeur actif' },
-                ].map(field => (
-                  <div key={field.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                    <span style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>{field.label}</span>
-                    <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{field.value}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{ marginTop: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                <Link href="/contact" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000', padding: '12px 20px', fontWeight: 900, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', borderRadius: '6px', textDecoration: 'none' }}>
-                  Modifier mes infos →
-                </Link>
-                <button onClick={handleLogout} style={{ background: 'none', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: '12px 20px', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', borderRadius: '6px', cursor: 'pointer' }}>
-                  Déconnexion
-                </button>
-              </div>
-            </div>
-          )}
+      {/* Search box */}
+      <div style={{ maxWidth: 640, margin: '0 auto 28px' }}>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <input
+            value={ref}
+            onChange={e => setRef(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && doSearch()}
+            placeholder="ACA-2026-001 ou N° GLS"
+            style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '13px 16px', color: '#fff', fontSize: 15, outline: 'none' }}
+          />
+          <button
+            onClick={() => doSearch()}
+            disabled={loading || !ref.trim()}
+            style={{ background: (loading || !ref.trim()) ? 'rgba(196,150,42,0.35)' : 'linear-gradient(135deg, #C4962A, #E8B84B)', border: 'none', borderRadius: 12, padding: '13px 22px', color: '#000', fontWeight: 800, fontSize: 14, cursor: (loading || !ref.trim()) ? 'default' : 'pointer', whiteSpace: 'nowrap', letterSpacing: '0.04em' }}>
+            {loading ? '⏳' : '🔍 Rechercher'}
+          </button>
         </div>
       </div>
 
-      <Footer />
-    </main>
+      {/* Error */}
+      {error && (
+        <div style={{ maxWidth: 640, margin: '0 auto 20px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 12, padding: '14px 18px', color: '#f87171', fontSize: 14 }}>
+          ⚠️ {error}
+        </div>
+      )}
+
+      {/* Result */}
+      {result && sc && (
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+
+          {/* Status card */}
+          <div style={{ background: sc.bg, border: '1.5px solid ' + sc.border, borderRadius: 16, padding: '22px', marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
+              <span style={{ fontSize: 32, lineHeight: 1 }}>{sc.icon}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: sc.text, fontWeight: 900, fontSize: 19 }}>{result.statusLabel || result.status}</div>
+                {result.lastUpdate && <div style={{ color: '#9ca3af', fontSize: 12, marginTop: 3 }}>Mis à jour le {result.lastUpdate}</div>}
+                {result.lastLocation && <div style={{ color: '#9ca3af', fontSize: 12 }}>📍 {result.lastLocation}</div>}
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <div>
+                <div style={{ color: '#4b5563', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>N° de suivi GLS</div>
+                <div style={{ color: '#e5e7eb', fontWeight: 800, fontSize: 17, marginTop: 2, letterSpacing: '0.02em' }}>{result.trackID}</div>
+              </div>
+              {result.trackingUrl && (
+                <a href={result.trackingUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: '8px 14px', color: '#d1d5db', textDecoration: 'none', fontSize: 13, fontWeight: 700 }}>
+                  Voir sur GLS.fr →
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* Event history */}
+          {result.history && result.history.length > 0 && (
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '20px', marginBottom: 16 }}>
+              <div style={{ color: '#9ca3af', fontWeight: 800, fontSize: 13, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 16 }}>Historique du colis</div>
+              {result.history.map((event, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: 12, paddingBottom: idx < result.history.length - 1 ? 14 : 0 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 16, flexShrink: 0 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: idx === 0 ? sc.text : '#374151', border: '2px solid ' + (idx === 0 ? sc.text : '#4b5563'), marginTop: 3 }}></div>
+                    {idx < result.history.length - 1 && <div style={{ width: 2, flex: 1, background: 'rgba(255,255,255,0.06)', minHeight: 14, marginTop: 2 }}></div>}
+                  </div>
+                  <div style={{ flex: 1, paddingBottom: 2 }}>
+                    <div style={{ color: '#d1d5db', fontWeight: 600, fontSize: 13 }}>{event.description}</div>
+                    {event.location && <div style={{ color: '#6b7280', fontSize: 12, marginTop: 1 }}>📍 {event.location}</div>}
+                    <div style={{ color: '#374151', fontSize: 11, marginTop: 2 }}>{event.date}{event.time ? ' · ' + event.time : ''}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Fallback when no history */}
+          {result.error && (
+            <div style={{ background: 'rgba(107,114,128,0.06)', border: '1px solid rgba(107,114,128,0.15)', borderRadius: 12, padding: '14px 18px', color: '#6b7280', fontSize: 13, textAlign: 'center' }}>
+              Le suivi détaillé n&apos;est pas encore disponible.{' '}
+              {result.trackingUrl && <a href={result.trackingUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#C4962A', textDecoration: 'none', fontWeight: 700 }}>Voir sur GLS.fr →</a>}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Footer */}
+      <div style={{ maxWidth: 640, margin: '48px auto 0', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 24, color: '#374151', fontSize: 12 }}>
+        Questions ? <a href="mailto:contact@aca-wholesale.fr" style={{ color: '#C4962A', textDecoration: 'none', fontWeight: 600 }}>contact@aca-wholesale.fr</a>
+      </div>
+    </div>
+  )
+}
+
+export default function ComptePage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', background: '#0f0f0f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: '#C4962A', fontSize: 16, fontWeight: 700 }}>⏳ Chargement...</span>
+      </div>
+    }>
+      <TrackingContent />
+    </Suspense>
   )
 }
