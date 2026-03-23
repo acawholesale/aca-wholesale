@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
@@ -363,6 +363,14 @@ function CommandesTab() {
   const [glsData, setGlsData] = useState({})
   const [glsLoading, setGlsLoading] = useState(new Set())
 
+  // Persist GLS shipments across refreshes
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('aca_gls_shipments')
+      if (saved) setGlsData(JSON.parse(saved))
+    } catch {}
+  }, [])
+
   const STATUTS = ['À expédier', 'En cours', 'Expédié', 'Livré', 'Annulé']
 
   const getTotal = (order) => order.produits.reduce((s, p) => s + p.prix * p.qte, 0)
@@ -377,22 +385,52 @@ function CommandesTab() {
     setGlsLoading(prev => new Set([...prev, order.id]))
     try {
       const res = await fetch('/api/gls/create-shipment', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order }),
       })
       const data = await res.json()
       if (data.success) {
-        setGlsData(prev => ({ ...prev, [order.id]: data }))
+        setGlsData(prev => {
+          const updated = { ...prev, [order.id]: data }
+          try { localStorage.setItem('aca_gls_shipments', JSON.stringify(updated)) } catch {}
+          return updated
+        })
         updateStatut(order.id, 'Expédié')
-      } else { alert('Erreur GLS : ' + (data.error || 'Erreur inconnue')) }
-    } catch (e) { alert('Erreur réseau : ' + e.message) }
-    finally { setGlsLoading(prev => { const s = new Set(prev); s.delete(order.id); return s }) }
+        return data
+      } else {
+        alert('Erreur GLS : ' + (data.error || 'Erreur inconnue'))
+        return null
+      }
+    } catch (e) {
+      alert('Erreur réseau : ' + e.message)
+      return null
+    } finally {
+      setGlsLoading(prev => { const s = new Set(prev); s.delete(order.id); return s })
+    }
   }
 
   const openGLSLabel = (b64) => {
     if (!b64) return
     const blob = new Blob([Uint8Array.from(atob(b64), c => c.charCodeAt(0))], { type: 'application/pdf' })
     window.open(URL.createObjectURL(blob), '_blank')
+  }
+
+  const printGLSLabel = async (order) => {
+    const existing = glsData[order.id]
+    if (existing) {
+      if (existing.labelBase64) { openGLSLabel(existing.labelBase64); return; }
+      if (existing.trackingUrl) { window.open(existing.trackingUrl, '_blank'); return; }
+    }
+    const data = await createGLSShipment(order)
+    if (data?.labelBase64) openGLSLabel(data.labelBase64)
+    else if (data?.trackingUrl) window.open(data.trackingUrl, '_blank')
+  }
+
+  const printAllGLS = async (ordersList) => {
+    for (const order of ordersList) {
+      await printGLSLabel(order)
+    }
   }
 
   const filteredOrders = orders
@@ -503,14 +541,14 @@ function CommandesTab() {
             )}
           </div>
         ) : (
-          <button onClick={() => createGLSShipment(order)} disabled={glsLoading.has(order.id)}
+          <button onClick={() => printGLSLabel(order)} disabled={glsLoading.has(order.id)}
             className="w-full py-3 mb-3 font-black text-sm uppercase tracking-widest text-white rounded-xl flex items-center justify-center gap-2"
             style={{ background: 'linear-gradient(135deg, #1d4ed8, #3b82f6)', opacity: glsLoading.has(order.id) ? 0.6 : 1 }}>
-            {glsLoading.has(order.id) ? '⏳ Création en cours...' : '🚚 Créer l\'envoi GLS'}
+            {glsLoading.has(order.id) ? '⏳ Création en cours...' : '🏷️ GLS + Étiquette PDF'}
           </button>
         )}
-        <button onClick={() => printMultiple([order])} className="w-full py-4 font-black text-base uppercase tracking-widest text-black rounded-xl transition-opacity hover:opacity-90 flex items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
-          🖨️ Imprimer le bordereau d&apos;envoi
+        <button onClick={() => printGLSLabel(order)} className="w-full py-4 font-black text-base uppercase tracking-widest text-black rounded-xl transition-opacity hover:opacity-90 flex items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+          🏷️ GLS – Étiquette d&apos;expédition
         </button>
       </div>
     )
@@ -657,14 +695,14 @@ function CommandesTab() {
                       📦 {glsData[order.id].trackID.slice(-6)}
                     </a>
                   ) : (
-                    <button onClick={e => { e.stopPropagation(); createGLSShipment(order) }}
+                    <button onClick={e => { e.stopPropagation(); printGLSLabel(order) }}
                       disabled={glsLoading.has(order.id)}
                       className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide text-white"
                       style={{ background: 'rgba(59,130,246,0.18)', border: '1px solid rgba(59,130,246,0.4)', opacity: glsLoading.has(order.id) ? 0.5 : 1 }}>
                       {glsLoading.has(order.id) ? '⏳' : '🚚 GLS'}
                     </button>
                   )}
-                  <button onClick={e => { e.stopPropagation(); printMultiple([order]) }} className="text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wide text-black" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Bordereau</button>
+                  <button onClick={e => { e.stopPropagation(); printGLSLabel(order) }} className="text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wide text-black" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🏷️ Étiquette GLS</button>
                 </div>
               </div>
               {(justChanged || glsData[order.id]) && (
