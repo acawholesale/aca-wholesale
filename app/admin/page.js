@@ -363,6 +363,8 @@ function CommandesTab() {
   const [glsData, setGlsData] = useState({})
   const [glsLoading, setGlsLoading] = useState(new Set())
   const [ordersLoading, setOrdersLoading] = useState(true)
+  const [manualGlsModal, setManualGlsModal] = useState(null)
+  const [manualTrackInput, setManualTrackInput] = useState('')
 
   // Persist GLS shipments across refreshes
   useEffect(() => {
@@ -466,6 +468,31 @@ function CommandesTab() {
     }
   }
 
+
+  const saveManualTracking = async (orderId, trackId) => {
+    try {
+      const res = await fetch('/api/admin/orders/update-tracking', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, glsTrackId: trackId, status: 'Expédié' }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setGlsData(prev => {
+          const updated = { ...prev, [orderId]: { success: true, trackID: trackId, trackingUrl: 'https://gls-group.eu/track/' + trackId } }
+          try { localStorage.setItem('aca_gls_shipments', JSON.stringify(updated)) } catch {}
+          return updated
+        })
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'Expédié' } : o))
+        setManualGlsModal(null)
+        setManualTrackInput('')
+      } else {
+        alert('Erreur : ' + data.error)
+      }
+    } catch (e) {
+      alert('Erreur réseau : ' + e.message)
+    }
+  }
   const filteredOrders = orders
     .filter(o => {
       const total = getTotal(o)
@@ -578,6 +605,12 @@ function CommandesTab() {
             className="w-full py-3 mb-3 font-black text-sm uppercase tracking-widest text-white rounded-xl flex items-center justify-center gap-2"
             style={{ background: 'linear-gradient(135deg, #1d4ed8, #3b82f6)', opacity: glsLoading.has(order.id) ? 0.6 : 1 }}>
             {glsLoading.has(order.id) ? '⏳ Création en cours...' : '🏷️ GLS + Étiquette PDF'}
+          </button>
+          <button
+            onClick={() => { setManualGlsModal(order.id); setManualTrackInput(''); }}
+            className="w-full py-2 mt-2 text-xs font-bold rounded-lg"
+            style={{ background: 'rgba(255,255,255,0.04)', color: '#6b7280', border: '1px solid rgba(255,255,255,0.08)' }}>
+            ✏️ Saisir le numéro GLS manuellement
           </button>
         )}
         <button onClick={() => printGLSLabel(order)} className="w-full py-4 font-black text-base uppercase tracking-widest text-black rounded-xl transition-opacity hover:opacity-90 flex items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
@@ -748,6 +781,36 @@ function CommandesTab() {
           )
         })}
       </div>
+
+      {/* Modal saisie manuelle numéro GLS */}
+      {manualGlsModal && (
+        <div onClick={() => setManualGlsModal(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#1a1200', border: '1px solid rgba(196,150,42,0.4)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '420px' }}>
+            <h3 style={{ color: '#C4962A', fontWeight: 900, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>✏️ Saisir numéro GLS</h3>
+            <p style={{ color: '#9ca3af', fontSize: '12px', marginBottom: '20px' }}>Commande {manualGlsModal} — API GLS non disponible actuellement</p>
+            <input
+              type="text"
+              value={manualTrackInput}
+              onChange={e => setManualTrackInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && manualTrackInput.trim() && saveManualTracking(manualGlsModal, manualTrackInput.trim())}
+              placeholder="Ex: 12345678901234"
+              autoFocus
+              style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '12px 14px', color: 'white', fontSize: '15px', marginBottom: '16px', outline: 'none', boxSizing: 'border-box' }}
+            />
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={() => setManualGlsModal(null)} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
+                Annuler
+              </button>
+              <button
+                onClick={() => manualTrackInput.trim() && saveManualTracking(manualGlsModal, manualTrackInput.trim())}
+                disabled={!manualTrackInput.trim()}
+                style={{ flex: 2, padding: '12px', borderRadius: '8px', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: 'black', fontWeight: 900, fontSize: '13px', cursor: 'pointer', opacity: manualTrackInput.trim() ? 1 : 0.5 }}>
+                💾 Enregistrer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
