@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 // app/api/gls/track/route.js
 import { NextResponse } from 'next/server'
 
