@@ -360,6 +360,8 @@ function CommandesTab() {
   const [montantMax, setMontantMax] = useState('')
   const [triPar, setTriPar] = useState('date-desc')
   const [changedId, setChangedId] = useState(null)
+  const [glsData, setGlsData] = useState({})
+  const [glsLoading, setGlsLoading] = useState(new Set())
 
   const STATUTS = ['À expédier', 'En cours', 'Expédié', 'Livré', 'Annulé']
 
@@ -369,6 +371,28 @@ function CommandesTab() {
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatut } : o))
     setChangedId(id)
     setTimeout(() => setChangedId(null), 1500)
+  }
+
+  const createGLSShipment = async (order) => {
+    setGlsLoading(prev => new Set([...prev, order.id]))
+    try {
+      const res = await fetch('/api/gls/create-shipment', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setGlsData(prev => ({ ...prev, [order.id]: data }))
+        updateStatut(order.id, 'Expédié')
+      } else { alert('Erreur GLS : ' + (data.error || 'Erreur inconnue')) }
+    } catch (e) { alert('Erreur réseau : ' + e.message) }
+    finally { setGlsLoading(prev => { const s = new Set(prev); s.delete(order.id); return s }) }
+  }
+
+  const openGLSLabel = (b64) => {
+    if (!b64) return
+    const blob = new Blob([Uint8Array.from(atob(b64), c => c.charCodeAt(0))], { type: 'application/pdf' })
+    window.open(URL.createObjectURL(blob), '_blank')
   }
 
   const filteredOrders = orders
@@ -455,6 +479,36 @@ function CommandesTab() {
             </div>
           </div>
         </div>
+        {/* Section GLS */}
+        {glsData[order.id] ? (
+          <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(0,80,180,0.08)', border: '1px solid rgba(59,130,246,0.3)' }}>
+            <p className="text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: '#60a5fa' }}>📦 Envoi GLS créé</p>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1">
+                <p className="text-[10px] text-gray-500 uppercase tracking-wide">N° de suivi GLS</p>
+                <p className="text-white font-black text-sm mt-0.5 select-all">{glsData[order.id].trackID}</p>
+              </div>
+              <a href={glsData[order.id].trackingUrl} target="_blank" rel="noopener noreferrer"
+                className="text-[11px] font-bold px-3 py-1.5 rounded-lg"
+                style={{ background: 'rgba(59,130,246,0.2)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.3)' }}>
+                🔍 Suivre le colis
+              </a>
+            </div>
+            {glsData[order.id].labelBase64 && (
+              <button onClick={() => openGLSLabel(glsData[order.id].labelBase64)}
+                className="w-full py-2 text-sm font-bold rounded-lg"
+                style={{ background: 'rgba(59,130,246,0.15)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)' }}>
+                🏷️ Télécharger l&apos;étiquette GLS (PDF)
+              </button>
+            )}
+          </div>
+        ) : (
+          <button onClick={() => createGLSShipment(order)} disabled={glsLoading.has(order.id)}
+            className="w-full py-3 mb-3 font-black text-sm uppercase tracking-widest text-white rounded-xl flex items-center justify-center gap-2"
+            style={{ background: 'linear-gradient(135deg, #1d4ed8, #3b82f6)', opacity: glsLoading.has(order.id) ? 0.6 : 1 }}>
+            {glsLoading.has(order.id) ? '⏳ Création en cours...' : '🚚 Créer l\'envoi GLS'}
+          </button>
+        )}
         <button onClick={() => printMultiple([order])} className="w-full py-4 font-black text-base uppercase tracking-widest text-black rounded-xl transition-opacity hover:opacity-90 flex items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
           🖨️ Imprimer le bordereau d&apos;envoi
         </button>
@@ -595,13 +649,28 @@ function CommandesTab() {
                   >
                     {STATUTS.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
-                  <button onClick={e => { e.stopPropagation(); printMultiple([order]) }} className="text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wide text-black" style={+ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Bordereau</button>
+                  {glsData[order.id] ? (
+                    <a href={glsData[order.id].trackingUrl} target="_blank" rel="noopener noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide flex items-center gap-1"
+                      style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)' }}>
+                      📦 {glsData[order.id].trackID.slice(-6)}
+                    </a>
+                  ) : (
+                    <button onClick={e => { e.stopPropagation(); createGLSShipment(order) }}
+                      disabled={glsLoading.has(order.id)}
+                      className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide text-white"
+                      style={{ background: 'rgba(59,130,246,0.18)', border: '1px solid rgba(59,130,246,0.4)', opacity: glsLoading.has(order.id) ? 0.5 : 1 }}>
+                      {glsLoading.has(order.id) ? '⏳' : '🚚 GLS'}
+                    </button>
+                  )}
+                  <button onClick={e => { e.stopPropagation(); printMultiple([order]) }} className="text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wide text-black" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Bordereau</button>
                 </div>
               </div>
-              {/* Flash confirmation changement statut */}
-              {justChanged && (
-                <div className="mt-2 flex items-center gap-1.5">
-                  <span className="text-green-400 text-[10px] font-bold">✓ Statut mis à jour</span>
+              {(justChanged || glsData[order.id]) && (
+                <div className="mt-2 flex items-center gap-3 flex-wrap">
+                  {justChanged && <span className="text-green-400 text-[10px] font-bold">✓ Statut mis à jour</span>}
+                  {glsData[order.id] && <span className="text-blue-400 text-[10px] font-bold">📦 GLS: {glsData[order.id].trackID}</span>}
                 </div>
               )}
             </div>
