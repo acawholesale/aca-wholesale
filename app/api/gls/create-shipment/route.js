@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // app/api/gls/create-shipment/route.js
 // Next.js 14 App Router – Route Handler
 // Crée un envoi GLS via l'API ShipIT et retourne le numéro de suivi + l'URL de l'étiquette
