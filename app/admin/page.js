@@ -605,17 +605,19 @@ function CommandesTab() {
             )}
           </div>
         ) : (
-          <button onClick={() => printGLSLabel(order)} disabled={glsLoading.has(order.id)}
-            className="w-full py-3 mb-3 font-black text-sm uppercase tracking-widest text-white rounded-xl flex items-center justify-center gap-2"
-            style={{ background: 'linear-gradient(135deg, #1d4ed8, #3b82f6)', opacity: glsLoading.has(order.id) ? 0.6 : 1 }}>
-            {glsLoading.has(order.id) ? '⏳ Création en cours...' : '🏷️ GLS + Étiquette PDF'}
-          </button>
-          <button
-            onClick={() => { setManualGlsModal(order.id); setManualTrackInput(''); }}
-            className="w-full py-2 mt-2 text-xs font-bold rounded-lg"
-            style={{ background: 'rgba(255,255,255,0.04)', color: '#6b7280', border: '1px solid rgba(255,255,255,0.08)' }}>
-            ✏️ Saisir le numéro GLS manuellement
-          </button>
+          <>
+            <button onClick={() => printGLSLabel(order)} disabled={glsLoading.has(order.id)}
+              className="w-full py-3 mb-3 font-black text-sm uppercase tracking-widest text-white rounded-xl flex items-center justify-center gap-2"
+              style={{ background: 'linear-gradient(135deg, #1d4ed8, #3b82f6)', opacity: glsLoading.has(order.id) ? 0.6 : 1 }}>
+              {glsLoading.has(order.id) ? '⏳ Création en cours...' : '🏷️ GLS + Étiquette PDF'}
+            </button>
+            <button
+              onClick={() => { setManualGlsModal(order.id); setManualTrackInput(''); }}
+              className="w-full py-2 mt-2 text-xs font-bold rounded-lg"
+              style={{ background: 'rgba(255,255,255,0.04)', color: '#6b7280', border: '1px solid rgba(255,255,255,0.08)' }}>
+              ✏️ Saisir le numéro GLS manuellement
+            </button>
+          </>
         )}
         <button onClick={() => printGLSLabel(order)} className="w-full py-4 font-black text-base uppercase tracking-widest text-black rounded-xl transition-opacity hover:opacity-90 flex items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
           🏷️ GLS – Étiquette d&apos;expédition
