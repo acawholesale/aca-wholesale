@@ -380,7 +380,11 @@ function CommandesTab() {
       .then(r => r.json())
       .then(data => {
         if (data.orders) {
-          setOrders(data.orders)
+          setOrders(data.orders.map(o => {
+            let produits = []
+            try { produits = Array.isArray(o.items) ? o.items : JSON.parse(o.items_json || o.itemsJson || '[]') } catch {}
+            return { ...o, produits: produits.map(p => ({ nom: p.nom || p.name || 'Article', prix: parseFloat(p.prix || p.price || 0), qte: parseInt(p.qte || p.quantity || 1) })), montant: parseFloat(o.total || 0), date: o.date || (o.created_at || o.createdAt || '').split('T')[0] }
+          }))
           // Pre-populate GLS data from orders that already have labels
           const newGls = {}
           data.orders.forEach(o => {
@@ -565,7 +569,7 @@ function CommandesTab() {
         <div className="rounded-xl p-5 mb-4" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
           <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-3 font-bold">📦 Produits</p>
           <div className="space-y-2">
-            {order.produits.map((p, i) => (
+            {(order.produits || []).map((p, i) => (
               <div key={i} className="flex justify-between items-center py-2 border-b border-white/5">
                 <span className="text-white text-sm">{p.nom}</span>
                 <div className="flex items-center gap-4"><span className="text-gray-400 text-xs">x{p.qte}</span><span className="text-white font-bold text-sm">{p.prix * p.qte} €</span></div>
@@ -738,7 +742,7 @@ function CommandesTab() {
                     <span className="text-gray-600 text-[10px]">{order.dateAff}</span>
                   </div>
                   <p className="text-gray-400 text-xs">{order.client.nom} • {order.client.ville}</p>
-                  <p className="text-gray-500 text-xs mt-0.5 truncate">{order.produits.map(p => p.nom).join(', ')}</p>
+                  <p className="text-gray-500 text-xs mt-0.5 truncate">{(order.produits || []).map(p => p.nom).join(', ')}</p>
                 </div>
                 {/* Colonne droite: montant + actions */}
                 <div className="flex-shrink-0 flex flex-col items-end gap-2">
