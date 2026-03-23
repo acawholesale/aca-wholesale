@@ -350,7 +350,7 @@ function ClientsTab() {
 }
 
 function CommandesTab() {
-  const [orders, setOrders] = useState(mockOrders)
+  const [orders, setOrders] = useState([])
   const [selected, setSelected] = useState(null)
   const [filtreStatut, setFiltreStatut] = useState('Tous')
   const [checked, setChecked] = useState([])
@@ -362,6 +362,7 @@ function CommandesTab() {
   const [changedId, setChangedId] = useState(null)
   const [glsData, setGlsData] = useState({})
   const [glsLoading, setGlsLoading] = useState(new Set())
+  const [ordersLoading, setOrdersLoading] = useState(true)
 
   // Persist GLS shipments across refreshes
   useEffect(() => {
@@ -371,14 +372,46 @@ function CommandesTab() {
     } catch {}
   }, [])
 
+  // Fetch orders from Supabase on mount
+  useEffect(() => {
+    fetch('/api/orders')
+      .then(r => r.json())
+      .then(data => {
+        if (data.orders) {
+          setOrders(data.orders)
+          // Pre-populate GLS data from orders that already have labels
+          const newGls = {}
+          data.orders.forEach(o => {
+            if (o.glsTrackId || o.glsLabelBase64) {
+              newGls[o.id] = { success: true, trackID: o.glsTrackId, labelBase64: o.glsLabelBase64, trackingUrl: o.glsLabelUrl }
+            }
+          })
+          if (Object.keys(newGls).length > 0) {
+            setGlsData(prev => {
+              const merged = { ...newGls, ...prev }
+              try { localStorage.setItem('aca_gls_shipments', JSON.stringify(merged)) } catch {}
+              return merged
+            })
+          }
+        }
+      })
+      .catch(console.error)
+      .finally(() => setOrdersLoading(false))
+  }, [])
+
   const STATUTS = ['À expédier', 'En cours', 'Expédié', 'Livré', 'Annulé']
 
-  const getTotal = (order) => order.produits.reduce((s, p) => s + p.prix * p.qte, 0)
+  const getTotal = (order) => order.montant || (order.produits ? order.produits.reduce((s, p) => s + p.prix * p.qte, 0) : 0)
 
   const updateStatut = (id, newStatut) => {
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatut } : o))
     setChangedId(id)
     setTimeout(() => setChangedId(null), 1500)
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, updates: { statut: newStatut } }),
+    }).catch(console.error)
   }
 
   const createGLSShipment = async (order) => {
