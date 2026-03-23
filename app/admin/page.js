@@ -174,7 +174,7 @@ function ClientsTab() {
     try {
       const res = await fetch('/api/admin/send-campaign', {
         method: 'POST',
-    0   headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ destinataires: selectedClients, sujet, contenu }),
       })
       const data = await res.json()
