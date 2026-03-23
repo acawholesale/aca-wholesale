@@ -58,6 +58,10 @@ export default function AdminDashboard() {
     { id: 'accueil', label: 'Tableau de bord', icon: '📊' },
     { id: 'commandes', label: 'Commandes', icon: '📦' },
     { id: 'clients', label: 'Clients', icon: '👥' },
+    { id: 'analytiques', label: 'Analytiques', icon: '📈', premium: true },
+    { id: 'campagnes', label: 'Campagnes', icon: '📧', premium: true },
+    { id: 'factures', label: 'Factures', icon: '🧾', premium: true },
+    { id: 'remises', label: 'Codes Promo', icon: '🏷️', premium: true },
   ]
 
   return (
@@ -104,7 +108,44 @@ export default function AdminDashboard() {
           {activeTab === 'accueil' && <DashboardHome setActiveTab={setActiveTab} />}
           {activeTab === 'commandes' && <CommandesTab />}
           {activeTab === 'clients' && <ClientsTab />}
+          {['analytiques', 'campagnes', 'factures', 'remises'].includes(activeTab) && <PremiumUpgradeTab activeTab={activeTab} />}
         </main>
+      </div>
+    </div>
+  )
+}
+
+function PremiumUpgradeTab({ activeTab }) {
+  const labels = {
+    analytiques: 'Analytiques',
+    campagnes: 'Campagnes',
+    factures: 'Factures',
+    remises: 'Codes Promo',
+  }
+  const icons = {
+    analytiques: '📈',
+    campagnes: '📧',
+    factures: '🧾',
+    remises: '🏷️',
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', padding: '40px 20px' }}>
+      <div style={{ background: 'rgba(196,150,42,0.07)', border: '1px solid rgba(196,150,42,0.25)', borderRadius: '24px', padding: '48px 40px', maxWidth: '480px', width: '100%', textAlign: 'center' }}>
+        <div style={{ fontSize: '60px', marginBottom: '12px' }}>{icons[activeTab]}</div>
+        <div style={{ fontSize: '36px', marginBottom: '24px' }}>🔒</div>
+        <h2 style={{ color: '#C4962A', fontWeight: 900, fontSize: '20px', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>{labels[activeTab]}</h2>
+        <p style={{ color: '#9ca3af', fontSize: '15px', lineHeight: 1.7, marginBottom: '8px' }}>
+          Cette fonctionnalité est disponible dans les forfaits supérieurs.
+        </p>
+        <p style={{ color: '#6b7280', fontSize: '13px', lineHeight: 1.6, marginBottom: '32px' }}>
+          Passez au forfait supérieur pour bénéficier de ces fonctionnalités et booster votre activité de revente.
+        </p>
+        <a
+          href="mailto:contact@acawholesale.fr?subject=Upgrade forfait - ACA Wholesale"
+          style={{ display: 'inline-block', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000', fontWeight: 900, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '14px 32px', borderRadius: '12px', textDecoration: 'none' }}
+        >
+          📩 Passer au forfait supérieur
+        </a>
       </div>
     </div>
   )
