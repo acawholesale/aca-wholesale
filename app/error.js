@@ -6,6 +6,20 @@ import Link from 'next/link'
 export default function Error({ error, reset }) {
   useEffect(() => {
     console.error('App error:', error)
+    // Report error to admin
+    try {
+      fetch('/api/error-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: error?.message || 'Unknown error',
+          stack: error?.stack || '',
+          url: typeof window !== 'undefined' ? window.location.href : '',
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+          timestamp: new Date().toISOString(),
+        }),
+      }).catch(() => {})
+    } catch {}
   }, [error])
 
   return (

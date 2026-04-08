@@ -98,9 +98,9 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-5 py-5 md:py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-gray-400 text-[10px] md:text-xs">
           <span>© 2026 ACA Wholesale. Tous droits réservés. Basé en <span className="text-gold">Moselle, France</span>.</span>
           <div className="flex gap-4">
-            <Link href="/faq" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded">Mentions légales</Link>
-            <Link href="/faq" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded">CGV</Link>
-            <Link href="/faq" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded">Confidentialité</Link>
+            <Link href="/mentions-legales" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded">Mentions légales</Link>
+            <Link href="/cgv" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded">CGV</Link>
+            <Link href="/mentions-legales" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded">Confidentialité</Link>
           </div>
         </div>
       </div>

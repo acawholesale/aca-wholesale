@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
-import { sendShippingNotification } from '../../../../lib/emails'
+import { sendShippingNotification, sendAdminOrderNotification } from '../../../../lib/emails'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -67,6 +67,19 @@ export async function POST(req) {
 
     if (dbError) {
       console.error('Supabase insert error:', dbError)
+    }
+
+    // Notify admin of new order
+    try {
+      await sendAdminOrderNotification({
+        orderId,
+        clientName: ((meta.prenom || '') + ' ' + (meta.nom || '')).trim(),
+        email: meta.email || session.customer_email || '',
+        total: totalAmount,
+        items: meta.itemsSummary || '',
+      })
+    } catch (adminEmailErr) {
+      console.error('Admin notification email error:', adminEmailErr.message)
     }
 
     // Auto-create GLS shipment
