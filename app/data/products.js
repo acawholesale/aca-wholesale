@@ -272,7 +272,7 @@ export function getStockStatus(stock) {
 // Fetch products from Supabase API (client-side), fallback to static
 export async function fetchProducts() {
   try {
-    const res = await fetch('/api/products', { next: { revalidate: 60 } })
+    const res = await fetch('/api/products?t=' + Date.now(), { cache: 'no-store' })
     if (!res.ok) throw new Error('API error')
     const data = await res.json()
     if (data.products && data.products.length > 0) return data.products
@@ -282,7 +282,7 @@ export async function fetchProducts() {
 
 export async function fetchProductById(id) {
   try {
-    const res = await fetch(`/api/products?id=${id}`, { next: { revalidate: 60 } })
+    const res = await fetch('/api/products?id=' + id + '&t=' + Date.now(), { cache: 'no-store' })
     if (!res.ok) throw new Error('API error')
     const data = await res.json()
     if (data.product) return data.product
