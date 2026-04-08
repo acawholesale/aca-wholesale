@@ -1,5 +1,20 @@
 import './globals.css'
 import { CartProvider } from '../context/CartContext'
+import { Playfair_Display, Inter } from 'next/font/google'
+
+const playfair = Playfair_Display({
+  weight: ['400', '700', '900'],
+  subsets: ['latin'],
+  variable: '--font-heading',
+  display: 'swap',
+})
+
+const inter = Inter({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin'],
+  variable: '--font-body',
+  display: 'swap',
+})
 
 export const metadata = {
   title: 'ACA Wholesale - Lots de Vêtements de Seconde Main | Moselle, France',
@@ -25,7 +40,7 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="fr">
-      <body>
+      <body className={`${playfair.variable} ${inter.variable}`}>
         {/* Lien d'évitement pour navigation clavier / lecteurs d'écran */}
         <a
           href="#main-content"

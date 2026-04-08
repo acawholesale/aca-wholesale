@@ -28,18 +28,11 @@ export default function ProductCard({ product }) {
 
   return (
     <div
-      className="product-card overflow-hidden group"
-      style={{
-        background: 'rgba(255,255,255,0.05)',
-        backdropFilter: 'blur(8px)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: '4px',
-        opacity: isSoldOut ? 0.7 : 1,
-      }}
+      className={`product-card overflow-hidden group bg-glass backdrop-blur-md border border-glass rounded-xs${isSoldOut ? ' opacity-70' : ''}`}
     >
       {/* Image zone */}
       <Link href={`/produits/${product.id}`}>
-        <div className="relative aspect-square overflow-hidden" style={{ background: '#1a1a1a' }}>
+        <div className="relative aspect-square overflow-hidden bg-[#1a1a1a]">
           <div
             className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
             style={{ backgroundColor: product.color || '#1a1a1a' }}
@@ -56,15 +49,15 @@ export default function ProductCard({ product }) {
 
           {/* ÉPUISÉ overlay */}
           {isSoldOut && (
-            <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.65)' }}>
-              <span className="font-black text-sm tracking-widest uppercase" style={{ color: '#ef4444' }}>ÉPUISÉ</span>
+            <div className="absolute inset-0 flex items-center justify-center bg-black/65">
+              <span className="font-black text-sm tracking-widest uppercase text-red-500">ÉPUISÉ</span>
             </div>
           )}
 
           {/* Urgency badge */}
           {isUrgent && (
             <div className="absolute bottom-2 left-0 right-0 flex justify-center">
-              <span className="text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide" style={{ background: 'rgba(249,115,22,0.9)', color: '#fff' }}>
+              <span className="text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide bg-orange-500/90 text-white">
                 🔥 Plus que {product.stock} dispo
               </span>
             </div>
@@ -77,7 +70,7 @@ export default function ProductCard({ product }) {
             </span>
           )}
           {product.isNew && !isSoldOut && (
-            <span className="absolute top-2 right-2 text-black text-[10px] font-black px-2 py-0.5 uppercase tracking-widest" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+            <span className="absolute top-2 right-2 text-black text-[10px] font-black px-2 py-0.5 uppercase tracking-widest bg-gold-gradient">
               NEW
             </span>
           )}
@@ -101,14 +94,14 @@ export default function ProductCard({ product }) {
           <h3 className="font-black text-xs md:text-sm mb-1 text-white uppercase tracking-wide hover:text-[#E8B84B] transition-colors line-clamp-2">
             {product.name}
           </h3>
-          <p className="text-[10px] md:text-xs text-gray-500 mb-2">{product.description}</p>
+          <p className="text-[10px] md:text-xs text-gray-400 mb-2">{product.description}</p>
 
           {/* Stars */}
           <div className="flex items-center gap-0.5 mb-2">
             {stars.map((_, i) => (
               <span key={i} className={`text-[10px] ${i < product.rating ? 'star-filled' : 'text-white/10'}`}>★</span>
             ))}
-            <span className="text-[10px] text-gray-600 ml-1">({product.reviews})</span>
+            <span className="text-[10px] text-gray-400 ml-1">({product.reviews})</span>
           </div>
 
           {/* Price block */}
@@ -116,7 +109,7 @@ export default function ProductCard({ product }) {
             <div className="flex items-center gap-1.5 mb-0.5">
               <span className="font-black text-base md:text-lg text-white">{product.price}€</span>
               {product.originalPrice && (
-                <span className="text-xs text-gray-600 line-through">{product.originalPrice}€</span>
+                <span className="text-xs text-gray-500 line-through" aria-label={`Prix original ${product.originalPrice}€`}>{product.originalPrice}€</span>
               )}
               {discount && (
                 <span className="text-[10px] bg-red-600 text-white font-black px-1.5 py-0.5">
@@ -128,7 +121,7 @@ export default function ProductCard({ product }) {
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-gray-400">~{pricePerPiece}€/pièce</span>
                 {product.vinteMin && product.vinteMax && (
-                  <span className="text-[10px]" style={{ color: '#E8B84B' }}>
+                  <span className="text-[10px] text-gold-light">
                     revente {product.vinteMin}-{product.vinteMax}€
                   </span>
                 )}
@@ -141,21 +134,22 @@ export default function ProductCard({ product }) {
         <div className="flex gap-1.5">
           <Link
             href={`/produits/${product.id}`}
-            className="flex-1 text-center border text-gray-300 text-xs py-2 font-bold uppercase tracking-wide rounded-sm transition-colors"
-            style={{ background: 'rgba(0,0,0,0.3)', borderColor: 'rgba(255,255,255,0.1)' }}
+            className="flex-1 text-center border text-gray-300 text-xs py-2 font-bold uppercase tracking-wide rounded-sm transition-colors bg-overlay-light border-glass focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1"
           >
             Détails
           </Link>
           <button
             onClick={handleAdd}
             disabled={isSoldOut}
-            className="flex-1 text-center text-xs py-2 font-black transition-all duration-300 uppercase tracking-wide rounded-sm"
+            className={`flex-1 text-center text-xs py-2 font-black transition-all duration-300 uppercase tracking-wide rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1${
+              !isSoldOut && !added ? ' bg-gold-gradient text-black' : ''
+            }`}
             style={
               isSoldOut
                 ? { background: 'rgba(255,255,255,0.08)', color: '#666', cursor: 'not-allowed' }
                 : added
                 ? { background: '#16a34a', color: '#fff' }
-                : { background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' }
+                : undefined
             }
           >
             {isSoldOut ? 'Épuisé' : added ? '✓ Ajouté' : '+ Panier'}
