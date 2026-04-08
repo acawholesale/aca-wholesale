@@ -62,7 +62,7 @@ export default function Produits() {
     else if (sortBy === 'new') list = list.filter(p => p.isNew)
     else if (sortBy === 'margin') list = [...list].sort((a, b) => (b.vinteMax * b.pieces - b.price) - (a.vinteMax * a.pieces - a.price))
     return list
-  }, [activeCategory, search, budgetFilter, sortBy])
+  }, [products, activeCategory, search, budgetFilter, sortBy])
 
   const activeFiltersCount = [activeCategory !== 'all', budgetFilter !== 'all', search.trim() !== ''].filter(Boolean).length
   const clearAll = () => { setActiveCategory('all'); setBudgetFilter('all'); setSearch(''); setSortBy('popular') }
