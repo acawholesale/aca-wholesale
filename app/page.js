@@ -30,6 +30,7 @@ async function getProducts() {
       rating: p.rating, reviews: p.reviews, badge: p.badge, isNew: p.is_new, emoji: p.emoji,
       brand: p.brand, color: p.color, category: p.category, pieces: p.pieces, sizes: p.sizes,
       state: p.state, details: p.details || [], stock: p.stock, vinteMin: p.vinte_min, vinteMax: p.vinte_max,
+      imageUrl: p.image_url, images: Array.isArray(p.images) ? p.images : [],
     }))
   } catch { return allProducts }
 }

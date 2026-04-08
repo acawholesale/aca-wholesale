@@ -2,6 +2,7 @@
 import { useParams } from 'next/navigation'
 import { useCart } from '../../../context/CartContext'
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { allProducts, getProductById, getStockStatus } from '../../data/products'
 import { supabase } from '../../../lib/supabase'
 import Navbar from '../../../components/Navbar'
@@ -16,6 +17,7 @@ function formatProduct(p) {
     rating: p.rating, reviews: p.reviews, badge: p.badge, isNew: p.is_new, emoji: p.emoji,
     brand: p.brand, color: p.color, category: p.category, pieces: p.pieces, sizes: p.sizes,
     state: p.state, details: p.details || [], stock: p.stock, vinteMin: p.vinte_min, vinteMax: p.vinte_max,
+    imageUrl: p.image_url, images: Array.isArray(p.images) ? p.images : [],
   }
 }
 
@@ -26,6 +28,7 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1)
   const [product, setProduct] = useState(() => getProductById(id))
   const [related, setRelated] = useState([])
+  const [activeImage, setActiveImage] = useState(0)
 
   useEffect(() => {
     if (!supabase) return
@@ -102,57 +105,126 @@ export default function ProductDetail() {
       <section className="max-w-7xl mx-auto px-5 pb-10 md:pb-16">
         <div className="grid md:grid-cols-2 gap-6 md:gap-12">
 
-          {/* Visual */}
-          <div
-            className="overflow-hidden rounded"
-            style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(8px)',
-            }}
-          >
+          {/* Visual — Gallery */}
+          <div>
             <div
-              className="aspect-square flex items-center justify-center relative"
-              style={{ backgroundColor: product.color + '33' }}
+              className="overflow-hidden rounded relative"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                backdropFilter: 'blur(8px)',
+              }}
             >
-              {isSoldOut && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)' }}>
-                  <span className="font-black text-xl tracking-widest uppercase" style={{ color: '#ef4444' }}>ÉPUISÉ</span>
-                </div>
-              )}
-              {isUrgent && (
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center z-10">
-                  <span
-                    className="text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wide"
-                    style={{ background: 'rgba(249,115,22,0.9)', color: '#fff' }}
-                  >
-                    🔥 Plus que {product.stock} lot{product.stock > 1 ? 's' : ''} disponible{product.stock > 1 ? 's' : ''}
-                  </span>
-                </div>
-              )}
-              <div className="text-center z-0">
-                <div className="text-7xl md:text-9xl mb-4">{product.emoji}</div>
-                <span
-                  className="text-sm font-bold px-4 py-1.5 rounded-sm uppercase tracking-wide"
-                  style={{ background: 'rgba(0,0,0,0.5)', color: '#fff', backdropFilter: 'blur(4px)' }}
-                >
-                  {product.brand}
-                </span>
-              </div>
-              {product.badge && !isSoldOut && (
-                <span className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-sm">
-                  {product.badge}
+              <div
+                className="aspect-square flex items-center justify-center relative"
+                style={{ backgroundColor: product.imageUrl || (product.images && product.images.length > 0) ? '#1a1a1a' : (product.color + '33') }}
+              >
+                {/* Main image or emoji */}
+                {(() => {
+                  const allImages = [product.imageUrl, ...(product.images || [])].filter(Boolean)
+                  if (allImages.length > 0) {
+                    return (
+                      <Image
+                        src={allImages[activeImage] || allImages[0]}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover"
+                        priority
+                      />
+                    )
+                  }
+                  return (
+                    <div className="text-center z-0">
+                      <div className="text-7xl md:text-9xl mb-4">{product.emoji}</div>
+                      <span className="text-sm font-bold px-4 py-1.5 rounded-sm uppercase tracking-wide" style={{ background: 'rgba(0,0,0,0.5)', color: '#fff', backdropFilter: 'blur(4px)' }}>
+                        {product.brand}
+                      </span>
+                    </div>
+                  )
+                })()}
+
+                {/* Navigation arrows */}
+                {(() => {
+                  const allImages = [product.imageUrl, ...(product.images || [])].filter(Boolean)
+                  if (allImages.length <= 1) return null
+                  return (
+                    <>
+                      <button
+                        onClick={() => setActiveImage(i => i === 0 ? allImages.length - 1 : i - 1)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+                        aria-label="Image précédente"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        onClick={() => setActiveImage(i => i === allImages.length - 1 ? 0 : i + 1)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+                        aria-label="Image suivante"
+                      >
+                        ›
+                      </button>
+                      {/* Dots */}
+                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
+                        {allImages.map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setActiveImage(i)}
+                            className={`w-2 h-2 rounded-full transition-all ${i === activeImage ? 'bg-white scale-125' : 'bg-white/40'}`}
+                            aria-label={`Image ${i + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )
+                })()}
+
+                {isSoldOut && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)' }}>
+                    <span className="font-black text-xl tracking-widest uppercase" style={{ color: '#ef4444' }}>ÉPUISÉ</span>
+                  </div>
+                )}
+                {isUrgent && (
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center z-10">
+                    <span className="text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wide" style={{ background: 'rgba(249,115,22,0.9)', color: '#fff' }}>
+                      🔥 Plus que {product.stock} lot{product.stock > 1 ? 's' : ''} disponible{product.stock > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                )}
+                {product.badge && !isSoldOut && (
+                  <span className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-sm z-20">
+                    {product.badge}
                 </span>
               )}
               {product.isNew && !isSoldOut && (
                 <span
-                  className="absolute top-4 right-4 text-black text-xs font-bold px-3 py-1.5 rounded-sm"
+                  className="absolute top-4 right-4 text-black text-xs font-bold px-3 py-1.5 rounded-sm z-20"
                   style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
                 >
                   NOUVEAU
                 </span>
               )}
             </div>
+            </div>
+
+            {/* Thumbnails */}
+            {(() => {
+              const allImages = [product.imageUrl, ...(product.images || [])].filter(Boolean)
+              if (allImages.length <= 1) return null
+              return (
+                <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                  {allImages.map((url, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveImage(i)}
+                      className={`relative w-16 h-16 md:w-20 md:h-20 rounded overflow-hidden flex-shrink-0 border-2 transition-all ${i === activeImage ? 'border-[#C4962A]' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                    >
+                      <Image src={url} alt={`${product.name} - photo ${i + 1}`} fill sizes="80px" className="object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )
+            })()}
 
             <div className="p-4 md:p-6 grid grid-cols-3 gap-3">
               {[
