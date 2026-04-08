@@ -249,14 +249,22 @@ export default function ProductDetail() {
           <div className="flex flex-col justify-between">
             <div>
               <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-sm mb-3"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm mb-3"
                 style={{ background: stockStatus.bg, border: `1px solid ${stockStatus.color}33` }}
               >
-                <span className="w-2 h-2 rounded-full" style={{ background: stockStatus.color }} />
+                <span className={`w-2 h-2 rounded-full${isUrgent ? ' animate-pulse' : ''}`} style={{ background: stockStatus.color }} />
                 <span className="text-xs font-bold uppercase tracking-wide" style={{ color: stockStatus.color }}>
                   {stockStatus.label}
                 </span>
               </div>
+              {isUrgent && (
+                <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-sm" style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.25)' }}>
+                  <span className="text-sm">🔥</span>
+                  <span className="text-xs font-bold text-orange-400">
+                    Attention — seulement {product.stock} lot{product.stock > 1 ? 's' : ''} restant{product.stock > 1 ? 's' : ''}. Les lots épuisés ne sont pas réapprovisionnés.
+                  </span>
+                </div>
+              )}
 
               <div className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#C4962A' }}>
                 {product.brand}

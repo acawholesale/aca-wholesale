@@ -1,6 +1,7 @@
 import './globals.css'
 import { CartProvider } from '../context/CartContext'
 import { AuthProvider } from '../context/AuthContext'
+import { I18nProvider } from '../lib/i18n/context'
 import { Playfair_Display, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 
@@ -19,6 +20,7 @@ const inter = Inter({
 })
 
 export const metadata = {
+  metadataBase: new URL('https://aca-wholesale.vercel.app'),
   title: 'ACA Wholesale - Lots de Vêtements de Seconde Main | Moselle, France',
   description:
     'Grossiste en lots de vêtements de seconde main basé en Moselle. Lots sélectionnés avec soin pour les revendeurs Vinted. Expédition rapide depuis la France. Nike, Adidas, Ralph Lauren et plus.',
@@ -30,6 +32,24 @@ export const metadata = {
     locale: 'fr_FR',
     url: process.env.NEXT_PUBLIC_SITE_URL || 'https://aca-wholesale.vercel.app',
     siteName: 'ACA Wholesale',
+    title: 'ACA Wholesale - Lots de Vêtements de Seconde Main | Moselle, France',
+    description:
+      'Grossiste en lots de vêtements de seconde main basé en Moselle. Lots sélectionnés avec soin pour les revendeurs Vinted. Expédition rapide depuis la France.',
+    images: [
+      {
+        url: '/og',
+        width: 1200,
+        height: 630,
+        alt: 'ACA Wholesale - Lots de Vêtements de Seconde Main, Moselle, France',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ACA Wholesale - Lots de Vêtements de Seconde Main | Moselle, France',
+    description:
+      'Grossiste en lots de vêtements de seconde main basé en Moselle. Lots sélectionnés avec soin pour les revendeurs Vinted. Expédition rapide depuis la France.',
+    images: ['/og'],
   },
 }
 
@@ -50,11 +70,13 @@ export default function RootLayout({ children }) {
         >
           Aller au contenu principal
         </a>
-        <AuthProvider>
-          <CartProvider>
-            {children}
-          </CartProvider>
-        </AuthProvider>
+        <I18nProvider>
+          <AuthProvider>
+            <CartProvider>
+              {children}
+            </CartProvider>
+          </AuthProvider>
+        </I18nProvider>
         <Analytics />
       </body>
     </html>
