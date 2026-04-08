@@ -20,6 +20,11 @@ export default function Register() {
     if (form.password.length < 6) { setError('Le mot de passe doit faire au moins 6 caractères.'); return }
     setLoading(true)
     try {
+      if (!signUp) {
+        setError('Service d\'authentification non disponible. Vérifiez la configuration Supabase.')
+        setLoading(false)
+        return
+      }
       const { data, error: authError } = await signUp(form.email, form.password, {
         prenom: form.prenom,
         nom: form.nom,
@@ -46,8 +51,8 @@ export default function Register() {
       } else {
         router.push('/compte')
       }
-    } catch {
-      setError('Une erreur est survenue.')
+    } catch (err) {
+      setError('Erreur : ' + (err?.message || 'Connexion au service impossible'))
       setLoading(false)
     }
   }

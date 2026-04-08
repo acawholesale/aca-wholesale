@@ -25,7 +25,10 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
+  const notConfigured = { data: null, error: { message: 'Supabase non configuré. Contactez l\'administrateur.' } }
+
   const signUp = async (email, password, metadata = {}) => {
+    if (!supabase) return notConfigured
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -35,16 +38,19 @@ export function AuthProvider({ children }) {
   }
 
   const signIn = async (email, password) => {
+    if (!supabase) return notConfigured
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     return { data, error }
   }
 
   const signOut = async () => {
+    if (!supabase) return
     await supabase.auth.signOut()
     setUser(null)
   }
 
   const resetPassword = async (email) => {
+    if (!supabase) return notConfigured
     const redirectTo = (typeof window !== 'undefined' ? window.location.origin : '') + '/login'
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
     return { data, error }
