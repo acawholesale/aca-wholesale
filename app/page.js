@@ -15,14 +15,12 @@ import ComparisonTable from '../components/home/ComparisonTable'
 import FaqSection from '../components/home/FaqSection'
 import CtaSection from '../components/home/CtaSection'
 
-// Revalidate every 60 seconds so stock changes appear within 1 minute
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 async function getProducts() {
   try {
-    const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
-    const key = process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    if (!url || !key) return allProducts
+    const url = process.env.SUPABASE_URL || 'https://tqrnlifpqgeahzomlhmg.supabase.co'
+    const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxcm5saWZwcWdlYWh6b21saG1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NTY1MzAsImV4cCI6MjA4OTIzMjUzMH0.9ghatXXsST7Ra4ty1A53tX2UZ46BiDgyTmh1jBoUzE0'
     const supabase = createClient(url, key)
     const { data, error } = await supabase.from('products').select('*').order('id')
     if (error || !data || data.length === 0) return allProducts
