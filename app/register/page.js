@@ -2,39 +2,54 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '../../context/AuthContext'
 
 export default function Register() {
   const [form, setForm] = useState({ prenom: '', nom: '', email: '', password: '', confirm: '', activite: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { signUp } = useAuth()
 
   const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }))
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     if (form.password !== form.confirm) { setError('Les mots de passe ne correspondent pas.'); return }
     if (form.password.length < 6) { setError('Le mot de passe doit faire au moins 6 caractères.'); return }
     setLoading(true)
-    setTimeout(() => {
-      try {
-        const users = JSON.parse(localStorage.getItem('aca_users') || '[]')
-        if (users.find(u => u.email === form.email)) {
+    try {
+      const { data, error: authError } = await signUp(form.email, form.password, {
+        prenom: form.prenom,
+        nom: form.nom,
+        activite: form.activite,
+      })
+      if (authError) {
+        if (authError.message.includes('already registered')) {
           setError('Un compte existe déjà avec cet email.')
-          setLoading(false)
-          return
+        } else {
+          setError(authError.message)
         }
-        const newUser = { prenom: form.prenom, nom: form.nom, email: form.email, password: form.password, activite: form.activite, createdAt: Date.now() }
-        users.push(newUser)
-        localStorage.setItem('aca_users', JSON.stringify(users))
-        localStorage.setItem('aca_session', JSON.stringify({ email: newUser.email, prenom: newUser.prenom, nom: newUser.nom }))
-        router.push('/compte')
-      } catch {
-        setError('Une erreur est survenue.')
         setLoading(false)
+        return
       }
-    }, 600)
+      if (data?.user?.identities?.length === 0) {
+        setError('Un compte existe déjà avec cet email.')
+        setLoading(false)
+        return
+      }
+      // If email confirmation is required, show message
+      if (data?.user && !data?.session) {
+        setError('')
+        router.push('/login?message=confirm')
+      } else {
+        router.push('/compte')
+      }
+    } catch {
+      setError('Une erreur est survenue.')
+      setLoading(false)
+    }
   }
 
   const inputStyle = {
@@ -46,8 +61,6 @@ export default function Register() {
     display: 'block', fontSize: '11px', fontWeight: 900, color: '#6b7280',
     textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px',
   }
-  const focusHandler = e => e.target.style.borderColor = '#C4962A'
-  const blurHandler = e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'
 
   return (
     <main id="main-content" tabIndex={-1} style={{ background: '#080808', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
@@ -74,20 +87,20 @@ export default function Register() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
               <div>
                 <label style={labelStyle}>Prénom *</label>
-                <input name="prenom" type="text" required value={form.prenom} onChange={handleChange} style={inputStyle} placeholder="Jean" onFocus={focusHandler} onBlur={blurHandler} />
+                <input name="prenom" type="text" required value={form.prenom} onChange={handleChange} style={inputStyle} placeholder="Jean" />
               </div>
               <div>
                 <label style={labelStyle}>Nom *</label>
-                <input name="nom" type="text" required value={form.nom} onChange={handleChange} style={inputStyle} placeholder="Dupont" onFocus={focusHandler} onBlur={blurHandler} />
+                <input name="nom" type="text" required value={form.nom} onChange={handleChange} style={inputStyle} placeholder="Dupont" />
               </div>
             </div>
             <div style={{ marginBottom: '14px' }}>
               <label style={labelStyle}>Email *</label>
-              <input name="email" type="email" required value={form.email} onChange={handleChange} style={inputStyle} placeholder="votre@email.com" onFocus={focusHandler} onBlur={blurHandler} />
+              <input name="email" type="email" required value={form.email} onChange={handleChange} style={inputStyle} placeholder="votre@email.com" />
             </div>
             <div style={{ marginBottom: '14px' }}>
               <label style={labelStyle}>Activité de revente</label>
-              <select name="activite" value={form.activite} onChange={handleChange} style={inputStyle} onFocus={focusHandler} onBlur={blurHandler}>
+              <select name="activite" value={form.activite} onChange={handleChange} style={inputStyle}>
                 <option value="">Sélectionner...</option>
                 <option>Revendeur Vinted</option>
                 <option>Revendeur Leboncoin / Facebook</option>
@@ -98,11 +111,11 @@ export default function Register() {
             </div>
             <div style={{ marginBottom: '14px' }}>
               <label style={labelStyle}>Mot de passe *</label>
-              <input name="password" type="password" required value={form.password} onChange={handleChange} style={inputStyle} placeholder="Minimum 6 caractères" onFocus={focusHandler} onBlur={blurHandler} />
+              <input name="password" type="password" required value={form.password} onChange={handleChange} style={inputStyle} placeholder="Minimum 6 caractères" />
             </div>
             <div style={{ marginBottom: '24px' }}>
               <label style={labelStyle}>Confirmer le mot de passe *</label>
-              <input name="confirm" type="password" required value={form.confirm} onChange={handleChange} style={inputStyle} placeholder="Répéter le mot de passe" onFocus={focusHandler} onBlur={blurHandler} />
+              <input name="confirm" type="password" required value={form.confirm} onChange={handleChange} style={inputStyle} placeholder="Répéter le mot de passe" />
             </div>
             <button
               type="submit"

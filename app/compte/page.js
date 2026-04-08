@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
+import { useAuth } from '../../context/AuthContext'
 
 const statusColor = {
   'Payé':       { color: '#f97316', bg: 'rgba(249,115,22,0.1)',  border: 'rgba(249,115,22,0.25)' },
@@ -25,7 +26,7 @@ const trackStatusLabel = {
 }
 
 export default function Compte() {
-  const [session, setSession]           = useState(null)
+  const { user, loading: authLoading, signOut } = useAuth()
   const [activeTab, setActiveTab]       = useState('dashboard')
   const [loading, setLoading]           = useState(true)
   const [orders, setOrders]             = useState([])
@@ -38,18 +39,19 @@ export default function Compte() {
   const [trackResult, setTrackResult]   = useState(null)
   const [trackError, setTrackError]     = useState('')
 
-  // Auth check on mount
+  // Build session from Supabase user
+  const session = user ? {
+    email: user.email,
+    prenom: user.user_metadata?.prenom || '',
+    nom: user.user_metadata?.nom || user.email?.split('@')[0] || '',
+  } : null
+
+  // Auth check
   useEffect(() => {
-    const raw = localStorage.getItem('aca_session')
-    if (!raw) { router.push('/login'); return }
-    try {
-      const s = JSON.parse(raw)
-      setSession(s)
-    } catch {
-      router.push('/login')
-    }
+    if (authLoading) return
+    if (!user) { router.push('/login'); return }
     setLoading(false)
-  }, [])
+  }, [user, authLoading, router])
 
   // Fetch real orders when session is ready
   useEffect(() => {
@@ -60,10 +62,10 @@ export default function Compte() {
       .then(data => { setOrders(data.orders || []) })
       .catch(err => console.error('Orders fetch error:', err))
       .finally(() => setOrdersLoading(false))
-  }, [session])
+  }, [session?.email])
 
-  const handleLogout = () => {
-    localStorage.removeItem('aca_session')
+  const handleLogout = async () => {
+    await signOut()
     router.push('/login')
   }
 

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
 
 const messages = [
   { text: '🇫🇷 EXPÉDIÉ DEPUIS LA MOSELLE — Livraison 2-5 jours' },
@@ -18,25 +19,24 @@ export default function Navbar() {
   const [alertModal, setAlertModal] = useState(false)
   const [alertEmail, setAlertEmail] = useState('')
   const [alertSent, setAlertSent] = useState(false)
-  const [session, setSession] = useState(null)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const searchRef = useRef(null)
   const { totalItems } = useCart()
+  const { user } = useAuth()
   const router = useRouter()
+
+  const session = user ? {
+    email: user.email,
+    prenom: user.user_metadata?.prenom || '',
+    nom: user.user_metadata?.nom || '',
+  } : null
 
   useEffect(() => {
     const timer = setInterval(() => {
       setMsgIndex(i => (i + 1) % messages.length)
     }, 4000)
     return () => clearInterval(timer)
-  }, [])
-
-  useEffect(() => {
-    try {
-      const s = localStorage.getItem('aca_session')
-      if (s) setSession(JSON.parse(s))
-    } catch {}
   }, [])
 
   useEffect(() => {

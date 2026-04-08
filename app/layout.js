@@ -1,5 +1,6 @@
 import './globals.css'
 import { CartProvider } from '../context/CartContext'
+import { AuthProvider } from '../context/AuthContext'
 import { Playfair_Display, Inter } from 'next/font/google'
 
 const playfair = Playfair_Display({
@@ -48,9 +49,11 @@ export default function RootLayout({ children }) {
         >
           Aller au contenu principal
         </a>
-        <CartProvider>
-          {children}
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   )
