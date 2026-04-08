@@ -61,6 +61,7 @@ export default function Footer() {
               <li><Link href="/produits" className="text-gray-400 text-xs md:text-sm hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded">Nos Lots</Link></li>
               <li><Link href="/a-propos" className="text-gray-400 text-xs md:text-sm hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded">À Propos</Link></li>
               <li><Link href="/faq" className="text-gray-400 text-xs md:text-sm hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded">FAQ</Link></li>
+              <li><Link href="/comment-revendre" className="text-gray-400 text-xs md:text-sm hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded">Comment revendre</Link></li>
               <li><Link href="/contact" className="text-gray-400 text-xs md:text-sm hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded">Contact</Link></li>
             </ul>
           </div>
