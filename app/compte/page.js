@@ -87,9 +87,44 @@ export default function Compte() {
         const order = (lookupData.orders || [])[0]
         if (!order) { setTrackError('Commande introuvable.'); setTrackLoading(false); return }
         if (!order.glsTrackId) {
-          setTrackError('Le numéro de suivi GLS n\'est pas encore disponible pour cette commande. Réessayez dans quelques instants.')
-          setTrackLoading(false)
-          return
+          // Try to create GLS shipment now if it wasn't created before
+          try {
+            const createRes = await fetch('/api/gls/create-shipment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                order: {
+                  id: order.id,
+                  client: {
+                    nom: order.client || '',
+                    adresse: order.adresse || '',
+                    ville: order.ville || '',
+                    codePostal: order.codePostal || '',
+                    pays: order.pays || 'FR',
+                    email: order.email || '',
+                    tel: '',
+                  },
+                  weight: 2,
+                },
+              }),
+            })
+            const createData = await createRes.json()
+            if (createData.success && createData.trackID) {
+              glsId = createData.trackID
+              // Refresh orders to get the updated trackID
+              const refreshRes = await fetch('/api/orders/customer?email=' + encodeURIComponent(session.email))
+              const refreshData = await refreshRes.json()
+              setOrders(refreshData.orders || [])
+            } else {
+              setTrackError('Le suivi GLS n\'est pas encore disponible pour cette commande. Contactez-nous si le problème persiste.')
+              setTrackLoading(false)
+              return
+            }
+          } catch {
+            setTrackError('Le suivi GLS n\'est pas encore disponible pour cette commande. Contactez-nous si le problème persiste.')
+            setTrackLoading(false)
+            return
+          }
         }
         glsId = order.glsTrackId
       }
