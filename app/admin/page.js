@@ -152,14 +152,32 @@ function PremiumUpgradeTab({ activeTab }) {
 }
 
 function DashboardHome({ setActiveTab }) {
-  const aExpedier = mockOrders.filter(o => o.status === 'À expédier').length
-  const expedie = mockOrders.filter(o => o.status === 'Expédié').length
-  const stats = [
-    { label: 'Total commandes', value: mockOrders.length, icon: '📦', sub: 'au total', tab: 'commandes' },
-    { label: 'À expédier', value: aExpedier, icon: '🚚', sub: 'en attente', tab: 'commandes' },
-    { label: 'Clients', value: mockClients.length, icon: '👥', sub: 'inscrits', tab: 'clients' },
-    { label: 'Chiffre total', value: mockOrders.reduce((s, o) => s + o.produits.reduce((ss, p) => ss + p.prix * p.qte, 0), 0) + ' €', icon: '💰', sub: 'ce mois', tab: 'commandes' },
-  ]
+  const [stats, setStats] = useState([
+    { label: 'Total commandes', value: '—', icon: '📦', sub: 'au total', tab: 'commandes' },
+    { label: 'À expédier', value: '—', icon: '🚚', sub: 'en attente', tab: 'commandes' },
+    { label: 'Clients', value: '—', icon: '👥', sub: 'inscrits', tab: 'clients' },
+    { label: 'Chiffre total', value: '—', icon: '💰', sub: 'ce mois', tab: 'commandes' },
+  ])
+  const [aExpedier, setAExpedier] = useState(0)
+
+  useEffect(() => {
+    fetch('/api/admin/orders/update-tracking?limit=500')
+      .then(r => r.json())
+      .then(data => {
+        const orders = data.orders || []
+        const pending = orders.filter(o => o.status === 'Payé' || o.status === 'En préparation' || o.status === 'À expédier').length
+        const uniqueEmails = new Set(orders.map(o => o.email).filter(Boolean)).size
+        const total = orders.reduce((s, o) => s + parseFloat(o.total || 0), 0)
+        setAExpedier(pending)
+        setStats([
+          { label: 'Total commandes', value: orders.length, icon: '📦', sub: 'au total', tab: 'commandes' },
+          { label: 'À expédier', value: pending, icon: '🚚', sub: 'en attente', tab: 'commandes' },
+          { label: 'Clients', value: uniqueEmails, icon: '👥', sub: 'uniques', tab: 'clients' },
+          { label: 'Chiffre total', value: Math.round(total) + ' €', icon: '💰', sub: 'total', tab: 'commandes' },
+        ])
+      })
+      .catch(console.error)
+  }, [])
   return (
     <div>
       <p className="text-gray-500 text-xs uppercase tracking-widest mb-6">Vue d&apos;ensemble</p>
@@ -191,12 +209,45 @@ function ClientsTab() {
   const [filtre, setFiltre] = useState('Tous')
   const [checked, setChecked] = useState([])
   const [historique, setHistorique] = useState([])
+  const [clients, setClients] = useState([])
+
+  useEffect(() => {
+    fetch('/api/admin/orders/update-tracking?limit=500')
+      .then(r => r.json())
+      .then(data => {
+        const orders = data.orders || []
+        const clientMap = {}
+        orders.forEach(o => {
+          const email = o.email
+          if (!email) return
+          if (!clientMap[email]) {
+            clientMap[email] = {
+              id: email,
+              nom: ((o.prenom || '') + ' ' + (o.nom || '')).trim() || email,
+              email,
+              ville: o.ville || '',
+              commandes: 0,
+              total: 0,
+              dateInscription: o.created_at ? new Date(o.created_at).toLocaleDateString('fr-FR') : '',
+            }
+          }
+          clientMap[email].commandes++
+          clientMap[email].total += parseFloat(o.total || 0)
+        })
+        const list = Object.values(clientMap).map(c => ({
+          ...c,
+          statut: c.commandes >= 5 ? 'VIP' : c.commandes >= 2 ? 'Actif' : 'Nouveau',
+        }))
+        setClients(list)
+      })
+      .catch(console.error)
+  }, [])
 
   const filtres = ['Tous', 'VIP', 'Actif', 'Nouveau']
-  const filtered = filtre === 'Tous' ? mockClients : mockClients.filter(c => c.statut === filtre)
+  const filtered = filtre === 'Tous' ? clients : clients.filter(c => c.statut === filtre)
   const toggleCheck = (id) => setChecked(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   const toggleAll = () => setChecked(checked.length === filtered.length ? [] : filtered.map(c => c.id))
-  const selectedClients = mockClients.filter(c => checked.includes(c.id))
+  const selectedClients = clients.filter(c => checked.includes(c.id))
 
   const statutStyle = (s) => {
     if (s === 'VIP') return { background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }
@@ -207,7 +258,7 @@ function ClientsTab() {
   return (
     <div>
       <div className="flex gap-2 mb-6">
-        {[{ id: 'liste', label: '👥 Clients', count: mockClients.length }, { id: 'historique', label: '📋 Historique', count: historique.length }].map(t => (
+        {[{ id: 'liste', label: '👥 Clients', count: clients.length }, { id: 'historique', label: '📋 Historique', count: historique.length }].map(t => (
           <button key={t.id} onClick={() => setVue(t.id)} className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all" style={vue === t.id ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' } : { background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)' }}>
             {t.label}{t.count !== null && <span className="px-1.5 py-0.5 rounded-full text-[10px]" style={vue === t.id ? { background: 'rgba(0,0,0,0.2)' } : { background: 'rgba(196,150,42,0.2)', color: '#E8B84B' }}>{t.count}</span>}
           </button>
