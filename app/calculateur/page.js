@@ -4,9 +4,6 @@ import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import MarginCalculator from '../../components/MarginCalculator'
 
-,
-}
-
 const TIER_CARDS = [
   {
     name: 'Basic',

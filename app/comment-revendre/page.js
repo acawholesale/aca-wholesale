@@ -3,9 +3,6 @@ import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import Link from 'next/link'
 
-,
-}
-
 const steps = [
   {
     number: '01',
