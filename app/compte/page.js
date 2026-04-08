@@ -186,10 +186,10 @@ export default function Compte() {
 
       {/* Tabs */}
       <section style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', display: 'flex', gap: 4, overflowX: 'auto' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', display: 'flex', gap: 4, overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
           {tabs.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
-              style={{ background: activeTab === t.id ? 'rgba(196,150,42,0.15)' : 'none', border: 'none', borderBottom: activeTab === t.id ? '2px solid #C4962A' : '2px solid transparent', color: activeTab === t.id ? '#C4962A' : '#6b7280', padding: '14px 20px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, whiteSpace: 'nowrap' }}>
+              style={{ background: activeTab === t.id ? 'rgba(196,150,42,0.15)' : 'none', border: 'none', borderBottom: activeTab === t.id ? '2px solid #C4962A' : '2px solid transparent', color: activeTab === t.id ? '#C4962A' : '#6b7280', padding: '14px 20px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, whiteSpace: 'nowrap', scrollSnapAlign: 'start', flexShrink: 0 }}>
               {t.label}
             </button>
           ))}
@@ -201,7 +201,7 @@ export default function Compte() {
         {/* ── DASHBOARD ── */}
         {activeTab === 'dashboard' && (
           <div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16, marginBottom: 32 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 16, marginBottom: 32 }}>
               {[
                 { label: 'Commandes totales',    value: orders.length,                                                       icon: '📦' },
                 { label: 'En cours / Expédiées', value: orders.filter(o => o.status === 'En cours' || o.status === 'Expédié').length, icon: '🚚' },

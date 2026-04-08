@@ -149,14 +149,14 @@ export default function ProductCard({ product }) {
         <div className="flex gap-1.5">
           <Link
             href={`/produits/${product.id}`}
-            className="flex-1 text-center border text-gray-300 text-xs py-2 font-bold uppercase tracking-wide rounded-sm transition-colors bg-overlay-light border-glass focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1"
+            className="flex-1 text-center border text-gray-300 text-xs py-2.5 font-bold uppercase tracking-wide rounded-sm transition-colors bg-overlay-light border-glass focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1"
           >
             Détails
           </Link>
           <button
             onClick={handleAdd}
             disabled={isSoldOut}
-            className={`flex-1 text-center text-xs py-2 font-black transition-all duration-300 uppercase tracking-wide rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1${
+            className={`flex-1 text-center text-xs py-2.5 font-black transition-all duration-300 uppercase tracking-wide rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1${
               !isSoldOut && !added ? ' bg-gold-gradient text-black' : ''
             }`}
             style={

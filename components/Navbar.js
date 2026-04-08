@@ -223,7 +223,7 @@ export default function Navbar() {
               {/* Search icon */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="hidden sm:flex items-center justify-center w-9 h-9 border border-white/20 hover:border-white/50 transition-colors rounded text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
+                className="hidden sm:flex items-center justify-center w-10 h-10 min-w-[44px] min-h-[44px] border border-white/20 hover:border-white/50 transition-colors rounded text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
                 aria-label="Recherche"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,7 +241,7 @@ export default function Navbar() {
               {/* Cart */}
               <Link
                 href="/panier"
-                className="relative flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
+                className="relative flex items-center justify-center w-10 h-10 min-w-[44px] min-h-[44px] border border-white/20 hover:border-white/50 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
                 aria-label="Panier"
               >
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,7 +257,7 @@ export default function Navbar() {
               {/* Account */}
               <Link
                 href={compteHref}
-                className="flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
+                className="flex items-center justify-center w-10 h-10 min-w-[44px] min-h-[44px] border border-white/20 hover:border-white/50 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
                 aria-label="Mon compte"
               >
                 {session ? (

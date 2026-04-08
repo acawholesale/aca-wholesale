@@ -269,7 +269,7 @@ export default function CommentRevendre() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
             {marginTiers.map((tier) => (
               <div key={tier.tier} style={{ background: tier.color, border: `1px solid ${tier.borderColor}`, borderRadius: '16px', padding: '28px 24px', position: 'relative', overflow: 'hidden' }}>
                 {tier.featured && (

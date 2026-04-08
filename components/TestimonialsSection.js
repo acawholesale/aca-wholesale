@@ -102,7 +102,7 @@ function ReviewCard({ review }) {
   const hasPhotos = Array.isArray(review.photos) && review.photos.length > 0
 
   return (
-    <article className="bg-card border border-[#1f1f1f] rounded-lg p-5 w-[300px] min-w-[300px] flex flex-col gap-3 shrink-0">
+    <article className="bg-card border border-[#1f1f1f] rounded-lg p-5 w-[280px] min-w-[280px] sm:w-[300px] sm:min-w-[300px] flex flex-col gap-3 shrink-0">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div
@@ -248,7 +248,7 @@ export default function TestimonialsSection({ showAll = false }) {
             }),
           }}
         />
-        <div className="max-w-[1100px] mx-auto grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
+        <div className="max-w-[1100px] mx-auto grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
           {reviews.map((r, i) => (
             <ReviewCard key={i} review={r} />
           ))}

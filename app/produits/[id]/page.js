@@ -227,7 +227,7 @@ export default function ProductDetail() {
               )
             })()}
 
-            <div className="p-4 md:p-6 grid grid-cols-3 gap-3">
+            <div className="p-4 md:p-6 grid grid-cols-2 sm:grid-cols-3 gap-3">
               {[
                 { emoji: '📦', val: product.pieces, label: 'pièces' },
                 { emoji: '📐', val: product.sizes, label: 'tailles' },
@@ -360,14 +360,14 @@ export default function ProductDetail() {
                   >
                     <button
                       onClick={() => setQty(q => Math.max(1, q - 1))}
-                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors font-bold text-lg text-white"
+                      className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors font-bold text-lg text-white"
                     >
                       −
                     </button>
                     <span className="w-8 text-center font-bold text-white">{qty}</span>
                     <button
                       onClick={() => setQty(q => q + 1)}
-                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors font-bold text-lg text-white"
+                      className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors font-bold text-lg text-white"
                     >
                       +
                     </button>
@@ -402,7 +402,7 @@ export default function ProductDetail() {
                 Voir mon panier →
               </Link>
 
-              <div className="grid grid-cols-3 gap-2 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
                 {[
                   { emoji: '🇫🇷', text: 'Expédié de France' },
                   { emoji: '✋', text: 'Sélection manuelle' },

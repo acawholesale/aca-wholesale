@@ -64,19 +64,19 @@ export default function ProductMarginBar({ price, pieces, vinteMin, vinteMax }) 
 
       {/* Results */}
       <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="text-center p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+        <div className="text-center p-2 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
           <div className="text-[10px] text-gray-500 mb-1 uppercase tracking-wide">CA total</div>
-          <div className="text-lg font-black text-white">{revenue}€</div>
+          <div className="text-base md:text-lg font-black text-white">{revenue}€</div>
         </div>
-        <div className="text-center p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+        <div className="text-center p-2 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
           <div className="text-[10px] text-gray-500 mb-1 uppercase tracking-wide">Bénéfice</div>
-          <div className="text-lg font-black" style={{ color: profit >= 0 ? '#22c55e' : '#ef4444' }}>
+          <div className="text-base md:text-lg font-black" style={{ color: profit >= 0 ? '#22c55e' : '#ef4444' }}>
             {profit >= 0 ? '+' : ''}{profit}€
           </div>
         </div>
-        <div className="text-center p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
+        <div className="text-center p-2 rounded-lg" style={{ background: 'rgba(0,0,0,0.3)' }}>
           <div className="text-[10px] text-gray-500 mb-1 uppercase tracking-wide">Marge</div>
-          <div className="text-lg font-black" style={{ color: tierColor }}>
+          <div className="text-base md:text-lg font-black" style={{ color: tierColor }}>
             {margin >= 0 ? '+' : ''}{margin}%
           </div>
         </div>

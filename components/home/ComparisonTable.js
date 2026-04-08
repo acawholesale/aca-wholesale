@@ -53,7 +53,7 @@ export default function ComparisonTable() {
             >
               {/* Tier header — background is fully dynamic (gold gradient vs dark), kept as inline style */}
               <div
-                className="p-4 md:p-5 text-center"
+                className="p-2 md:p-5 text-center"
                 style={tier.highlighted
                   ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }
                   : { background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.08)' }
@@ -62,8 +62,8 @@ export default function ComparisonTable() {
                 {tier.highlighted && (
                   <div className="text-[10px] font-black text-black/70 uppercase tracking-widest mb-1">⭐ Le plus populaire</div>
                 )}
-                <div className={`font-black text-sm md:text-base uppercase tracking-wide ${tier.highlighted ? 'text-black' : 'text-white'}`}>{tier.name}</div>
-                <div className={`font-black text-lg md:text-2xl ${tier.highlighted ? 'text-black' : 'text-white'}`}>{tier.price}</div>
+                <div className={`font-black text-xs md:text-base uppercase tracking-wide ${tier.highlighted ? 'text-black' : 'text-white'}`}>{tier.name}</div>
+                <div className={`font-black text-base md:text-2xl ${tier.highlighted ? 'text-black' : 'text-white'}`}>{tier.price}</div>
               </div>
 
               {/* Tier rows */}

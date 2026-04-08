@@ -59,7 +59,7 @@ export default function CalculateurPage() {
               top: '-60px',
               left: '50%',
               transform: 'translateX(-50%)',
-              width: '600px',
+              width: 'min(600px, 90vw)',
               height: '300px',
               background: 'radial-gradient(ellipse, rgba(196,150,42,0.12) 0%, transparent 70%)',
               pointerEvents: 'none',

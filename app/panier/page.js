@@ -97,7 +97,7 @@ export default function Panier() {
 
       <section style={{ maxWidth:'1280px',margin:'0 auto',padding:'24px 20px 96px' }}>
         {step==='cart'&&(
-          <div style={{ display:'grid',gridTemplateColumns:'1fr 340px',gap:'24px',alignItems:'start' }} className="cart-grid">
+          <div style={{ gap:'24px',alignItems:'start' }} className="cart-grid">
             <div style={{ display:'flex',flexDirection:'column',gap:'12px' }}>
               {items.map(item=>(
                 <div key={item.id} style={{ background:'#111',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',padding:'16px',display:'flex',gap:'12px',alignItems:'center' }}>
@@ -121,7 +121,7 @@ export default function Panier() {
               ))}
               <Link href="/produits" style={{ display:'block',textAlign:'center',fontSize:'12px',fontWeight:900,color:'#C4962A',textDecoration:'none',padding:'12px',textTransform:'uppercase' }}>+ Ajouter d&apos;autres lots</Link>
             </div>
-            <div style={{ background:'#111',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',padding:'20px',position:'sticky',top:'80px' }}>
+            <div style={{ background:'#111',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',padding:'20px',position:'sticky',top:'80px' }} className="cart-sidebar">
               <h3 style={{ fontWeight:900,fontSize:'13px',textTransform:'uppercase',color:'#fff',marginBottom:'16px' }}>Récapitulatif</h3>
               <div style={{ display:'flex',flexDirection:'column',gap:'8px',marginBottom:'16px',paddingBottom:'16px',borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
                 {items.map(item=>(<div key={item.id} style={{ display:'flex',justifyContent:'space-between',fontSize:'12px' }}><span style={{ color:'#9ca3af',flex:1,marginRight:'8px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{item.name} ×{item.qty}</span><span style={{ fontWeight:700,color:'#fff',flexShrink:0 }}>{item.price*item.qty}€</span></div>))}
@@ -140,7 +140,7 @@ export default function Panier() {
         )}
 
         {step==='form'&&(
-          <div style={{ display:'grid',gridTemplateColumns:'1fr 340px',gap:'24px',alignItems:'start' }} className="cart-grid">
+          <div style={{ gap:'24px',alignItems:'start' }} className="cart-grid">
             <form onSubmit={handleSubmit} style={{ background:'#111',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',padding:'32px' }}>
               <h2 style={{ fontSize:'14px',fontWeight:900,textTransform:'uppercase',letterSpacing:'0.06em',color:'#fff',marginBottom:'24px' }}>Vos coordonnées</h2>
               <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px',marginBottom:'16px' }}>
@@ -165,7 +165,7 @@ export default function Panier() {
               </div>
               <p style={{ textAlign:'center',fontSize:'11px',color:'#4b5563',marginTop:'16px',textTransform:'uppercase' }}>Notre équipe vous contactera par email pour le paiement et l&apos;expédition.</p>
             </form>
-            <div style={{ background:'#111',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',padding:'20px',position:'sticky',top:'80px' }}>
+            <div style={{ background:'#111',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',padding:'20px',position:'sticky',top:'80px' }} className="cart-sidebar">
               <h3 style={{ fontWeight:900,fontSize:'12px',textTransform:'uppercase',color:'#fff',marginBottom:'16px' }}>Votre commande</h3>
               <div style={{ display:'flex',flexDirection:'column',gap:'12px',marginBottom:'16px' }}>
                 {items.map(item=>(<div key={item.id} style={{ display:'flex',alignItems:'center',gap:'10px' }}><div style={{ width:'40px',height:'40px',borderRadius:'4px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px',flexShrink:0,backgroundColor:item.color }}>{item.emoji}</div><div style={{ flex:1,minWidth:0 }}><p style={{ fontSize:'11px',fontWeight:700,color:'#fff',textTransform:'uppercase',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{item.name}</p><p style={{ fontSize:'11px',color:'#6b7280' }}>×{item.qty}</p></div><span style={{ fontSize:'13px',fontWeight:900,color:'#fff',flexShrink:0 }}>{item.price*item.qty}€</span></div>))}
@@ -176,14 +176,23 @@ export default function Panier() {
         )}
       </section>
 
-      <div className="md:hidden" style={{ position:'fixed',bottom:0,left:0,right:0,zIndex:50,background:'#000',borderTop:'1px solid rgba(255,255,255,0.1)',padding:'12px 16px' }}>
+      <div className="md:hidden" style={{ position:'fixed',bottom:0,left:0,right:0,zIndex:50,background:'#000',borderTop:'1px solid rgba(255,255,255,0.1)',padding:'12px 16px',paddingBottom:'max(14px, env(safe-area-inset-bottom))' }}>
         <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px' }}>
           <div><p style={{ fontSize:'11px',color:'#6b7280',textTransform:'uppercase' }}>{totalItems} lot{totalItems>1?'s':''}</p><p style={{ fontWeight:900,fontSize:'18px',color:'#fff' }}>{totalPrice}€</p></div>
           <button onClick={()=>step==='cart'?setStep('form'):null} style={{ flex:1,background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'14px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',borderRadius:'4px',border:'none',cursor:'pointer' }}>{checkoutLoading ? '⏳ Redirection...' : step==='cart'?'ENVOYER MA DEMANDE →':'💳 PAYER MAINTENANT →'}</button>
         </div>
       </div>
       <Footer />
-      <style>{`@media(min-width:768px){.cart-grid{display:grid!important;grid-template-columns:1fr 340px!important}}@media(max-width:767px){.cart-grid{display:flex!important;flex-direction:column!important}}`}</style>
+      <style>{`
+        @media(min-width:768px){
+          .cart-grid{display:grid!important;grid-template-columns:1fr 340px!important}
+          .cart-sidebar{position:sticky!important;top:80px!important}
+        }
+        @media(max-width:767px){
+          .cart-grid{display:flex!important;flex-direction:column!important}
+          .cart-sidebar{position:static!important;top:auto!important}
+        }
+      `}</style>
     </main>
   )
 }
