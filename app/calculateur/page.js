@@ -1,18 +1,10 @@
+'use client'
 import Link from 'next/link'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import MarginCalculator from '../../components/MarginCalculator'
 
-export const metadata = {
-  title: 'Calculateur de Marge — ACA Wholesale',
-  description:
-    'Estimez vos bénéfices avant d\'acheter un lot. Calculez votre chiffre d\'affaires, votre bénéfice net et votre marge de revente en quelques secondes.',
-  keywords: 'calculateur marge, marge revente, bénéfice lot vêtements, calcul ROI vinted, grossiste wholesale',
-  openGraph: {
-    title: 'Calculateur de Marge — ACA Wholesale',
-    description: 'Estimez vos bénéfices avant d\'acheter un lot ACA Wholesale.',
-    type: 'website',
-  },
+,
 }
 
 const TIER_CARDS = [

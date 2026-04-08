@@ -1,20 +1,9 @@
+'use client'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import Link from 'next/link'
 
-export const metadata = {
-  title: 'Comment Revendre sur Vinted — Guide Complet | ACA Wholesale',
-  description:
-    'Guide pas à pas pour revendre vos lots ACA Wholesale sur Vinted : tri, photos, prix, rédaction des annonces, expédition. Calculez vos marges et démarrez la revente sereinement.',
-  keywords:
-    'comment revendre vinted, guide revente seconde main, marge revente vêtements, lots vinted, revendeur débutant vinted',
-  openGraph: {
-    title: 'Comment Revendre sur Vinted — Guide Complet | ACA Wholesale',
-    description:
-      'Guide pas à pas pour revendre vos lots sur Vinted : tri, photos, prix, rédaction, expédition.',
-    locale: 'fr_FR',
-    type: 'article',
-  },
+,
 }
 
 const steps = [

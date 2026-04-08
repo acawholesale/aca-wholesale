@@ -1,11 +1,7 @@
+'use client'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import Link from 'next/link'
-
-export const metadata = {
-  title: 'Conditions Générales de Vente | ACA Wholesale',
-  description: 'Conditions Générales de Vente (CGV) de ACA Wholesale — grossiste en vêtements de seconde main, vente de lots aux revendeurs professionnels depuis la Moselle.',
-}
 
 const sectionStyle = {
   background: '#111',

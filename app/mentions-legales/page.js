@@ -1,10 +1,6 @@
+'use client'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
-
-export const metadata = {
-  title: 'Mentions Légales | ACA Wholesale',
-  description: 'Mentions légales et informations légales du site ACA Wholesale, grossiste en vêtements de seconde main basé en Moselle, France.',
-}
 
 const sectionStyle = {
   background: '#111',
