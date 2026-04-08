@@ -68,25 +68,26 @@ export async function POST(request) {
       ShippingDate: today,
       Product,
       Consignee: {
-        ConsigneeID: order.id || '',
-        Name1: client.nom || '',
-        Name2: client.entreprise || '',
-        Name3: '',
-        Street1: client.adresse || '',
-        CountryCode: client.pays || 'FR',
-        ZIPCode: client.codePostal || '',
-        City: client.ville || '',
-        Phone: client.tel || '',
-        Email: client.email || '',
+        ConsigneeID: String(order.id || ''),
+        Address: {
+          Name1: client.nom || '',
+          Name2: client.entreprise || '',
+          Name3: '',
+          Street: client.adresse || '',
+          CountryCode: client.pays || 'FR',
+          ZIPCode: client.codePostal || '',
+          City: client.ville || '',
+          eMail: client.email || '',
+          MobilePhoneNumber: client.tel || '',
+        },
       },
       Shipper: {
         ContactID: GLS_CONTACT_ID,
       },
-      Parcels: [
+      ShipmentUnit: [
         {
-          TrackID: null,
-          Comment: `Commande ${order.id}`,
-          CustomerParcelNumber: String(order.id),
+          ShipmentUnitReference: [String(order.id || 'REF')],
+          Weight: order.weight || 2,
         },
       ],
     }
@@ -126,10 +127,11 @@ export async function POST(request) {
     }
 
     const data = await response.json()
-    const parcel = data?.CreatedShipment?.Parcels?.[0]
-    const shipmentRef = data?.CreatedShipment?.ShipmentReference
+    const created = data?.CreatedShipment || {}
+    const parcel = created.ParcelData?.[0] || {}
+    const shipmentRef = created.ShipmentReference
 
-    if (!parcel?.TrackID) {
+    if (!parcel.TrackID) {
       return NextResponse.json(
         { error: 'Numéro de suivi non reçu depuis GLS', raw: data },
         { status: 500 }
@@ -137,13 +139,12 @@ export async function POST(request) {
     }
 
     // Label comes back as base64 in PrintData
-    const labelBase64 = data?.CreatedShipment?.PrintData?.[0]?.Data
-      || parcel?.PrintData?.[0]?.Data
-      || null
+    const labelBase64 = created.PrintData?.[0]?.Data || null
 
     return NextResponse.json({
       success: true,
       trackID: parcel.TrackID,
+      parcelNumber: parcel.ParcelNumber,
       shipmentRef,
       labelBase64,
       labelFormat: labelFormat === 'zpl' ? 'zpl' : 'pdf',
