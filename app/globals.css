@@ -14,7 +14,7 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #fff;
   background:
     radial-gradient(ellipse at 0% 40%, rgba(196, 120, 10, 0.35) 0%, transparent 55%),
@@ -25,6 +25,10 @@ body {
   background-attachment: fixed;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), Georgia, serif;
 }
 
 /* =============================
@@ -236,6 +240,54 @@ a, button {
 }
 
 /* =============================
+   GRADIENT UTILITIES
+   ============================= */
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #C4962A, #E8B84B);
+}
+
+.bg-gold-gradient-90 {
+  background: linear-gradient(90deg, #C4962A, #E8B84B, #C4962A);
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #C4962A, #E8B84B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass card utility */
+.glass-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.07);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+}
+
+.glass-card:hover {
+  border-color: rgba(196,150,42,0.25);
+}
+
+/* Overlay backgrounds */
+.bg-overlay-light {
+  background: rgba(0,0,0,0.3);
+}
+
+.bg-overlay-medium {
+  background: rgba(0,0,0,0.4);
+}
+
+.bg-overlay-dark {
+  background: rgba(0,0,0,0.5);
+}
+
+.bg-overlay-heavy {
+  background: rgba(0,0,0,0.85);
+}
+
+/* =============================
    MOBILE
    ============================= */
 
@@ -280,4 +332,42 @@ a, button {
 
 input, textarea, select {
   border-radius: 8px !important;
+}
+
+/* =============================
+   REDUCED MOTION
+   ============================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up,
+  .fade-left,
+  .fade-right {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .fade-up.visible,
+  .fade-left.visible,
+  .fade-right.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .brands-marquee,
+  .animate-scroll,
+  .aca-track {
+    animation: none;
+  }
+
+  .faq-answer {
+    transition: none;
+  }
+
+  .product-card,
+  .glass-card,
+  a,
+  button {
+    transition: none;
+  }
 }

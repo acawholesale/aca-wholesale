@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
-    const trackID = searchParams.get('id')
+    const trackID = searchParams.get('id') || searchParams.get('parcelNumber')
 
     if (!trackID) {
       return NextResponse.json({ error: 'Paramètre id manquant' }, { status: 400 })

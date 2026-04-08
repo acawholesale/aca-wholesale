@@ -1,43 +1,52 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useAuth } from '../../context/AuthContext'
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const { signIn, user } = useAuth()
 
   useEffect(() => {
-    try {
-      const s = localStorage.getItem('aca_session')
-      if (s) router.push('/compte')
-    } catch {}
-  }, [router])
+    if (user) router.push('/compte')
+  }, [user, router])
+
+  useEffect(() => {
+    if (searchParams.get('message') === 'confirm') {
+      setInfo('Vérifiez votre email pour confirmer votre compte, puis connectez-vous.')
+    }
+  }, [searchParams])
 
   const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }))
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-    setTimeout(() => {
-      try {
-        const users = JSON.parse(localStorage.getItem('aca_users') || '[]')
-        const user = users.find(u => u.email === form.email && u.password === form.password)
-        if (!user) {
+    try {
+      const { error: authError } = await signIn(form.email, form.password)
+      if (authError) {
+        if (authError.message.includes('Invalid login')) {
           setError('Email ou mot de passe incorrect.')
-          setLoading(false)
-          return
+        } else if (authError.message.includes('Email not confirmed')) {
+          setError('Veuillez confirmer votre email avant de vous connecter. Vérifiez votre boîte mail.')
+        } else {
+          setError(authError.message)
         }
-        localStorage.setItem('aca_session', JSON.stringify({ email: user.email, prenom: user.prenom, nom: user.nom }))
-        router.push('/compte')
-      } catch {
-        setError('Une erreur est survenue.')
         setLoading(false)
+        return
       }
-    }, 600)
+      router.push('/compte')
+    } catch {
+      setError('Une erreur est survenue.')
+      setLoading(false)
+    }
   }
 
   const inputStyle = {
@@ -65,6 +74,12 @@ export default function Login() {
             Accédez à votre espace revendeur
           </p>
 
+          {info && (
+            <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '6px', padding: '12px 16px', marginBottom: '20px', color: '#22c55e', fontSize: '13px' }}>
+              {info}
+            </div>
+          )}
+
           {error && (
             <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '6px', padding: '12px 16px', marginBottom: '20px', color: '#ef4444', fontSize: '13px' }}>
               {error}
@@ -74,21 +89,11 @@ export default function Login() {
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '16px' }}>
               <label style={labelStyle}>Email</label>
-              <input
-                name="email" type="email" required value={form.email} onChange={handleChange}
-                style={inputStyle} placeholder="votre@email.com"
-                onFocus={e => e.target.style.borderColor = '#C4962A'}
-                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-              />
+              <input name="email" type="email" required value={form.email} onChange={handleChange} style={inputStyle} placeholder="votre@email.com" />
             </div>
             <div style={{ marginBottom: '10px' }}>
               <label style={labelStyle}>Mot de passe</label>
-              <input
-                name="password" type="password" required value={form.password} onChange={handleChange}
-                style={inputStyle} placeholder="••••••••"
-                onFocus={e => e.target.style.borderColor = '#C4962A'}
-                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-              />
+              <input name="password" type="password" required value={form.password} onChange={handleChange} style={inputStyle} placeholder="••••••••" />
             </div>
             <div style={{ textAlign: 'right', marginBottom: '24px' }}>
               <Link href="/mot-de-passe-oublie" style={{ fontSize: '12px', color: '#C4962A', textDecoration: 'none' }}>
@@ -109,12 +114,6 @@ export default function Login() {
           Pas encore de compte ?{' '}
           <Link href="/register" style={{ color: '#C4962A', fontWeight: 700, textDecoration: 'none' }}>
             Créer un compte →
-          </Link>
-        </p>
-        <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '13px', marginTop: '16px' }}>
-          📦 Vous avez une commande ?{' '}
-          <Link href="/compte" style={{ color: '#C4962A', fontWeight: 700, textDecoration: 'none' }}>
-            Suivre mon colis →
           </Link>
         </p>
         <p style={{ textAlign: 'center', marginTop: '16px' }}>

@@ -71,7 +71,7 @@ const reviews = [
 
 function StarRating({ count = 5 }) {
     return (
-          <div style={{ display: 'flex', gap: '2px' }} aria-label={`${count} étoiles sur 5`}>
+          <div className="flex gap-0.5" aria-label={`${count} étoiles sur 5`}>
 {Array.from({ length: count }).map((_, i) => (
           <svg key={i} width="15" height="15" viewBox="0 0 24 24" fill="#f59e0b" aria-hidden="true">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -83,47 +83,22 @@ function StarRating({ count = 5 }) {
 
 function ReviewCard({ review }) {
     return (
-          <article
-        style={{
-                  background: '#111',
-                  border: '1px solid #1f1f1f',
-                  borderRadius: '12px',
-                  padding: '20px',
-                  width: '300px',
-                  minWidth: '300px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                  flexShrink: 0,
-        }}
-    >
+          <article className="bg-card border border-[#1f1f1f] rounded-lg p-5 w-[300px] min-w-[300px] flex flex-col gap-3 shrink-0">
 {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div className="flex items-center gap-3">
         <div
-          style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        background: review.color,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#fff',
-                        fontWeight: '700',
-                        fontSize: '16px',
-                        textTransform: 'uppercase',
-                        flexShrink: 0,
-          }}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-base uppercase shrink-0"
+          style={{ background: review.color }}
           aria-hidden="true"
         >
           {review.initial}
             </div>
         <div>
-                      <p style={{ color: '#fff', fontWeight: '600', fontSize: '14px', margin: 0 }}>
+                      <p className="text-white font-semibold text-sm m-0">
 {review.username}
 </p>
 {review.date && (
-              <p style={{ color: '#6b7280', fontSize: '12px', margin: 0 }}>
+              <p className="text-gray-400 text-xs m-0">
 {review.date}
 </p>
           )}
@@ -131,15 +106,15 @@ function ReviewCard({ review }) {
   </div>
 
 {/* Stars */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="flex items-center gap-2">
         <StarRating count={review.rating} />
-        <span style={{ color: '#f59e0b', fontSize: '13px', fontWeight: '600' }}>
+        <span className="text-amber-500 text-[13px] font-semibold">
 {review.rating}.0
   </span>
   </div>
 
 {/* Text */}
-      <p style={{ color: '#d1d5db', fontSize: '14px', lineHeight: '1.6', margin: 0 }}>
+      <p className="text-gray-300 text-sm leading-relaxed m-0">
 {review.text}
 </p>
   </article>
@@ -178,7 +153,7 @@ export default function TestimonialsSection({ showAll = false }) {
   if (showAll) {
         // Version grille pour la page /avis
       return (
-              <section style={{ padding: '40px 20px' }} aria-label="Tous les avis clients">
+              <section className="px-5 py-10" aria-label="Tous les avis clients">
   {/* JSON-LD SEO */}
             <script
             type="application/ld+json"
@@ -203,15 +178,7 @@ export default function TestimonialsSection({ showAll = false }) {
                           }),
             }}
         />
-        <div
-          style={{
-                        maxWidth: '1100px',
-                        margin: '0 auto',
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                        gap: '16px',
-          }}
-        >
+        <div className="max-w-[1100px] mx-auto grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
 {reviews.map((r, i) => (
               <ReviewCard key={i} review={r} />
             ))}
@@ -223,8 +190,9 @@ export default function TestimonialsSection({ showAll = false }) {
   // Version carrousel infini pour la page d'accueil
   return (
         <section
-      style={{ padding: '60px 0', background: '#0a0a0a', overflow: 'hidden' }}
+      className="py-16 bg-[#0a0a0a] overflow-hidden"
       aria-label="Avis clients"
+      aria-roledescription="carousel"
     >
       {/* JSON-LD SEO */}
       <script
@@ -245,41 +213,44 @@ export default function TestimonialsSection({ showAll = false }) {
       />
 
 {/* Heading */}
-      <div style={{ textAlign: 'center', marginBottom: '40px', padding: '0 20px' }}>
-        <p style={{ color: '#f59e0b', fontSize: '13px', fontWeight: '600', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px' }}>
+      <div className="text-center mb-10 px-5">
+        <p className="text-amber-500 text-[13px] font-semibold tracking-[2px] uppercase mb-2">
           Ce que disent nos clients
             </p>
-        <h2 style={{ color: '#fff', fontSize: 'clamp(22px, 4vw, 34px)', fontWeight: '700', margin: '0 0 10px' }}>
+        <h2 className="text-white text-[clamp(22px,4vw,34px)] font-bold mt-0 mb-2.5">
           Ils nous font confiance ⭐
             </h2>
-        <p style={{ color: '#9ca3af', fontSize: '15px', margin: 0 }}>
+        <p className="text-gray-400 text-[15px] m-0">
 {reviews.length} avis vérifiés —{' '}
-          <strong style={{ color: '#f59e0b' }}>Note moyenne 5.0 / 5</strong>
+          <strong className="text-amber-500">Note moyenne 5.0 / 5</strong>
             </p>
             </div>
 
+{/* Screen-reader-accessible list of reviews (carousel track is aria-hidden) */}
+      <ul className="sr-only">
+        {reviews.map((r, i) => (
+          <li key={i}>
+            <article>
+              <p>{r.username} — {r.rating} étoiles sur 5{r.date ? ` — ${r.date}` : ''}</p>
+              <blockquote>{r.text}</blockquote>
+            </article>
+          </li>
+        ))}
+      </ul>
+
 {/* Fade edges */}
-      <div style={{ position: 'relative' }}>
+      <div className="relative">
         <div
-          style={{
-                        position: 'absolute', left: 0, top: 0, bottom: 0, width: '80px', zIndex: 2,
-                        background: 'linear-gradient(to right, #0a0a0a, transparent)',
-                        pointerEvents: 'none',
-          }}
+          className="absolute left-0 top-0 bottom-0 w-20 z-[2] bg-gradient-to-r from-[#0a0a0a] to-transparent pointer-events-none"
         />
         <div
-          style={{
-                        position: 'absolute', right: 0, top: 0, bottom: 0, width: '80px', zIndex: 2,
-                        background: 'linear-gradient(to left, #0a0a0a, transparent)',
-                        pointerEvents: 'none',
-          }}
+          className="absolute right-0 top-0 bottom-0 w-20 z-[2] bg-gradient-to-l from-[#0a0a0a] to-transparent pointer-events-none"
         />
 
 {/* Track — items + exact duplicate for seamless loop */}
         <div
           ref={trackRef}
-          className={`aca-track${paused ? ' paused' : ''}`}
-          style={{ padding: '8px 0' }}
+          className={`aca-track py-2${paused ? ' paused' : ''}`}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
           aria-hidden="true"
@@ -296,19 +267,10 @@ export default function TestimonialsSection({ showAll = false }) {
   </div>
 
 {/* CTA */}
-      <div style={{ textAlign: 'center', marginTop: '36px', padding: '0 20px' }}>
+      <div className="text-center mt-9 px-5">
         <a
           href="/avis"
-          style={{
-                        display: 'inline-block',
-                        padding: '11px 26px',
-                        border: '1px solid #f59e0b',
-                        borderRadius: '8px',
-                        color: '#f59e0b',
-                        fontWeight: '600',
-                        fontSize: '14px',
-                        textDecoration: 'none',
-          }}
+          className="inline-block py-[11px] px-[26px] border border-amber-500 rounded-md text-amber-500 font-semibold text-sm no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded-md"
         >
           Voir tous les avis ({reviews.length}) →
             </a>

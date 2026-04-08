@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { sendShippingNotification } from '../../../../lib/emails'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -72,13 +73,17 @@ export async function POST(req) {
     try {
       const glsOrder = {
         id: orderId,
-        client: ((meta.prenom || '') + ' ' + (meta.nom || '')).trim(),
-        adresse: meta.adresse || '',
-        ville: meta.ville || '',
-        codePostal: meta.codePostal || '',
-        pays: meta.pays || 'France',
-        email: meta.email || '',
-        telephone: meta.telephone || '',
+        client: {
+          nom: ((meta.prenom || '') + ' ' + (meta.nom || '')).trim(),
+          entreprise: meta.entreprise || '',
+          adresse: meta.adresse || '',
+          ville: meta.ville || '',
+          codePostal: meta.codePostal || '',
+          pays: meta.pays || 'FR',
+          email: meta.email || session.customer_email || '',
+          tel: meta.telephone || '',
+        },
+        weight: parseFloat(meta.weight) || 2,
         lots: meta.itemsSummary || '',
         montant: totalAmount,
       }
@@ -87,7 +92,7 @@ export async function POST(req) {
       const glsRes = await fetch(baseUrl + '/api/gls/create-shipment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order: glsOrder }),
+        body: JSON.stringify({ order: glsOrder, deliveryType: meta.deliveryType || 'standard' }),
       })
 
       const glsData = await glsRes.json()
@@ -102,6 +107,22 @@ export async function POST(req) {
             status: 'En préparation',
           })
           .eq('id', orderId)
+
+        // Send shipping notification email to customer
+        try {
+          const customerEmail = meta.email || session.customer_email
+          if (customerEmail && glsData.trackID) {
+            await sendShippingNotification({
+              email: customerEmail,
+              prenom: meta.prenom || '',
+              orderId,
+              trackID: glsData.trackID,
+              trackingUrl: glsData.trackingUrl,
+            })
+          }
+        } catch (emailErr) {
+          console.error('Shipping email error:', emailErr.message)
+        }
       } else {
         console.error('GLS error:', glsData.error)
       }

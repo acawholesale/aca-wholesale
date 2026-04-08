@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
 
 const messages = [
   { text: '🇫🇷 EXPÉDIÉ DEPUIS LA MOSELLE — Livraison 2-5 jours' },
@@ -18,25 +19,24 @@ export default function Navbar() {
   const [alertModal, setAlertModal] = useState(false)
   const [alertEmail, setAlertEmail] = useState('')
   const [alertSent, setAlertSent] = useState(false)
-  const [session, setSession] = useState(null)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const searchRef = useRef(null)
   const { totalItems } = useCart()
+  const { user } = useAuth()
   const router = useRouter()
+
+  const session = user ? {
+    email: user.email,
+    prenom: user.user_metadata?.prenom || '',
+    nom: user.user_metadata?.nom || '',
+  } : null
 
   useEffect(() => {
     const timer = setInterval(() => {
       setMsgIndex(i => (i + 1) % messages.length)
     }, 4000)
     return () => clearInterval(timer)
-  }, [])
-
-  useEffect(() => {
-    try {
-      const s = localStorage.getItem('aca_session')
-      if (s) setSession(JSON.parse(s))
-    } catch {}
   }, [])
 
   useEffect(() => {
@@ -67,6 +67,18 @@ export default function Navbar() {
     }
   }
 
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setSearchOpen(false)
+    }
+  }
+
+  const handleAlertKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setAlertModal(false)
+    }
+  }
+
   const currentMsg = messages[msgIndex]
   const compteHref = session ? '/compte' : '/login'
 
@@ -75,17 +87,19 @@ export default function Navbar() {
       {/* Drop Alert Modal */}
       {alertModal && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="alert-modal-title"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-overlay-heavy backdrop-blur-sm"
           onClick={() => setAlertModal(false)}
+          onKeyDown={handleAlertKeyDown}
         >
           <div
-            className="w-full max-w-sm p-6 rounded-lg"
-            style={{ background: '#111', border: '1px solid rgba(196,150,42,0.4)' }}
+            className="w-full max-w-sm p-6 rounded-lg bg-card border border-gold-medium"
             onClick={e => e.stopPropagation()}
           >
             <div className="text-2xl mb-3 text-center">🔥</div>
-            <h3 className="font-black text-white text-center uppercase tracking-wide mb-1">Alerte drop</h3>
+            <h3 id="alert-modal-title" className="font-black text-white text-center uppercase tracking-wide mb-1">Alerte drop</h3>
             <p className="text-gray-400 text-xs text-center mb-4">Soyez alerté dès que le prochain drop est en ligne</p>
             {alertSent ? (
               <div className="text-center py-2">
@@ -99,13 +113,11 @@ export default function Navbar() {
                   onChange={e => setAlertEmail(e.target.value)}
                   placeholder="votre@email.com"
                   required
-                  className="flex-1 px-3 py-2 text-xs rounded text-white placeholder-gray-500 outline-none"
-                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)' }}
+                  className="flex-1 px-3 py-2 text-xs rounded text-white placeholder-gray-500 outline-none bg-glass border border-glass-hover"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-black rounded uppercase"
-                  style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' }}
+                  className="px-4 py-2 text-xs font-black rounded uppercase bg-gold-gradient text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-white"
                 >
                   OK
                 </button>
@@ -118,14 +130,17 @@ export default function Navbar() {
       {/* Search Overlay */}
       {searchOpen && (
         <div
-          className="fixed inset-0 z-[99] flex items-start justify-center pt-24 px-4"
-          style={{ background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(8px)' }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Recherche"
+          className="fixed inset-0 z-[99] flex items-start justify-center pt-24 px-4 bg-black/90 backdrop-blur-md"
           onClick={() => setSearchOpen(false)}
+          onKeyDown={handleSearchKeyDown}
         >
-          <div style={{ width: '100%', maxWidth: '580px' }} onClick={e => e.stopPropagation()}>
-            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <div style={{ flex: 1, position: 'relative' }}>
-                <svg style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: '#9ca3af' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-full max-w-[580px]" onClick={e => e.stopPropagation()}>
+            <form onSubmit={handleSearch} className="flex gap-2 items-center">
+              <div className="flex-1 relative">
+                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -134,22 +149,24 @@ export default function Navbar() {
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="Rechercher un lot, une marque (Nike, Adidas…)"
-                  style={{ width: '100%', background: '#111', border: '1px solid rgba(196,150,42,0.5)', borderRadius: '8px', padding: '16px 16px 16px 48px', fontSize: '16px', color: '#fff', outline: 'none', boxSizing: 'border-box' }}
+                  className="w-full bg-card border border-gold-strong rounded-md py-4 pl-12 pr-4 text-base text-white outline-none"
                 />
               </div>
-              <button type="submit" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000', padding: '16px 20px', fontWeight: 900, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.08em', borderRadius: '8px', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              <button
+                type="submit"
+                className="bg-gold-gradient text-black py-4 px-5 font-black text-[13px] uppercase tracking-[0.08em] rounded-md whitespace-nowrap cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-white"
+              >
                 Chercher
               </button>
             </form>
-            <p style={{ color: '#4b5563', fontSize: '12px', marginTop: '12px', textAlign: 'center' }}>Appuyez sur Échap pour fermer</p>
+            <p className="text-gray-600 text-xs mt-3 text-center">Appuyez sur Échap pour fermer</p>
           </div>
         </div>
       )}
 
       {/* Announcement Bar */}
       <div
-        className="fixed top-0 left-0 right-0 z-[52] text-black text-[10px] md:text-xs px-4 font-bold text-center flex items-center justify-center gap-2 h-8 overflow-hidden whitespace-nowrap"
-        style={{ background: 'linear-gradient(90deg, #C4962A, #E8B84B, #C4962A)' }}
+        className="fixed top-0 left-0 right-0 z-[52] text-black text-[10px] md:text-xs px-4 font-bold text-center flex items-center justify-center gap-2 h-8 overflow-hidden whitespace-nowrap bg-gold-gradient-90"
       >
         <span key={msgIndex} className="transition-opacity duration-300">
           {currentMsg.text}
@@ -157,8 +174,7 @@ export default function Navbar() {
         {currentMsg.cta && (
           <button
             onClick={() => setAlertModal(true)}
-            className="hidden sm:inline text-[10px] font-black px-2.5 py-0.5 rounded-sm underline hover:no-underline transition-all"
-            style={{ color: '#000' }}
+            className="hidden sm:inline text-[10px] font-black px-2.5 py-0.5 rounded-sm underline hover:no-underline transition-all text-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1"
           >
             M&apos;alerter →
           </button>
@@ -177,7 +193,7 @@ export default function Navbar() {
                 alt="ACA Wholesale"
                 width={120}
                 height={48}
-                style={{ height: '44px', width: 'auto', objectFit: 'contain' }}
+                className="h-11 w-auto object-contain"
                 priority
               />
             </Link>
@@ -194,7 +210,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-xs font-medium text-gray-300 hover:text-white transition-colors uppercase tracking-wide"
+                  className="text-xs font-medium text-gray-300 hover:text-white transition-colors uppercase tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded"
                 >
                   {link.label}
                 </Link>
@@ -207,7 +223,7 @@ export default function Navbar() {
               {/* Search icon */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="hidden sm:flex items-center justify-center w-9 h-9 border border-white/20 hover:border-white/50 transition-colors rounded text-white"
+                className="hidden sm:flex items-center justify-center w-9 h-9 border border-white/20 hover:border-white/50 transition-colors rounded text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
                 aria-label="Recherche"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,8 +233,7 @@ export default function Navbar() {
 
               <Link
                 href="/produits"
-                className="hidden sm:inline-block text-black text-xs px-5 py-2 font-black uppercase tracking-wide transition-all rounded"
-                style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
+                className="hidden sm:inline-block text-black text-xs px-5 py-2 font-black uppercase tracking-wide transition-all rounded bg-gold-gradient focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
               >
                 Commander
               </Link>
@@ -226,15 +241,14 @@ export default function Navbar() {
               {/* Cart */}
               <Link
                 href="/panier"
-                className="relative flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded"
+                className="relative flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
                 aria-label="Panier"
               >
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black text-black"
-                    style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black text-black bg-gold-gradient">
                     {totalItems}
                   </span>
                 )}
@@ -243,14 +257,11 @@ export default function Navbar() {
               {/* Account */}
               <Link
                 href={compteHref}
-                className="flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded"
+                className="flex items-center justify-center w-10 h-10 border border-white/20 hover:border-white/50 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
                 aria-label="Mon compte"
               >
                 {session ? (
-                  <div
-                    className="w-7 h-7 rounded-sm flex items-center justify-center text-xs font-black text-black"
-                    style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
-                  >
+                  <div className="w-7 h-7 rounded-sm flex items-center justify-center text-xs font-black text-black bg-gold-gradient">
                     {(session.prenom || session.email || 'U').charAt(0).toUpperCase()}
                   </div>
                 ) : (
@@ -262,9 +273,12 @@ export default function Navbar() {
 
               {/* Mobile menu toggle */}
               <button
-                className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-white"
+                className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black rounded"
                 onClick={() => setMenuOpen(!menuOpen)}
-                aria-label="Menu"
+                onKeyDown={(e) => { if (e.key === 'Escape') setMenuOpen(false) }}
+                aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                aria-expanded={menuOpen}
+                aria-controls="mobile-menu"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {menuOpen ? (
@@ -280,7 +294,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <div className="md:hidden bg-[#0a0a0a] border-t border-white/10">
+          <div id="mobile-menu" className="md:hidden bg-[#0a0a0a] border-t border-white/10">
             <div className="px-5 py-4 space-y-1">
               {/* Mobile search */}
               <form onSubmit={handleSearch} className="flex gap-2 mb-3 pb-3 border-b border-white/10">
@@ -291,11 +305,10 @@ export default function Navbar() {
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Rechercher..."
-                    className="w-full pl-9 pr-3 py-2.5 text-sm text-white rounded-sm outline-none"
-                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
+                    className="w-full pl-9 pr-3 py-2.5 text-sm text-white rounded-sm outline-none bg-glass border border-glass"
                   />
                 </div>
-                <button type="submit" className="px-4 py-2 text-xs font-black rounded-sm uppercase" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' }}>OK</button>
+                <button type="submit" className="px-4 py-2 text-xs font-black rounded-sm uppercase bg-gold-gradient text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-white">OK</button>
               </form>
 
               {[
@@ -308,7 +321,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5"
+                  className="block text-sm font-medium py-3 px-3 text-gray-300 hover:text-white border-b border-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded"
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
@@ -321,8 +334,7 @@ export default function Navbar() {
             >
               <span>🛒 Panier</span>
               {totalItems > 0 && (
-                <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-black"
-                  style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
+                <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-black bg-gold-gradient">
                   {totalItems}
                 </span>
               )}
@@ -337,8 +349,7 @@ export default function Navbar() {
               <div className="pt-2">
                 <Link
                   href="/produits"
-                  className="block text-black text-sm px-5 py-3 font-black text-center rounded uppercase tracking-wide"
-                  style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
+                  className="block text-black text-sm px-5 py-3 font-black text-center rounded uppercase tracking-wide bg-gold-gradient"
                   onClick={() => setMenuOpen(false)}
                 >
                   Commander
