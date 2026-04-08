@@ -8,6 +8,7 @@ import { supabase } from '../../../lib/supabase'
 import Navbar from '../../../components/Navbar'
 import Footer from '../../../components/Footer'
 import ProductCard from '../../../components/ProductCard'
+import ProductMarginBar from '../../../components/ProductMarginBar'
 import Link from 'next/link'
 
 function formatProduct(p) {
@@ -317,6 +318,14 @@ export default function ProductDetail() {
                   )}
                 </div>
               </div>
+
+              {/* Margin simulator */}
+              <ProductMarginBar
+                price={product.price}
+                pieces={product.pieces}
+                vinteMin={product.vinteMin}
+                vinteMax={product.vinteMax}
+              />
 
               <p className="text-gray-400 leading-relaxed mb-6 text-sm md:text-base">{product.longDescription}</p>
 
