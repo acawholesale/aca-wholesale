@@ -4,6 +4,7 @@ import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 import TestimonialsSection from '../components/TestimonialsSection'
 import { allProducts } from './data/products'
+import { createClient } from '@supabase/supabase-js'
 
 import HeroSection from '../components/home/HeroSection'
 import TrustBar from '../components/home/TrustBar'
@@ -14,12 +15,30 @@ import ComparisonTable from '../components/home/ComparisonTable'
 import FaqSection from '../components/home/FaqSection'
 import CtaSection from '../components/home/CtaSection'
 
-const bestSellers = allProducts.filter(p => [1, 2, 4, 9].includes(p.id))
-const newDrops = allProducts.filter(p => p.isNew).slice(0, 4)
+async function getProducts() {
+  try {
+    const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    if (!url || !key) return allProducts
+    const supabase = createClient(url, key)
+    const { data, error } = await supabase.from('products').select('*').order('id')
+    if (error || !data || data.length === 0) return allProducts
+    return data.map(p => ({
+      id: p.id, name: p.name, description: p.description, longDescription: p.long_description,
+      price: parseFloat(p.price), originalPrice: p.original_price ? parseFloat(p.original_price) : null,
+      rating: p.rating, reviews: p.reviews, badge: p.badge, isNew: p.is_new, emoji: p.emoji,
+      brand: p.brand, color: p.color, category: p.category, pieces: p.pieces, sizes: p.sizes,
+      state: p.state, details: p.details || [], stock: p.stock, vinteMin: p.vinte_min, vinteMax: p.vinte_max,
+    }))
+  } catch { return allProducts }
+}
 
 const brands = ['NIKE', 'ADIDAS', 'THE NORTH FACE', 'RALPH LAUREN', 'CARHARTT', 'STÜSSY', "LEVI'S", 'TOMMY HILFIGER', 'PATAGONIA', "ARC'TERYX"]
 
-export default function Home() {
+export default async function Home() {
+  const products = await getProducts()
+  const bestSellers = products.filter(p => [1, 2, 4, 9].includes(p.id))
+  const newDrops = products.filter(p => p.isNew).slice(0, 4)
   return (
     <main id="main-content" className="bg-transparent overflow-x-hidden">
       <Navbar />

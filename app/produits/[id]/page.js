@@ -1,8 +1,8 @@
 'use client'
 import { useParams } from 'next/navigation'
 import { useCart } from '../../../context/CartContext'
-import { useState } from 'react'
-import { allProducts, getProductById, getStockStatus } from '../../data/products'
+import { useState, useEffect } from 'react'
+import { allProducts, getProductById, getStockStatus, fetchProducts, fetchProductById } from '../../data/products'
 import Navbar from '../../../components/Navbar'
 import Footer from '../../../components/Footer'
 import ProductCard from '../../../components/ProductCard'
@@ -13,8 +13,13 @@ export default function ProductDetail() {
   const { addToCart } = useCart()
   const [added, setAdded] = useState(false)
   const [qty, setQty] = useState(1)
+  const [product, setProduct] = useState(() => getProductById(id))
+  const [related, setRelated] = useState([])
 
-  const product = getProductById(id)
+  useEffect(() => {
+    fetchProductById(id).then(p => { if (p) setProduct(p) })
+    fetchProducts().then(all => setRelated(all.filter(p => p.id !== parseInt(id))))
+  }, [id])
 
   if (!product) {
     return (
@@ -36,8 +41,8 @@ export default function ProductDetail() {
     )
   }
 
-  const relatedProducts = allProducts
-    .filter(p => p.id !== product.id && p.category === product.category)
+  const relatedProducts = related
+    .filter(p => product && p.category === product.category)
     .slice(0, 4)
 
   const stockStatus = getStockStatus(product.stock ?? 5)

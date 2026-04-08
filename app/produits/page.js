@@ -1,9 +1,9 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import ProductCard from '../../components/ProductCard'
-import { allProducts } from '../data/products'
+import { allProducts, fetchProducts } from '../data/products'
 
 const categories = [
   { id: 'all', name: 'Tous', emoji: '🛍️' },
@@ -23,14 +23,19 @@ const budgetRanges = [
 ]
 
 export default function Produits() {
+  const [products, setProducts] = useState(allProducts)
   const [activeCategory, setActiveCategory] = useState('all')
   const [sortBy, setSortBy] = useState('popular')
   const [search, setSearch] = useState('')
   const [budgetFilter, setBudgetFilter] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
 
+  useEffect(() => {
+    fetchProducts().then(setProducts)
+  }, [])
+
   const filtered = useMemo(() => {
-    let list = allProducts
+    let list = products
     if (activeCategory !== 'all') list = list.filter(p => p.category === activeCategory)
     if (search.trim()) {
       const q = search.toLowerCase()
