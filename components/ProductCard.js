@@ -9,9 +9,10 @@ export default function ProductCard({ product }) {
   const [added, setAdded] = useState(false)
   const stars = Array(5).fill(0)
 
-  const stockStatus = getStockStatus(product.stock ?? 5)
-  const isSoldOut = product.stock === 0
-  const isUrgent = product.stock > 0 && product.stock <= 3
+  const stock = typeof product.stock === 'number' ? product.stock : 5
+  const stockStatus = getStockStatus(stock)
+  const isSoldOut = stock === 0
+  const isUrgent = stock > 0 && stock <= 3
   const pricePerPiece = product.pieces ? Math.round(product.price / product.pieces) : null
 
   const handleAdd = (e) => {

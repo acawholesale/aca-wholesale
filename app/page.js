@@ -15,6 +15,9 @@ import ComparisonTable from '../components/home/ComparisonTable'
 import FaqSection from '../components/home/FaqSection'
 import CtaSection from '../components/home/CtaSection'
 
+// Revalidate every 60 seconds so stock changes appear within 1 minute
+export const revalidate = 60
+
 async function getProducts() {
   try {
     const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
