@@ -430,10 +430,24 @@ function CommandesTab() {
   const createGLSShipment = async (order) => {
     setGlsLoading(prev => new Set([...prev, order.id]))
     try {
+      const glsOrder = {
+        id: order.id,
+        client: {
+          nom: order.client || '',
+          entreprise: '',
+          adresse: order.adresse || '',
+          ville: order.ville || '',
+          codePostal: order.codePostal || order.code_postal || '',
+          pays: order.pays === 'France' ? 'FR' : (order.pays || 'FR'),
+          email: order.email || '',
+          tel: order.telephone || '',
+        },
+        weight: 2,
+      }
       const res = await fetch('/api/gls/create-shipment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order }),
+        body: JSON.stringify({ order: glsOrder }),
       })
       const data = await res.json()
       if (data.success) {
