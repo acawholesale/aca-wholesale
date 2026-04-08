@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
-import { sendShippingNotification, sendAdminOrderNotification } from '../../../../lib/emails'
+import { sendShippingNotification, sendAdminOrderNotification, sendOrderConfirmation } from '../../../../lib/emails'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -80,6 +80,24 @@ export async function POST(req) {
       })
     } catch (adminEmailErr) {
       console.error('Admin notification email error:', adminEmailErr.message)
+    }
+
+    // Send order confirmation to customer
+    try {
+      const customerEmail = meta.email || session.customer_email
+      if (customerEmail) {
+        let items = []
+        try { items = JSON.parse(meta.itemsJson || '[]') } catch {}
+        await sendOrderConfirmation({
+          email: customerEmail,
+          prenom: meta.prenom || '',
+          orderId,
+          items: items.length > 0 ? items : (meta.itemsSummary || ''),
+          total: totalAmount,
+        })
+      }
+    } catch (confirmEmailErr) {
+      console.error('Order confirmation email error:', confirmEmailErr.message)
     }
 
     // Auto-create GLS shipment

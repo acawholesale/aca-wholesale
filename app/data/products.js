@@ -268,3 +268,24 @@ export function getStockStatus(stock) {
   if (stock <= 3) return { label: `Plus que ${stock} dispo`, color: '#f97316', bg: 'rgba(249,115,22,0.15)' }
   return { label: 'Disponible', color: '#22c55e', bg: 'rgba(34,197,94,0.15)' }
 }
+
+// Fetch products from Supabase API (client-side), fallback to static
+export async function fetchProducts() {
+  try {
+    const res = await fetch('/api/products', { next: { revalidate: 60 } })
+    if (!res.ok) throw new Error('API error')
+    const data = await res.json()
+    if (data.products && data.products.length > 0) return data.products
+  } catch {}
+  return allProducts
+}
+
+export async function fetchProductById(id) {
+  try {
+    const res = await fetch(`/api/products?id=${id}`, { next: { revalidate: 60 } })
+    if (!res.ok) throw new Error('API error')
+    const data = await res.json()
+    if (data.product) return data.product
+  } catch {}
+  return getProductById(id)
+}

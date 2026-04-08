@@ -2,6 +2,7 @@ import './globals.css'
 import { CartProvider } from '../context/CartContext'
 import { AuthProvider } from '../context/AuthContext'
 import { Playfair_Display, Inter } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/react'
 
 const playfair = Playfair_Display({
   weight: ['400', '700', '900'],
@@ -54,6 +55,7 @@ export default function RootLayout({ children }) {
             {children}
           </CartProvider>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   )
