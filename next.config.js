@@ -33,7 +33,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https:",
-              "connect-src 'self' https://*.upstash.io https://qstash.upstash.io",
+              "connect-src 'self' https://*.supabase.co https://*.upstash.io https://qstash.upstash.io https://*.gls-group.com https://*.gls-group.eu",
               "frame-ancestors 'none'",
             ].join('; '),
           },
