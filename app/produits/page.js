@@ -3,7 +3,8 @@ import { useState, useEffect, useMemo } from 'react'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import ProductCard from '../../components/ProductCard'
-import { allProducts, fetchProducts } from '../data/products'
+import { allProducts, getStockStatus } from '../data/products'
+import { supabase } from '../../lib/supabase'
 
 const categories = [
   { id: 'all', name: 'Tous', emoji: '🛍️' },
@@ -31,7 +32,17 @@ export default function Produits() {
   const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
-    fetchProducts().then(setProducts)
+    if (!supabase) return
+    supabase.from('products').select('*').order('id').then(({ data, error }) => {
+      if (error || !data || data.length === 0) return
+      setProducts(data.map(p => ({
+        id: p.id, name: p.name, description: p.description, longDescription: p.long_description,
+        price: parseFloat(p.price), originalPrice: p.original_price ? parseFloat(p.original_price) : null,
+        rating: p.rating, reviews: p.reviews, badge: p.badge, isNew: p.is_new, emoji: p.emoji,
+        brand: p.brand, color: p.color, category: p.category, pieces: p.pieces, sizes: p.sizes,
+        state: p.state, details: p.details || [], stock: p.stock, vinteMin: p.vinte_min, vinteMax: p.vinte_max,
+      })))
+    })
   }, [])
 
   const filtered = useMemo(() => {

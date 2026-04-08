@@ -2,11 +2,22 @@
 import { useParams } from 'next/navigation'
 import { useCart } from '../../../context/CartContext'
 import { useState, useEffect } from 'react'
-import { allProducts, getProductById, getStockStatus, fetchProducts, fetchProductById } from '../../data/products'
+import { allProducts, getProductById, getStockStatus } from '../../data/products'
+import { supabase } from '../../../lib/supabase'
 import Navbar from '../../../components/Navbar'
 import Footer from '../../../components/Footer'
 import ProductCard from '../../../components/ProductCard'
 import Link from 'next/link'
+
+function formatProduct(p) {
+  return {
+    id: p.id, name: p.name, description: p.description, longDescription: p.long_description,
+    price: parseFloat(p.price), originalPrice: p.original_price ? parseFloat(p.original_price) : null,
+    rating: p.rating, reviews: p.reviews, badge: p.badge, isNew: p.is_new, emoji: p.emoji,
+    brand: p.brand, color: p.color, category: p.category, pieces: p.pieces, sizes: p.sizes,
+    state: p.state, details: p.details || [], stock: p.stock, vinteMin: p.vinte_min, vinteMax: p.vinte_max,
+  }
+}
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -17,8 +28,13 @@ export default function ProductDetail() {
   const [related, setRelated] = useState([])
 
   useEffect(() => {
-    fetchProductById(id).then(p => { if (p) setProduct(p) })
-    fetchProducts().then(all => setRelated(all.filter(p => p.id !== parseInt(id))))
+    if (!supabase) return
+    supabase.from('products').select('*').eq('id', parseInt(id)).single().then(({ data }) => {
+      if (data) setProduct(formatProduct(data))
+    })
+    supabase.from('products').select('*').neq('id', parseInt(id)).order('id').then(({ data }) => {
+      if (data) setRelated(data.map(formatProduct))
+    })
   }, [id])
 
   if (!product) {
