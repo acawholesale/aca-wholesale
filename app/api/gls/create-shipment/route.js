@@ -1,69 +1,112 @@
 export const dynamic = 'force-dynamic'
 
 // app/api/gls/create-shipment/route.js
-// Next.js 14 App Router – Route Handler
-// Crée un envoi GLS via l'API ShipIT et retourne le numéro de suivi + l'URL de l'étiquette
+// Crée un envoi GLS via l'API ShipIT REST et retourne le numéro de suivi + étiquette base64
 
 import { NextResponse } from 'next/server'
 
-const GLS_API_BASE = process.env.GLS_API_URL || 'https://shipit.gls-group.eu'
+const GLS_API_BASE = process.env.GLS_API_URL || 'https://wbm-fr02.shipit.gls-group.com:443'
 const GLS_CONTACT_ID = process.env.GLS_CONTACT_ID || '250aaa4lE7'
 
 function glsHeaders() {
-  const credentials = Buffer.from(
-    `${process.env.GLS_USERNAME}:${process.env.GLS_PASSWORD}`
-  ).toString('base64')
+  const auth = process.env.GLS_BASE64_AUTH
+    || Buffer.from(`${process.env.GLS_USERNAME}:${process.env.GLS_PASSWORD}`).toString('base64')
   return {
-    'Authorization': `Basic ${credentials}`,
+    'Authorization': `Basic ${auth}`,
     'Content-Type': 'application/glsVersion1+json',
     'Accept': 'application/glsVersion1+json, application/json',
   }
 }
 
+// Delivery types:
+// "standard"      → PARCEL, no service (B2B pro)
+// "express"       → EXPRESS + service_1300 (B2B express)
+// "domicile"      → PARCEL + service_flexdelivery (particulier, email+mobile required)
+// "relais"        → PARCEL + service_shopdelivery (particulier relais/locker)
+function buildProductAndServices(deliveryType = 'standard') {
+  switch (deliveryType) {
+    case 'express':
+      return { Product: 'EXPRESS', Service: [{ ServiceName: 'service_1300' }] }
+    case 'domicile':
+      return { Product: 'PARCEL', Service: [{ ServiceName: 'service_flexdelivery' }] }
+    case 'relais':
+      return { Product: 'PARCEL', Service: [{ ServiceName: 'service_shopdelivery' }] }
+    default:
+      return { Product: 'PARCEL' }
+  }
+}
+
 export async function POST(request) {
   try {
-    const { order } = await request.json()
+    const { order, deliveryType, labelFormat } = await request.json()
 
     if (!order) {
       return NextResponse.json({ error: 'Données de commande manquantes' }, { status: 400 })
     }
 
-    if (!process.env.GLS_USERNAME || !process.env.GLS_PASSWORD) {
+    if (!process.env.GLS_USERNAME && !process.env.GLS_BASE64_AUTH) {
       return NextResponse.json(
-        { error: 'Identifiants GLS non configurés (variables GLS_USERNAME / GLS_PASSWORD manquantes)' },
+        { error: 'Identifiants GLS non configurés (GLS_BASE64_AUTH ou GLS_USERNAME+GLS_PASSWORD requis)' },
         { status: 500 }
       )
     }
 
+    const client = order.client || order.destinataire || {}
+
+    // FlexDelivery requires email + mobile
+    if (deliveryType === 'domicile' && (!client.email || !client.tel)) {
+      return NextResponse.json(
+        { error: 'Email et téléphone obligatoires pour la livraison à domicile (FlexDelivery)' },
+        { status: 400 }
+      )
+    }
+
     const today = new Date().toISOString().split('T')[0]
+    const { Product, Service } = buildProductAndServices(deliveryType)
+
+    const shipment = {
+      ShippingDate: today,
+      Product,
+      Consignee: {
+        ConsigneeID: order.id || '',
+        Name1: client.nom || '',
+        Name2: client.entreprise || '',
+        Name3: '',
+        Street1: client.adresse || '',
+        CountryCode: client.pays || 'FR',
+        ZIPCode: client.codePostal || '',
+        City: client.ville || '',
+        Phone: client.tel || '',
+        Email: client.email || '',
+      },
+      Shipper: {
+        ContactID: GLS_CONTACT_ID,
+      },
+      Parcels: [
+        {
+          TrackID: null,
+          Comment: `Commande ${order.id}`,
+          CustomerParcelNumber: String(order.id),
+        },
+      ],
+    }
+
+    if (Service) {
+      shipment.Service = Service
+    }
+
+    // If relais delivery, add ParcelShopID
+    if (deliveryType === 'relais' && order.parcelShopId) {
+      shipment.ShopDelivery = { ParcelShopID: order.parcelShopId }
+    }
 
     const payload = {
-      Shipment: {
-        ShippingDate: today,
-        Product: 'PARCEL',
-        Consignee: {
-          ConsigneeID: order.id || '',
-          Name1: order.client?.nom || order.destinataire?.nom || '',
-          Name2: order.client?.entreprise || '',
-          Name3: '',
-          Street1: order.client?.adresse || order.destinataire?.adresse || '',
-          CountryCode: order.client?.pays || 'FR',
-          ZIPCode: order.client?.codePostal || order.destinataire?.codePostal || '',
-          City: order.client?.ville || order.destinataire?.ville || '',
-          Phone: order.client?.tel || '',
-          Email: order.client?.email || '',
+      Shipment: shipment,
+      PrintingOptions: {
+        ReturnLabels: {
+          TemplateSet: 'NONE',
+          LabelFormat: labelFormat === 'zpl' ? 'ZPL' : 'PDF',
         },
-        Shipper: {
-          ContactID: GLS_CONTACT_ID,
-          AlternativeShipperAddress: null,
-        },
-        Parcels: [
-          {
-            TrackID: null,
-            Comment: `Commande ${order.id}`,
-            CustomerParcelNumber: order.id,
-          },
-        ],
       },
     }
 
@@ -93,25 +136,17 @@ export async function POST(request) {
       )
     }
 
-    let labelBase64 = null
-    try {
-      const labelRes = await fetch(
-        `${GLS_API_BASE}/backend/rs/shipments/${shipmentRef}/labels`,
-        { headers: { ...glsHeaders(), Accept: 'application/pdf' } }
-      )
-      if (labelRes.ok) {
-        const labelBuf = await labelRes.arrayBuffer()
-        labelBase64 = Buffer.from(labelBuf).toString('base64')
-      }
-    } catch (e) {
-      console.warn('Label fetch failed:', e.message)
-    }
+    // Label comes back as base64 in PrintData
+    const labelBase64 = data?.CreatedShipment?.PrintData?.[0]?.Data
+      || parcel?.PrintData?.[0]?.Data
+      || null
 
     return NextResponse.json({
       success: true,
       trackID: parcel.TrackID,
       shipmentRef,
       labelBase64,
+      labelFormat: labelFormat === 'zpl' ? 'zpl' : 'pdf',
       trackingUrl: `https://gls-group.com/FR/fr/suivi-colis/?match=${parcel.TrackID}&lang=FR`,
     })
   } catch (err) {

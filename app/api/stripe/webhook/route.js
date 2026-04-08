@@ -87,7 +87,7 @@ export async function POST(req) {
       const glsRes = await fetch(baseUrl + '/api/gls/create-shipment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order: glsOrder }),
+        body: JSON.stringify({ order: glsOrder, deliveryType: meta.deliveryType || 'standard' }),
       })
 
       const glsData = await glsRes.json()
