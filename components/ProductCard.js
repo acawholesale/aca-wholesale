@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useCart } from '../context/CartContext'
 import { useState } from 'react'
 import { getStockStatus } from '../app/data/products'
@@ -34,18 +35,31 @@ export default function ProductCard({ product }) {
       {/* Image zone */}
       <Link href={`/produits/${product.id}`}>
         <div className="relative aspect-square overflow-hidden bg-[#1a1a1a]">
-          <div
-            className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-            style={{ backgroundColor: product.color || '#1a1a1a' }}
-          >
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="text-center p-3 md:p-4">
-                <div className="text-4xl md:text-5xl mb-2 md:mb-3">{product.emoji || '📦'}</div>
-                <span className="text-[10px] md:text-xs text-gray-300 font-bold bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-sm uppercase tracking-wide">
-                  {product.brand}
-                </span>
+          {product.imageUrl ? (
+            <Image
+              src={product.imageUrl}
+              alt={product.name}
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div
+              className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
+              style={{ backgroundColor: product.color || '#1a1a1a' }}
+            >
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="text-center p-3 md:p-4">
+                  <div className="text-4xl md:text-5xl mb-2 md:mb-3">{product.emoji || '📦'}</div>
+                </div>
               </div>
             </div>
+          )}
+          {/* Brand label */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+            <span className="text-[10px] md:text-xs text-gray-300 font-bold bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-sm uppercase tracking-wide">
+              {product.brand}
+            </span>
           </div>
 
           {/* ÉPUISÉ overlay */}
