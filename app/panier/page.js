@@ -24,6 +24,12 @@ export default function Panier() {
       if (data.url) {
         clearCart()
         window.location.href = data.url
+      } else if (data.outOfStock) {
+        const msg = data.outOfStock.map(i =>
+          `${i.name} : ${i.available} disponible${i.available > 1 ? 's' : ''} (demandé : ${i.requested})`
+        ).join('\n')
+        alert('Stock insuffisant :\n\n' + msg)
+        setCheckoutLoading(false)
       } else {
         alert('Erreur paiement : ' + (data.error || 'Erreur inconnue'))
         setCheckoutLoading(false)
