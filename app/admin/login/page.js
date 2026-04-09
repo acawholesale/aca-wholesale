@@ -3,34 +3,30 @@ export const dynamic = 'force-dynamic'
 import { useState } from 'react'
 
 export default function AdminLoginPage() {
-  var pw = useState('')
-  var password = pw[0]
-  var setPassword = pw[1]
-  var er = useState('')
-  var error = er[0]
-  var setError = er[1]
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  function handleLogin() {
-    if (password === 'admin2026') {
-      document.cookie = 'admin_session=admin2026; path=/; max-age=86400'
-      window.location.href = '/admin'
-    } else {
-      setError('Mot de passe incorrect')
-      setPassword('')
-    }
-  }
-
-  function onType(e) {
-    setPassword(e.target.value)
+  async function handleLogin() {
+    setLoading(true)
     setError('')
-  }
-
-  function onKey(e) {
-    if (e.key === 'Enter') handleLogin()
-  }
-
-  function goBack() {
-    window.location.href = '/'
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        window.location.href = '/admin'
+      } else {
+        setError('Mot de passe incorrect')
+        setPassword('')
+      }
+    } catch {
+      setError('Erreur de connexion')
+    }
+    setLoading(false)
   }
 
   return (
@@ -43,12 +39,12 @@ export default function AdminLoginPage() {
         <p style={{ color: '#555', fontSize: '13px', textAlign: 'center', margin: '0 0 32px 0' }}>Entrez le mot de passe</p>
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', color: '#888', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}>Mot de passe</label>
-          <input type="password" value={password} onChange={onType} onKeyDown={onKey} placeholder="••••••••" autoFocus style={{ width: '100%', padding: '13px 16px', background: 'rgba(255,255,255,0.05)', border: error ? '1px solid #f87171' : '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+          <input type="password" value={password} onChange={e => { setPassword(e.target.value); setError('') }} onKeyDown={e => e.key === 'Enter' && handleLogin()} placeholder="••••••••" autoFocus style={{ width: '100%', padding: '13px 16px', background: 'rgba(255,255,255,0.05)', border: error ? '1px solid #f87171' : '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
           {error ? <div style={{ color: '#f87171', fontSize: '12px', marginTop: '8px', fontWeight: 600 }}>{error}</div> : null}
         </div>
-        <button onClick={handleLogin} style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000', fontWeight: 900, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', border: 'none', borderRadius: '8px', cursor: 'pointer', marginBottom: '20px' }}>SE CONNECTER</button>
+        <button onClick={handleLogin} disabled={loading} style={{ width: '100%', padding: '14px', background: loading ? '#6b7280' : 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000', fontWeight: 900, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', border: 'none', borderRadius: '8px', cursor: loading ? 'not-allowed' : 'pointer', marginBottom: '20px' }}>{loading ? 'Connexion...' : 'SE CONNECTER'}</button>
         <div style={{ textAlign: 'center' }}>
-          <button onClick={goBack} style={{ background: 'none', border: 'none', color: '#444', fontSize: '12px', cursor: 'pointer' }}>Retour</button>
+          <button onClick={() => { window.location.href = '/' }} style={{ background: 'none', border: 'none', color: '#444', fontSize: '12px', cursor: 'pointer' }}>Retour</button>
         </div>
       </div>
     </div>
