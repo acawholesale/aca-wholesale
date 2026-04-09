@@ -191,15 +191,22 @@ function DashboardHome({ setActiveTab }) {
           </button>
         ))}
       </div>
-      {aExpedier > 0 && (
-        <div className="rounded-xl p-5 flex items-center justify-between" style={{ background: 'rgba(196,150,42,0.1)', border: '1px solid rgba(196,150,42,0.3)' }}>
-          <div>
-            <p className="text-white font-black uppercase tracking-wide text-sm">🚚 {aExpedier} commande{aExpedier > 1 ? 's' : ''} à expédier</p>
-            <p className="text-gray-400 text-xs mt-1">Générez les bordereaux d&apos;envoi</p>
-          </div>
-          <button onClick={() => setActiveTab('commandes')} className="text-black text-xs px-4 py-2 font-black uppercase tracking-wide rounded" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>Voir →</button>
+      <div className="rounded-xl p-5 flex items-center justify-between" style={{ background: aExpedier > 0 ? 'rgba(196,150,42,0.1)' : 'rgba(34,197,94,0.08)', border: aExpedier > 0 ? '1px solid rgba(196,150,42,0.3)' : '1px solid rgba(34,197,94,0.2)' }}>
+        <div>
+          {aExpedier > 0 ? (
+            <>
+              <p className="text-white font-black uppercase tracking-wide text-sm">🚚 {aExpedier} commande{aExpedier > 1 ? 's' : ''} à expédier</p>
+              <p className="text-gray-400 text-xs mt-1">Générez les étiquettes GLS</p>
+            </>
+          ) : (
+            <>
+              <p className="text-white font-black uppercase tracking-wide text-sm">✅ Toutes les commandes sont expédiées</p>
+              <p className="text-gray-400 text-xs mt-1">Aucune commande en attente d&apos;expédition</p>
+            </>
+          )}
         </div>
-      )}
+        <button onClick={() => setActiveTab('commandes')} className="text-black text-xs px-4 py-2 font-black uppercase tracking-wide rounded" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>Commandes →</button>
+      </div>
     </div>
   )
 }
@@ -488,9 +495,30 @@ function CommandesTab() {
   }
 
   const printAllGLS = async (ordersList) => {
+    // Collect all label base64 data
+    const labels = []
     for (const order of ordersList) {
-      await printGLSLabel(order)
+      const existing = glsData[order.id]
+      if (existing?.labelBase64) {
+        labels.push(existing.labelBase64)
+      } else {
+        const data = await createGLSShipment(order)
+        if (data?.labelBase64) labels.push(data.labelBase64)
+      }
     }
+    if (labels.length === 0) { alert('Aucune étiquette disponible'); return }
+    // Open each label as a downloadable file
+    labels.forEach((b64, i) => {
+      const blob = new Blob([Uint8Array.from(atob(b64), c => c.charCodeAt(0))], { type: 'application/pdf' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `etiquette-gls-${ordersList[i]?.id || i + 1}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    })
   }
 
 
