@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
-import { sendShippingNotification, sendAdminOrderNotification, sendOrderConfirmation } from '../../../../lib/emails'
+import { sendAdminOrderNotification, sendOrderConfirmation } from '../../../../lib/emails'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -41,64 +41,7 @@ async function handlePostOrder(supabase, orderId, meta, items, totalAmount) {
     console.error('Order confirmation email error:', err.message)
   }
 
-  // 3. Auto-create GLS shipment
-  try {
-    const glsOrder = {
-      id: orderId,
-      client: {
-        nom: ((meta.prenom || '') + ' ' + (meta.nom || '')).trim(),
-        entreprise: meta.entreprise || '',
-        adresse: meta.adresse || '',
-        ville: meta.ville || '',
-        codePostal: meta.codePostal || '',
-        pays: meta.pays || 'FR',
-        email: meta.email || '',
-        tel: meta.telephone || '',
-      },
-      weight: parseFloat(meta.weight) || 2,
-      lots: meta.itemsSummary || items.map(i => i.name + ' x' + i.qty).join(', '),
-      montant: totalAmount,
-    }
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://aca-wholesale.vercel.app'
-    const glsRes = await fetch(baseUrl + '/api/gls/create-shipment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ order: glsOrder, deliveryType: meta.deliveryType || 'standard' }),
-    })
-
-    const glsData = await glsRes.json()
-
-    if (glsData.success) {
-      await supabase
-        .from('orders')
-        .update({
-          gls_track_id: glsData.trackID || null,
-          gls_label_base64: glsData.labelBase64 || null,
-          gls_label_url: glsData.trackingUrl || null,
-          status: 'En préparation',
-        })
-        .eq('id', orderId)
-
-      try {
-        if (meta.email && glsData.trackID) {
-          await sendShippingNotification({
-            email: meta.email,
-            prenom: meta.prenom || '',
-            orderId,
-            trackID: glsData.trackID,
-            trackingUrl: glsData.trackingUrl,
-          })
-        }
-      } catch (emailErr) {
-        console.error('Shipping email error:', emailErr.message)
-      }
-    } else {
-      console.error('GLS error:', glsData.error)
-    }
-  } catch (glsError) {
-    console.error('GLS auto-shipment error:', glsError.message)
-  }
+  // GLS shipment is NOT created here — admin reviews and creates it manually from the dashboard
 }
 
 export async function POST(req) {
@@ -149,7 +92,7 @@ export async function POST(req) {
       id: orderId,
       stripe_session_id: session.id,
       stripe_payment_intent: session.payment_intent || null,
-      status: 'Payé',
+      status: 'À expédier',
       prenom: meta.prenom || '',
       nom: meta.nom || '',
       email: meta.email || session.customer_email || '',
@@ -182,22 +125,12 @@ export async function POST(req) {
       .update({ expired: true })
       .eq('stripe_session_id', session.id)
 
-    // Emails + GLS — run async, don't block response
+    // Emails — run async, don't block Stripe response
     const postOrderMeta = {
       prenom: meta.prenom || '',
       nom: meta.nom || '',
       email: meta.email || session.customer_email || '',
-      telephone: meta.telephone || '',
-      adresse: meta.adresse || '',
-      ville: meta.ville || '',
-      codePostal: meta.codePostal || '',
-      pays: meta.pays || 'France',
-      activite: meta.activite || '',
-      notes: meta.notes || '',
       itemsSummary: meta.itemsSummary || '',
-      entreprise: meta.entreprise || '',
-      weight: meta.weight || '2',
-      deliveryType: meta.deliveryType || 'standard',
     }
 
     // Fire and forget — don't await, don't block Stripe response
