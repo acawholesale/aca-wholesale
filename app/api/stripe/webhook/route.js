@@ -2,18 +2,13 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
-import { sendShippingNotification, sendAdminOrderNotification, sendOrderConfirmation } from '../../../../lib/emails'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 function getSupabase() {
-  return createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_KEY
-  )
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
 }
 
-// Required for raw body access in App Router
 export const runtime = 'nodejs'
 
 export async function POST(req) {
@@ -28,13 +23,38 @@ export async function POST(req) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
+  const supabase = getSupabase()
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object
     const meta = session.metadata || {}
-
     const orderId = meta.orderId || ('ACA-' + Date.now())
     const totalAmount = (session.amount_total || 0) / 100
 
+    // Idempotency: skip if order already exists
+    const { data: existing } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('stripe_session_id', session.id)
+      .single()
+
+    if (existing) {
+      return NextResponse.json({ received: true })
+    }
+
+    // Fetch reservation to get full items data
+    let items = []
+    const { data: reservation } = await supabase
+      .from('stock_reservations')
+      .select('items_json')
+      .eq('stripe_session_id', session.id)
+      .single()
+
+    if (reservation) {
+      items = reservation.items_json || []
+    }
+
+    // Save order
     const orderData = {
       id: orderId,
       stripe_session_id: session.id,
@@ -51,16 +71,13 @@ export async function POST(req) {
       activite: meta.activite || '',
       notes: meta.notes || '',
       items_summary: meta.itemsSummary || '',
-      items_json: meta.itemsJson || '[]',
+      items_json: JSON.stringify(items),
       total: totalAmount,
       gls_track_id: null,
       gls_label_base64: null,
       gls_label_url: null,
     }
 
-    const supabase = getSupabase()
-
-    // Save order to Supabase
     const { error: dbError } = await supabase
       .from('orders')
       .upsert([orderData], { onConflict: 'id' })
@@ -69,130 +86,73 @@ export async function POST(req) {
       console.error('Supabase insert error:', dbError)
     }
 
-    // Decrement stock for purchased items (atomic: uses Postgres expression to avoid race conditions)
-    try {
-      const items = JSON.parse(meta.itemsJson || '[]')
-      for (const item of items) {
-        if (item.id) {
-          const qty = parseInt(item.qty) || 1
-          // Use raw SQL via rpc for atomic decrement, fallback to select+update
-          const { error: rpcErr } = await supabase.rpc('decrement_product_stock', {
-            p_id: item.id,
-            p_qty: qty,
-          })
-          if (rpcErr) {
-            // Fallback: non-atomic but functional if RPC doesn't exist
-            const { data: product } = await supabase
-              .from('products')
-              .select('stock')
-              .eq('id', item.id)
-              .single()
-            if (product) {
-              const newStock = Math.max(0, (product.stock || 0) - qty)
-              await supabase
-                .from('products')
-                .update({ stock: newStock, updated_at: new Date().toISOString() })
-                .eq('id', item.id)
-            }
-          }
-        }
-      }
-    } catch (stockError) {
-      console.error('Stock decrement error:', stockError.message)
-    }
+    // Mark reservation as consumed
+    await supabase
+      .from('stock_reservations')
+      .update({ expired: true })
+      .eq('stripe_session_id', session.id)
 
-    // Notify admin of new order
-    try {
-      await sendAdminOrderNotification({
+    // Fire-and-forget: trigger emails + GLS asynchronously
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://aca-wholesale.vercel.app'
+    fetch(baseUrl + '/api/internal/post-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-internal-secret': process.env.INTERNAL_API_SECRET || '',
+      },
+      body: JSON.stringify({
         orderId,
-        clientName: ((meta.prenom || '') + ' ' + (meta.nom || '')).trim(),
-        email: meta.email || session.customer_email || '',
-        total: totalAmount,
-        items: meta.itemsSummary || '',
-      })
-    } catch (adminEmailErr) {
-      console.error('Admin notification email error:', adminEmailErr.message)
-    }
-
-    // Send order confirmation to customer
-    try {
-      const customerEmail = meta.email || session.customer_email
-      if (customerEmail) {
-        let items = []
-        try { items = JSON.parse(meta.itemsJson || '[]') } catch {}
-        await sendOrderConfirmation({
-          email: customerEmail,
+        meta: {
           prenom: meta.prenom || '',
-          orderId,
-          items: items.length > 0 ? items : (meta.itemsSummary || ''),
-          total: totalAmount,
-        })
-      }
-    } catch (confirmEmailErr) {
-      console.error('Order confirmation email error:', confirmEmailErr.message)
-    }
-
-    // Auto-create GLS shipment
-    try {
-      const glsOrder = {
-        id: orderId,
-        client: {
-          nom: ((meta.prenom || '') + ' ' + (meta.nom || '')).trim(),
-          entreprise: meta.entreprise || '',
+          nom: meta.nom || '',
+          email: meta.email || session.customer_email || '',
+          telephone: meta.telephone || '',
           adresse: meta.adresse || '',
           ville: meta.ville || '',
           codePostal: meta.codePostal || '',
-          pays: meta.pays || 'FR',
-          email: meta.email || session.customer_email || '',
-          tel: meta.telephone || '',
+          pays: meta.pays || 'France',
+          activite: meta.activite || '',
+          notes: meta.notes || '',
+          itemsSummary: meta.itemsSummary || '',
+          entreprise: meta.entreprise || '',
+          weight: meta.weight || '2',
+          deliveryType: meta.deliveryType || 'standard',
         },
-        weight: parseFloat(meta.weight) || 2,
-        lots: meta.itemsSummary || '',
-        montant: totalAmount,
-      }
+        items,
+        totalAmount,
+      }),
+    }).catch(err => console.error('Post-order trigger error:', err.message))
 
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://aca-wholesale.vercel.app'
-      const glsRes = await fetch(baseUrl + '/api/gls/create-shipment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order: glsOrder, deliveryType: meta.deliveryType || 'standard' }),
-      })
+    return NextResponse.json({ received: true })
+  }
 
-      const glsData = await glsRes.json()
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data.object
 
-      if (glsData.success) {
-        await supabase
-          .from('orders')
-          .update({
-            gls_track_id: glsData.trackID || null,
-            gls_label_base64: glsData.labelBase64 || null,
-            gls_label_url: glsData.trackingUrl || null,
-            status: 'En préparation',
+    const { data: reservation } = await supabase
+      .from('stock_reservations')
+      .select('*')
+      .eq('stripe_session_id', session.id)
+      .eq('expired', false)
+      .single()
+
+    if (reservation) {
+      const items = reservation.items_json || []
+      for (const item of items) {
+        if (item.id) {
+          await supabase.rpc('release_stock', {
+            p_id: item.id,
+            p_qty: parseInt(item.qty) || 1,
           })
-          .eq('id', orderId)
-
-        // Send shipping notification email to customer
-        try {
-          const customerEmail = meta.email || session.customer_email
-          if (customerEmail && glsData.trackID) {
-            await sendShippingNotification({
-              email: customerEmail,
-              prenom: meta.prenom || '',
-              orderId,
-              trackID: glsData.trackID,
-              trackingUrl: glsData.trackingUrl,
-            })
-          }
-        } catch (emailErr) {
-          console.error('Shipping email error:', emailErr.message)
         }
-      } else {
-        console.error('GLS error:', glsData.error)
       }
-    } catch (glsError) {
-      console.error('GLS auto-shipment error:', glsError.message)
-      // Don't fail the webhook — order is saved, GLS label can be created manually
+      await supabase
+        .from('stock_reservations')
+        .update({ expired: true })
+        .eq('id', reservation.id)
     }
+
+    return NextResponse.json({ received: true })
   }
 
   return NextResponse.json({ received: true })
