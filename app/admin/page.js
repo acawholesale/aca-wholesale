@@ -683,6 +683,9 @@ function CommandesTab() {
         <button onClick={() => printGLSLabel(order)} className="w-full py-4 font-black text-base uppercase tracking-widest text-black rounded-xl transition-opacity hover:opacity-90 flex items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
           🏷️ GLS – Étiquette d&apos;expédition
         </button>
+        <a href={'/api/orders/invoice?id=' + order.id + '&email=admin'} target="_blank" rel="noopener noreferrer" className="w-full py-3 mt-2 font-bold text-sm uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 text-gray-400 hover:text-white transition-colors" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          🧾 Voir la facture
+        </a>
       </div>
     )
   }
