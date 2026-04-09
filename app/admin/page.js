@@ -769,8 +769,10 @@ function CommandesTab() {
             <span className="text-xs text-gray-400 font-bold uppercase tracking-wide">{filteredOrders.length} résultat{filteredOrders.length > 1 ? 's' : ''}</span>
           </label>
           {filteredOrders.length > 0 && (
-            <button onClick={() => printAllGLS(filteredOrders)} className="text-black text-[10px] px-3 py-1.5 font-black uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer ({filteredOrders.length})</button>
-            <button onClick={exportCSV} className="text-[10px] px-3 py-1.5 font-bold uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'rgba(255,255,255,0.07)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)' }}>📥 CSV</button>
+            <>
+              <button onClick={() => printAllGLS(filteredOrders)} className="text-black text-[10px] px-3 py-1.5 font-black uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer ({filteredOrders.length})</button>
+              <button onClick={exportCSV} className="text-[10px] px-3 py-1.5 font-bold uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'rgba(255,255,255,0.07)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)' }}>📥 CSV</button>
+            </>
           )}
         </div>
         <select value={triPar} onChange={e => setTriPar(e.target.value)} className="text-white text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
