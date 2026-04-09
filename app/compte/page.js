@@ -13,6 +13,7 @@ const statusColor = {
   'Livré':      { color: '#22c55e', bg: 'rgba(34,197,94,0.1)',   border: 'rgba(34,197,94,0.25)'  },
   'En cours':   { color: '#f97316', bg: 'rgba(249,115,22,0.1)',  border: 'rgba(249,115,22,0.25)' },
   'En attente': { color: '#C4962A', bg: 'rgba(196,150,42,0.1)',  border: 'rgba(196,150,42,0.25)' },
+  'À expédier': { color: '#C4962A', bg: 'rgba(196,150,42,0.1)',  border: 'rgba(196,150,42,0.25)' },
 }
 const getStatusColor = s => statusColor[s] || { color: '#9ca3af', bg: 'rgba(107,114,128,0.1)', border: 'rgba(107,114,128,0.25)' }
 
@@ -184,6 +185,12 @@ export default function Compte() {
         </div>
       </section>
 
+      {user && !user.email_confirmed_at && (
+        <div style={{ background: 'rgba(251,191,36,0.1)', borderBottom: '1px solid rgba(251,191,36,0.3)', padding: '12px 24px', textAlign: 'center' }}>
+          <span style={{ color: '#fbbf24', fontSize: 13, fontWeight: 600 }}>Veuillez vérifier votre adresse email. Vérifiez vos spams si vous ne trouvez pas l&#39;email.</span>
+        </div>
+      )}
+
       {/* Tabs */}
       <section style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', display: 'flex', gap: 4, overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
@@ -204,7 +211,7 @@ export default function Compte() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 16, marginBottom: 32 }}>
               {[
                 { label: 'Commandes totales',    value: orders.length,                                                       icon: '📦' },
-                { label: 'En cours / Expédiées', value: orders.filter(o => o.status === 'En cours' || o.status === 'Expédié').length, icon: '🚚' },
+                { label: 'À expédier / Expédiées', value: orders.filter(o => o.status === 'À expédier' || o.status === 'Expédié').length, icon: '🚚' },
                 { label: 'Livrées',              value: orders.filter(o => o.status === 'Livré').length,                     icon: '✅' },
                 { label: 'Total dépensé',        value: orders.reduce((s,o) => s + (o.total||0), 0).toFixed(0) + ' €',     icon: '💶' },
               ].map(card => (
@@ -271,6 +278,9 @@ export default function Compte() {
                   ) : (
                     <span style={{ color: '#6b7280', fontSize: 13, fontStyle: 'italic' }}>Expédition en préparation</span>
                   )}
+                  <a href={'/api/orders/invoice?id=' + o.id + '&email=' + encodeURIComponent(session?.email || '')} target="_blank" rel="noopener noreferrer" style={{ background: 'rgba(255,255,255,0.06)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px 16px', fontSize: 13, cursor: 'pointer', fontWeight: 600, textDecoration: 'none' }}>
+                    🧾 Facture
+                  </a>
                 </div>
               </div>
             ))}
