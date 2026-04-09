@@ -1,16 +1,13 @@
 import { NextResponse } from 'next/server'
 
 export function middleware(request) {
-  const session = request.cookies.get('admin_session')
+  const token = request.cookies.get('admin_token')
   const isLoginPage = request.nextUrl.pathname === '/admin/login'
 
-  // Secret loaded from env var — never hardcoded
-  const secret = process.env.ADMIN_SESSION_SECRET
-
-  if (!isLoginPage && session?.value !== secret) {
+  if (!isLoginPage && !token?.value) {
     return NextResponse.redirect(new URL('/admin/login', request.url))
   }
-  if (isLoginPage && session?.value === secret) {
+  if (isLoginPage && token?.value) {
     return NextResponse.redirect(new URL('/admin', request.url))
   }
   return NextResponse.next()
