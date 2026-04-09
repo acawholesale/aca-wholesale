@@ -100,6 +100,7 @@ function formatProduct(p) {
     state: p.state,
     details: Array.isArray(p.details) ? p.details : [],
     stock: p.stock,
+    weight: p.weight ? parseFloat(p.weight) : 2,
     vinteMin: p.vinte_min,
     vinteMax: p.vinte_max,
     imageUrl: p.image_url,

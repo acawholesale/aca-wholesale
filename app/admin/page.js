@@ -167,7 +167,7 @@ function DashboardHome({ setActiveTab }) {
       .then(r => r.json())
       .then(data => {
         const orders = data.orders || []
-        const pending = orders.filter(o => o.status === 'Payé' || o.status === 'En préparation' || o.status === 'À expédier').length
+        const pending = orders.filter(o => o.status === 'À expédier').length
         const uniqueEmails = new Set(orders.map(o => o.email).filter(Boolean)).size
         const total = orders.reduce((s, o) => s + parseFloat(o.total || 0), 0)
         setAExpedier(pending)
@@ -421,7 +421,7 @@ function CommandesTab() {
       .finally(() => setOrdersLoading(false))
   }, [])
 
-  const STATUTS = ['À expédier', 'En cours', 'Expédié', 'Livré', 'Annulé']
+  const STATUTS = ['À expédier', 'Expédié', 'Livré', 'Annulé']
 
   const getTotal = (order) => order.montant || (order.produits ? order.produits.reduce((s, p) => s + p.prix * p.qte, 0) : 0)
 
@@ -595,7 +595,6 @@ function CommandesTab() {
 
   const statusStyle = (s) => {
     if (s === 'À expédier') return { background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }
-    if (s === 'En cours') return { background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)' }
     if (s === 'Expédié') return { background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }
     if (s === 'Livré') return { background: 'rgba(16,185,129,0.15)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)' }
     if (s === 'Annulé') return { background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)' }
@@ -973,7 +972,7 @@ function ProduitsTab() {
                   <span className="text-white font-bold text-sm truncate">{product.name}</span>
                   {product.badge && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide" style={{ background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }}>{product.badge}</span>}
                 </div>
-                <p className="text-gray-500 text-xs">{product.brand || ''} • {product.category || ''} • {product.pieces || '?'} pièces</p>
+                <p className="text-gray-500 text-xs">{product.brand || ''} • {product.category || ''} • {product.pieces || '?'} pièces • {product.weight || 2}kg</p>
               </div>
               <div className="text-right flex-shrink-0">
                 <p className="font-black text-sm" style={{ color: '#C4962A' }}>{product.price} €</p>

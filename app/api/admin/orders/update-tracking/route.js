@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '../../../../../lib/adminAuth'
+import { sendShippingNotification } from '../../../../../lib/emails'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
@@ -34,6 +35,21 @@ export async function PATCH(req) {
       .single()
 
     if (error) throw error
+
+    // Send shipping notification when tracking is added
+    if (glsTrackId && data?.email) {
+      try {
+        await sendShippingNotification({
+          email: data.email,
+          prenom: data.prenom || '',
+          orderId,
+          trackID: glsTrackId,
+          trackingUrl: 'https://gls-group.eu/track/' + glsTrackId,
+        })
+      } catch (emailErr) {
+        console.error('Shipping email error:', emailErr.message)
+      }
+    }
 
     return NextResponse.json({ success: true, order: data })
   } catch (err) {
