@@ -9,7 +9,7 @@ function getSupabase() {
   return createClient(url, key)
 }
 
-// GET /api/products — list all products
+// GET /api/products — list all products (includes weight field)
 // GET /api/products?id=1 — get single product
 export async function GET(req) {
   try {
