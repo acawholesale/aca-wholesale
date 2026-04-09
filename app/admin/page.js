@@ -708,7 +708,7 @@ function CommandesTab() {
       </div>
 
       {/* Filtres avancés */}
-      <div className="rounded-xl p-4 mb-4" style={{ background: 'rgba(15,10,0,0.7)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="rounded-xl p-3 md:p-4 mb-4" style={{ background: 'rgba(15,10,0,0.7)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="flex items-center justify-between mb-3">
           <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">🔍 Filtres avancés</p>
           {hasActiveFilters && (
@@ -771,49 +771,50 @@ function CommandesTab() {
           const isChecked = checked.includes(order.id)
           const justChanged = changedId === order.id
           return (
-            <div key={order.id} className="rounded-xl p-4 transition-all" style={{ background: justChanged ? 'rgba(34,197,94,0.06)' : isChecked ? 'rgba(196,150,42,0.08)' : 'rgba(15,10,0,0.85)', border: justChanged ? '1px solid rgba(34,197,94,0.4)' : isChecked ? '1px solid rgba(196,150,42,0.4)' : '1px solid rgba(255,255,255,0.07)' }}>
-              <div className="flex items-start gap-3">
+            <div key={order.id} className="rounded-xl p-3 md:p-4 transition-all" style={{ background: justChanged ? 'rgba(34,197,94,0.06)' : isChecked ? 'rgba(196,150,42,0.08)' : 'rgba(15,10,0,0.85)', border: justChanged ? '1px solid rgba(34,197,94,0.4)' : isChecked ? '1px solid rgba(196,150,42,0.4)' : '1px solid rgba(255,255,255,0.07)' }}>
+              {/* Top row: checkbox + order info + price */}
+              <div className="flex items-start gap-2 md:gap-3">
                 <input type="checkbox" checked={isChecked} onChange={() => toggleCheck(order.id)} className="w-4 h-4 accent-yellow-500 flex-shrink-0 mt-1" />
-                {/* Infos commande */}
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelected(order.id)}>
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-white font-black text-sm">{order.id}</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide" style={statusStyle(order.status)}>{order.status}</span>
-                    <span className="text-gray-600 text-[10px]">{order.dateAff}</span>
+                  <div className="flex items-center gap-1.5 md:gap-2 mb-1 flex-wrap">
+                    <span className="text-white font-black text-xs md:text-sm">{order.id}</span>
+                    <span className="text-[9px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 rounded-full uppercase tracking-wide" style={statusStyle(order.status)}>{order.status}</span>
                   </div>
-                  <p className="text-gray-400 text-xs">{order.client.nom} • {order.client.ville}</p>
-                  <p className="text-gray-500 text-xs mt-0.5 truncate">{(order.produits || []).map(p => p.nom).join(', ')}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-gray-400 text-[10px] md:text-xs">{typeof order.client === 'string' ? order.client : order.client?.nom || ''}</span>
+                    {order.date && <span className="text-gray-600 text-[10px]">{order.date}</span>}
+                  </div>
+                  <p className="text-gray-500 text-[10px] md:text-xs mt-0.5 truncate hidden md:block">{(order.produits || []).map(p => p.nom).join(', ')}</p>
                 </div>
-                {/* Colonne droite: montant + actions */}
-                <div className="flex-shrink-0 flex flex-col items-end gap-2">
-                  <p className="font-black text-base" style={{ color: '#C4962A' }}>{total} €</p>
-                  {/* Changement statut inline */}
-                  <select
-                    value={order.status}
-                    onChange={e => { e.stopPropagation(); updateStatut(order.id, e.target.value) }}
+                <p className="font-black text-sm md:text-base flex-shrink-0" style={{ color: '#C4962A' }}>{total} €</p>
+              </div>
+              {/* Bottom row: actions — stacks on mobile */}
+              <div className="flex items-center gap-1.5 mt-2 ml-6 md:ml-7 flex-wrap">
+                <select
+                  value={order.status}
+                  onChange={e => { e.stopPropagation(); updateStatut(order.id, e.target.value) }}
+                  onClick={e => e.stopPropagation()}
+                  className="text-[10px] md:text-[11px] font-bold px-2 py-1 rounded-lg outline-none cursor-pointer"
+                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: '#e5e7eb' }}
+                >
+                  {STATUTS.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+                {glsData[order.id] ? (
+                  <a href={glsData[order.id].trackingUrl} target="_blank" rel="noopener noreferrer"
                     onClick={e => e.stopPropagation()}
-                    className="text-[11px] font-bold px-2 py-1 rounded-lg outline-none cursor-pointer"
-                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: '#e5e7eb' }}
-                  >
-                    {STATUTS.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                  {glsData[order.id] ? (
-                    <a href={glsData[order.id].trackingUrl} target="_blank" rel="noopener noreferrer"
-                      onClick={e => e.stopPropagation()}
-                      className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide flex items-center gap-1"
-                      style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)' }}>
-                      📦 {glsData[order.id].trackID.slice(-6)}
-                    </a>
-                  ) : (
-                    <button onClick={e => { e.stopPropagation(); printGLSLabel(order) }}
-                      disabled={glsLoading.has(order.id)}
-                      className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide text-white"
-                      style={{ background: 'rgba(59,130,246,0.18)', border: '1px solid rgba(59,130,246,0.4)', opacity: glsLoading.has(order.id) ? 0.5 : 1 }}>
-                      {glsLoading.has(order.id) ? '⏳' : '🚚 GLS'}
-                    </button>
-                  )}
-                  <button onClick={e => { e.stopPropagation(); printGLSLabel(order) }} className="text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wide text-black" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🏷️ Étiquette GLS</button>
-                </div>
+                    className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide flex items-center gap-1"
+                    style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)' }}>
+                    🚚 GLS
+                  </a>
+                ) : (
+                  <button onClick={e => { e.stopPropagation(); printGLSLabel(order) }}
+                    disabled={glsLoading.has(order.id)}
+                    className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide text-white"
+                    style={{ background: 'rgba(59,130,246,0.18)', border: '1px solid rgba(59,130,246,0.4)', opacity: glsLoading.has(order.id) ? 0.5 : 1 }}>
+                    {glsLoading.has(order.id) ? '⏳' : '🚚 GLS'}
+                  </button>
+                )}
+                <button onClick={e => { e.stopPropagation(); printGLSLabel(order) }} className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide text-black" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🏷️ Étiquette GLS</button>
               </div>
               {(justChanged || glsData[order.id]) && (
                 <div className="mt-2 flex items-center gap-3 flex-wrap">
