@@ -69,22 +69,31 @@ export async function POST(req) {
       console.error('Supabase insert error:', dbError)
     }
 
-    // Decrement stock for purchased items
+    // Decrement stock for purchased items (atomic: uses Postgres expression to avoid race conditions)
     try {
       const items = JSON.parse(meta.itemsJson || '[]')
       for (const item of items) {
         if (item.id) {
-          const { data: product } = await supabase
-            .from('products')
-            .select('stock')
-            .eq('id', item.id)
-            .single()
-          if (product) {
-            const newStock = Math.max(0, (product.stock || 0) - (item.qty || 1))
-            await supabase
+          const qty = parseInt(item.qty) || 1
+          // Use raw SQL via rpc for atomic decrement, fallback to select+update
+          const { error: rpcErr } = await supabase.rpc('decrement_product_stock', {
+            p_id: item.id,
+            p_qty: qty,
+          })
+          if (rpcErr) {
+            // Fallback: non-atomic but functional if RPC doesn't exist
+            const { data: product } = await supabase
               .from('products')
-              .update({ stock: newStock, updated_at: new Date().toISOString() })
+              .select('stock')
               .eq('id', item.id)
+              .single()
+            if (product) {
+              const newStock = Math.max(0, (product.stock || 0) - qty)
+              await supabase
+                .from('products')
+                .update({ stock: newStock, updated_at: new Date().toISOString() })
+                .eq('id', item.id)
+            }
           }
         }
       }

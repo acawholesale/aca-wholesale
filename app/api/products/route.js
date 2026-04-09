@@ -44,9 +44,13 @@ export async function GET(req) {
   }
 }
 
-// PATCH /api/products — update stock or product fields (admin)
+// PATCH /api/products — update stock or product fields (admin only)
 export async function PATCH(req) {
   try {
+    const { verifyAdmin } = await import('../../../lib/adminAuth')
+    const auth = verifyAdmin(req)
+    if (!auth.authenticated) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
     const supabase = getSupabase()
     if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 })
 
