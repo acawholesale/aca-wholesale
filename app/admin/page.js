@@ -717,21 +717,21 @@ function CommandesTab() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Filtre date */}
-          <div>
+          <div className="min-w-0">
             <p className="text-[10px] text-gray-600 uppercase tracking-wide mb-2">📅 Période</p>
-            <div className="flex items-center gap-2">
-              <input type="date" value={dateDebut} onChange={e => setDateDebut(e.target.value)} className="flex-1 px-3 py-1.5 text-white text-xs rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', colorScheme: 'dark' }} />
-              <span className="text-gray-600 text-xs">→</span>
-              <input type="date" value={dateFin} onChange={e => setDateFin(e.target.value)} className="flex-1 px-3 py-1.5 text-white text-xs rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', colorScheme: 'dark' }} />
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1">
+              <input type="date" value={dateDebut} onChange={e => setDateDebut(e.target.value)} className="w-full px-2 py-1.5 text-white text-xs rounded-lg outline-none min-w-0" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', colorScheme: 'dark' }} />
+              <span className="text-gray-600 text-xs px-1">→</span>
+              <input type="date" value={dateFin} onChange={e => setDateFin(e.target.value)} className="w-full px-2 py-1.5 text-white text-xs rounded-lg outline-none min-w-0" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', colorScheme: 'dark' }} />
             </div>
           </div>
           {/* Filtre montant */}
-          <div>
+          <div className="min-w-0">
             <p className="text-[10px] text-gray-600 uppercase tracking-wide mb-2">💰 Montant (€)</p>
-            <div className="flex items-center gap-2">
-              <input type="number" value={montantMin} onChange={e => setMontantMin(e.target.value)} placeholder="Min" className="flex-1 px-3 py-1.5 text-white text-xs rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }} />
-              <span className="text-gray-600 text-xs">→</span>
-              <input type="number" value={montantMax} onChange={e => setMontantMax(e.target.value)} placeholder="Max" className="flex-1 px-3 py-1.5 text-white text-xs rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }} />
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1">
+              <input type="number" value={montantMin} onChange={e => setMontantMin(e.target.value)} placeholder="Min" className="w-full px-2 py-1.5 text-white text-xs rounded-lg outline-none min-w-0" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }} />
+              <span className="text-gray-600 text-xs px-1">→</span>
+              <input type="number" value={montantMax} onChange={e => setMontantMax(e.target.value)} placeholder="Max" className="w-full px-2 py-1.5 text-white text-xs rounded-lg outline-none min-w-0" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }} />
             </div>
           </div>
         </div>
