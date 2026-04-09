@@ -658,7 +658,7 @@ function CommandesTab() {
           </div>
           <div className="flex gap-2">
             <button onClick={() => setChecked([])} className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wide px-3 py-2 rounded border border-white/10">Annuler</button>
-            <button onClick={() => printMultiple(selectedOrders)} className="text-black text-sm px-5 py-2 font-black uppercase tracking-wide rounded-lg flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer tout ({checked.length})</button>
+            <button onClick={() => printAllGLS(selectedOrders)} className="text-black text-sm px-5 py-2 font-black uppercase tracking-wide rounded-lg flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer tout ({checked.length})</button>
           </div>
         </div>
       )}
@@ -666,7 +666,7 @@ function CommandesTab() {
       {/* Bouton imprimer à expédier */}
       {orders.filter(o => o.status === 'À expédier').length > 0 && checked.length === 0 && (
         <button
-          onClick={() => printMultiple(orders.filter(o => o.status === 'À expédier'))}
+          onClick={() => printAllGLS(orders.filter(o => o.status === 'À expédier'))}
           className="mb-4 w-full text-black text-sm px-5 py-3 font-black uppercase tracking-wide rounded-xl flex items-center justify-center gap-2"
           style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
         >
@@ -728,7 +728,7 @@ function CommandesTab() {
             <span className="text-xs text-gray-400 font-bold uppercase tracking-wide">{filteredOrders.length} résultat{filteredOrders.length > 1 ? 's' : ''}</span>
           </label>
           {filteredOrders.length > 0 && (
-            <button onClick={() => printMultiple(filteredOrders)} className="text-black text-[10px] px-3 py-1.5 font-black uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer ({filteredOrders.length})</button>
+            <button onClick={() => printAllGLS(filteredOrders)} className="text-black text-[10px] px-3 py-1.5 font-black uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer ({filteredOrders.length})</button>
           )}
         </div>
         <select value={triPar} onChange={e => setTriPar(e.target.value)} className="text-white text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
