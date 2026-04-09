@@ -42,13 +42,44 @@ export async function PATCH(req) {
   }
 }
 
-// GET /api/admin/orders/update-tracking?limit=50&offset=0
+// GET /api/admin/orders/update-tracking?cleanup=reservations — cron endpoint
+// GET /api/admin/orders/update-tracking?limit=50&offset=0 — list orders
 export async function GET(req) {
+  const { searchParams } = new URL(req.url)
+
+  // Cron cleanup: called by Vercel Cron or manually
+  if (searchParams.get('cleanup') === 'reservations') {
+    const authHeader = req.headers.get('authorization')
+    const auth = verifyAdmin(req)
+    const isCron = authHeader === `Bearer ${process.env.CRON_SECRET}`
+    if (!auth.authenticated && !isCron) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    }
+    const supabase = getSupabase()
+    const cutoff = new Date(Date.now() - 35 * 60 * 1000).toISOString()
+    const { data: stale } = await supabase
+      .from('stock_reservations')
+      .select('*')
+      .eq('expired', false)
+      .lt('created_at', cutoff)
+    if (!stale || stale.length === 0) return NextResponse.json({ cleaned: 0 })
+    let cleaned = 0
+    for (const reservation of stale) {
+      for (const item of (reservation.items_json || [])) {
+        if (item.id) {
+          await supabase.rpc('release_stock', { p_id: item.id, p_qty: parseInt(item.qty) || 1 })
+        }
+      }
+      await supabase.from('stock_reservations').update({ expired: true }).eq('id', reservation.id)
+      cleaned++
+    }
+    return NextResponse.json({ cleaned })
+  }
+
   const auth = verifyAdmin(req)
   if (!auth.authenticated) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   try {
-    const { searchParams } = new URL(req.url)
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
     const status = searchParams.get('status')

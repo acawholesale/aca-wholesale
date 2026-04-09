@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/admin/cleanup-reservations",
+      "path": "/api/admin/orders/update-tracking?cleanup=reservations",
       "schedule": "*/15 * * * *"
     }
   ]
