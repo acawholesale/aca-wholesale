@@ -10,6 +10,9 @@ function getSupabase() {
 }
 
 export async function POST(req) {
+  const supabase = getSupabase()
+  const reserved = []
+
   try {
     const { items, customer } = await req.json()
 
@@ -17,35 +20,40 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Panier vide' }, { status: 400 })
     }
 
-    // Check stock availability
-    const supabase = getSupabase()
-    const productIds = items.map(i => i.id).filter(Boolean)
-    if (productIds.length > 0) {
-      const { data: products } = await supabase
-        .from('products')
-        .select('id, name, stock')
-        .in('id', productIds)
+    // Reserve stock atomically for each item
+    for (const item of items) {
+      if (!item.id) continue
+      const qty = parseInt(item.qty) || 1
 
-      if (products) {
-        const outOfStock = []
-        for (const item of items) {
-          const dbProduct = products.find(p => p.id === item.id)
-          if (dbProduct && dbProduct.stock < (item.qty || 1)) {
-            outOfStock.push({
-              id: item.id,
-              name: item.name,
-              requested: item.qty || 1,
-              available: dbProduct.stock,
-            })
-          }
+      const { data: success, error: rpcErr } = await supabase.rpc('reserve_stock', {
+        p_id: item.id,
+        p_qty: qty,
+      })
+
+      if (rpcErr || !success) {
+        // Rollback all previously reserved items
+        for (const r of reserved) {
+          await supabase.rpc('release_stock', { p_id: r.id, p_qty: r.qty })
         }
-        if (outOfStock.length > 0) {
-          return NextResponse.json({
-            error: 'Stock insuffisant',
-            outOfStock,
-          }, { status: 400 })
-        }
+
+        const { data: product } = await supabase
+          .from('products')
+          .select('stock')
+          .eq('id', item.id)
+          .single()
+
+        return NextResponse.json({
+          error: 'Stock insuffisant',
+          outOfStock: [{
+            id: item.id,
+            name: item.name,
+            requested: qty,
+            available: product?.stock || 0,
+          }],
+        }, { status: 400 })
       }
+
+      reserved.push({ id: item.id, qty })
     }
 
     // Generate order ID
@@ -67,9 +75,6 @@ export async function POST(req) {
     }))
 
     const itemsSummary = items.map(i => i.name + ' x' + i.qty).join(', ').slice(0, 490)
-    const itemsJson = JSON.stringify(
-      items.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price }))
-    ).slice(0, 490)
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://aca-wholesale.vercel.app'
 
@@ -93,12 +98,22 @@ export async function POST(req) {
         activite: (customer.activite || '').slice(0, 100),
         notes: (customer.notes || '').slice(0, 490),
         itemsSummary,
-        itemsJson,
       },
+    })
+
+    // Save reservation with full items data (no truncation)
+    await supabase.from('stock_reservations').insert({
+      stripe_session_id: session.id,
+      order_id: orderId,
+      items_json: items.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
+      customer_json: customer,
     })
 
     return NextResponse.json({ url: session.url, sessionId: session.id, orderId })
   } catch (error) {
+    for (const r of reserved) {
+      await supabase.rpc('release_stock', { p_id: r.id, p_qty: r.qty }).catch(() => {})
+    }
     console.error('Stripe checkout error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
