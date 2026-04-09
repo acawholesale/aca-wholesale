@@ -69,6 +69,29 @@ export async function POST(req) {
       console.error('Supabase insert error:', dbError)
     }
 
+    // Decrement stock for purchased items
+    try {
+      const items = JSON.parse(meta.itemsJson || '[]')
+      for (const item of items) {
+        if (item.id) {
+          const { data: product } = await supabase
+            .from('products')
+            .select('stock')
+            .eq('id', item.id)
+            .single()
+          if (product) {
+            const newStock = Math.max(0, (product.stock || 0) - (item.qty || 1))
+            await supabase
+              .from('products')
+              .update({ stock: newStock, updated_at: new Date().toISOString() })
+              .eq('id', item.id)
+          }
+        }
+      }
+    } catch (stockError) {
+      console.error('Stock decrement error:', stockError.message)
+    }
+
     // Notify admin of new order
     try {
       await sendAdminOrderNotification({
