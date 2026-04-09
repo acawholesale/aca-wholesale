@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { sendAdminOrderNotification, sendOrderConfirmation } from '../../../../lib/emails'
+import { logError } from '../../../../lib/errorLog'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -23,7 +24,7 @@ async function handlePostOrder(supabase, orderId, meta, items, totalAmount) {
       items: meta.itemsSummary || items.map(i => i.name + ' x' + i.qty).join(', '),
     })
   } catch (err) {
-    console.error('Admin notification email error:', err.message)
+    logError('webhook', 'Admin email error: ' + err.message)
   }
 
   // 2. Send order confirmation to customer
@@ -38,7 +39,7 @@ async function handlePostOrder(supabase, orderId, meta, items, totalAmount) {
       })
     }
   } catch (err) {
-    console.error('Order confirmation email error:', err.message)
+    logError('webhook', 'Confirmation email error: ' + err.message)
   }
 
   // GLS shipment is NOT created here — admin reviews and creates it manually from the dashboard
@@ -52,7 +53,7 @@ export async function POST(req) {
   try {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET)
   } catch (err) {
-    console.error('Webhook signature error:', err.message)
+    logError('webhook', 'Signature error: ' + err.message)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
@@ -116,7 +117,7 @@ export async function POST(req) {
       .upsert([orderData], { onConflict: 'id' })
 
     if (dbError) {
-      console.error('Supabase insert error:', dbError)
+      logError('webhook', 'Supabase insert error', { error: String(dbError) })
     }
 
     // Mark reservation as consumed (stock already decremented at checkout)
@@ -135,7 +136,7 @@ export async function POST(req) {
 
     // Fire and forget — don't await, don't block Stripe response
     handlePostOrder(supabase, orderId, postOrderMeta, items, totalAmount)
-      .catch(err => console.error('Post-order error:', err.message))
+      .catch(err => logError('webhook', 'Post-order error: ' + err.message))
 
     return NextResponse.json({ received: true })
   }

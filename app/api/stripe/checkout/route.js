@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { logError } from '../../../../lib/errorLog'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -114,7 +115,7 @@ export async function POST(req) {
     for (const r of reserved) {
       await supabase.rpc('release_stock', { p_id: r.id, p_qty: r.qty }).catch(() => {})
     }
-    console.error('Stripe checkout error:', error)
+    logError('checkout', 'Stripe checkout error: ' + error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
