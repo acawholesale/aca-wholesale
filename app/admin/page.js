@@ -495,7 +495,6 @@ function CommandesTab() {
   }
 
   const printAllGLS = async (ordersList) => {
-    // Collect all label base64 data
     const labels = []
     for (const order of ordersList) {
       const existing = glsData[order.id]
@@ -507,50 +506,8 @@ function CommandesTab() {
       }
     }
     if (labels.length === 0) { alert('Aucune étiquette disponible'); return }
-    // Open a print page with all labels as images
-    // Convert each PDF base64 to a blob URL for iframe rendering
-    const blobUrls = labels.map(l => {
-      const bytes = Uint8Array.from(atob(l.b64), c => c.charCodeAt(0))
-      const blob = new Blob([bytes], { type: 'application/pdf' })
-      return { ...l, url: URL.createObjectURL(blob) }
-    })
-
-    const pages = blobUrls.map(l => `
-      <div class="label-page">
-        <div class="label-header">
-          <span class="label-id">${l.id}</span>
-          <span class="label-client">${l.client || ''}</span>
-        </div>
-        <iframe src="${l.url}" frameborder="0"></iframe>
-      </div>
-    `).join('')
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Étiquettes GLS — ${labels.length} commande${labels.length > 1 ? 's' : ''}</title><style>
-      * { margin:0; padding:0; box-sizing:border-box; }
-      body { background:#080808; font-family:Arial,sans-serif; }
-      .header { background:#111; border-bottom:2px solid #C4962A; padding:20px 32px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
-      .header h1 { color:#fff; font-size:18px; font-weight:900; text-transform:uppercase; letter-spacing:2px; }
-      .header .count { color:#C4962A; font-size:14px; font-weight:700; }
-      .header button { background:linear-gradient(135deg,#C4962A,#E8B84B); color:#000; border:none; padding:10px 24px; font-weight:900; font-size:13px; text-transform:uppercase; letter-spacing:1px; border-radius:4px; cursor:pointer; }
-      .labels { padding:24px; display:flex; flex-direction:column; gap:24px; max-width:900px; margin:0 auto; }
-      .label-page { background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.5); }
-      .label-header { background:#1a1a1a; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; }
-      .label-id { color:#C4962A; font-weight:900; font-size:14px; letter-spacing:1px; }
-      .label-client { color:#9ca3af; font-size:13px; }
-      .label-page iframe { display:block; width:100%; height:600px; border:none; }
-    </style></head><body>
-      <div class="header">
-        <div>
-          <h1>Étiquettes GLS</h1>
-          <span class="count">${blobUrls.length} étiquette${blobUrls.length > 1 ? 's' : ''} prête${blobUrls.length > 1 ? 's' : ''}</span>
-        </div>
-        <button onclick="window.print()">Imprimer tout</button>
-      </div>
-      <div class="labels">${pages}</div>
-    </body></html>`
-    const win = window.open('', '_blank')
-    if (!win) { alert('Veuillez autoriser les popups pour imprimer'); return }
-    win.document.write(html)
-    win.document.close()
+    sessionStorage.setItem('aca_print_labels', JSON.stringify(labels))
+    window.open('/admin/print', '_blank')
   }
 
 
