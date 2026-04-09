@@ -58,6 +58,7 @@ export default function AdminDashboard() {
     { id: 'accueil', label: 'Tableau de bord', icon: '📊' },
     { id: 'commandes', label: 'Commandes', icon: '📦' },
     { id: 'clients', label: 'Clients', icon: '👥' },
+    { id: 'produits', label: 'Produits', icon: '📦' },
     { id: 'analytiques', label: 'Analytiques', icon: '📈', premium: true },
     { id: 'campagnes', label: 'Campagnes', icon: '📧', premium: true },
     { id: 'factures', label: 'Factures', icon: '🧾', premium: true },
@@ -108,6 +109,7 @@ export default function AdminDashboard() {
           {activeTab === 'accueil' && <DashboardHome setActiveTab={setActiveTab} />}
           {activeTab === 'commandes' && <CommandesTab />}
           {activeTab === 'clients' && <ClientsTab />}
+          {activeTab === 'produits' && <ProduitsTab />}
           {['analytiques', 'campagnes', 'factures', 'remises'].includes(activeTab) && <PremiumUpgradeTab activeTab={activeTab} />}
         </main>
       </div>
@@ -569,6 +571,28 @@ function CommandesTab() {
   const toggleAll = () => setChecked(checked.length === filteredOrders.length ? [] : filteredOrders.map(o => o.id))
   const selectedOrders = orders.filter(o => checked.includes(o.id))
 
+  const exportCSV = () => {
+    const escape = (v) => {
+      if (v == null) return ''
+      const s = String(v).replace(/"/g, '""')
+      return /[,;"\n]/.test(s) ? `"${s}"` : s
+    }
+    const headers = ['ID', 'Date', 'Client', 'Email', 'Ville', 'Montant', 'Statut', 'GLS TrackID']
+    const rows = filteredOrders.map(o => [
+      o.id, o.date, typeof o.client === 'string' ? o.client : o.client?.nom || '',
+      o.email || '', o.ville || '', getTotal(o), o.status || '',
+      glsData[o.id]?.trackID || ''
+    ].map(escape).join(','))
+    const csv = [headers.map(escape).join(','), ...rows].join('\n')
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `commandes-${new Date().toISOString().slice(0,10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const statusStyle = (s) => {
     if (s === 'À expédier') return { background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }
     if (s === 'En cours') return { background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)' }
@@ -746,6 +770,7 @@ function CommandesTab() {
           </label>
           {filteredOrders.length > 0 && (
             <button onClick={() => printAllGLS(filteredOrders)} className="text-black text-[10px] px-3 py-1.5 font-black uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer ({filteredOrders.length})</button>
+            <button onClick={exportCSV} className="text-[10px] px-3 py-1.5 font-bold uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'rgba(255,255,255,0.07)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)' }}>📥 CSV</button>
           )}
         </div>
         <select value={triPar} onChange={e => setTriPar(e.target.value)} className="text-white text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
@@ -856,6 +881,106 @@ function CommandesTab() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function ProduitsTab() {
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(r => r.json())
+      .then(data => setProducts(data.products || []))
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [])
+
+  const stockColor = (stock) => {
+    if (stock <= 0) return { bg: 'rgba(239,68,68,0.12)', color: '#f87171', label: 'Épuisé' }
+    if (stock <= 2) return { bg: 'rgba(239,68,68,0.08)', color: '#f87171', label: stock + ' restant' + (stock > 1 ? 's' : '') }
+    if (stock <= 5) return { bg: 'rgba(251,191,36,0.08)', color: '#fbbf24', label: stock + ' restants' }
+    return { bg: 'rgba(34,197,94,0.08)', color: '#4ade80', label: stock + ' en stock' }
+  }
+
+  const exportProductsCSV = () => {
+    const escape = (v) => {
+      if (v == null) return ''
+      const s = String(v).replace(/"/g, '""')
+      return /[,;"\n]/.test(s) ? `"${s}"` : s
+    }
+    const headers = ['ID', 'Nom', 'Prix', 'Prix original', 'Stock', 'Catégorie', 'Marque', 'Pièces', 'Badge']
+    const rows = products.map(p => [
+      p.id, p.name, p.price, p.originalPrice || '', p.stock, p.category || '', p.brand || '', p.pieces || '', p.badge || ''
+    ].map(escape).join(','))
+    const csv = [headers.map(escape).join(','), ...rows].join('\n')
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `produits-${new Date().toISOString().slice(0,10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <p className="text-gray-500 text-sm">Chargement des produits...</p>
+      </div>
+    )
+  }
+
+  const totalStock = products.reduce((s, p) => s + (p.stock || 0), 0)
+  const outOfStock = products.filter(p => (p.stock || 0) <= 0).length
+  const lowStock = products.filter(p => p.stock > 0 && p.stock <= 2).length
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-gray-500 text-xs uppercase tracking-widest font-bold">Inventaire ({products.length} produits)</p>
+        <button onClick={exportProductsCSV} className="text-[10px] px-3 py-1.5 font-bold uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'rgba(255,255,255,0.07)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)' }}>📥 Export CSV</button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="rounded-xl p-4" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <p className="text-2xl font-black text-white">{totalStock}</p>
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Stock total</p>
+        </div>
+        <div className="rounded-xl p-4" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          <p className="text-2xl font-black text-red-400">{outOfStock}</p>
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Épuisés</p>
+        </div>
+        <div className="rounded-xl p-4" style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.2)' }}>
+          <p className="text-2xl font-black text-yellow-400">{lowStock}</p>
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Stock bas</p>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {products.map(product => {
+          const sc = stockColor(product.stock || 0)
+          return (
+            <div key={product.id} className="rounded-xl p-4 flex items-center gap-3" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                {product.emoji || '📦'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-white font-bold text-sm truncate">{product.name}</span>
+                  {product.badge && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide" style={{ background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }}>{product.badge}</span>}
+                </div>
+                <p className="text-gray-500 text-xs">{product.brand || ''} • {product.category || ''} • {product.pieces || '?'} pièces</p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="font-black text-sm" style={{ color: '#C4962A' }}>{product.price} €</p>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: sc.bg, color: sc.color }}>{sc.label}</span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
