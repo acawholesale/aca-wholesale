@@ -500,25 +500,58 @@ function CommandesTab() {
     for (const order of ordersList) {
       const existing = glsData[order.id]
       if (existing?.labelBase64) {
-        labels.push(existing.labelBase64)
+        labels.push({ id: order.id, client: order.client, b64: existing.labelBase64 })
       } else {
         const data = await createGLSShipment(order)
-        if (data?.labelBase64) labels.push(data.labelBase64)
+        if (data?.labelBase64) labels.push({ id: order.id, client: order.client, b64: data.labelBase64 })
       }
     }
     if (labels.length === 0) { alert('Aucune étiquette disponible'); return }
-    // Open each label as a downloadable file
-    labels.forEach((b64, i) => {
-      const blob = new Blob([Uint8Array.from(atob(b64), c => c.charCodeAt(0))], { type: 'application/pdf' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `etiquette-gls-${ordersList[i]?.id || i + 1}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    })
+    // Open a print page with all labels embedded
+    const pages = labels.map(l => `
+      <div class="label-page">
+        <div class="label-header">
+          <span class="label-id">${l.id}</span>
+          <span class="label-client">${l.client || ''}</span>
+        </div>
+        <embed src="data:application/pdf;base64,${l.b64}" type="application/pdf" width="100%" height="100%" />
+      </div>
+    `).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Étiquettes GLS — ${labels.length} commande${labels.length > 1 ? 's' : ''}</title><style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { background:#080808; font-family:Arial,sans-serif; }
+      .header { background:#111; border-bottom:2px solid #C4962A; padding:20px 32px; display:flex; align-items:center; justify-content:space-between; }
+      .header h1 { color:#fff; font-size:18px; font-weight:900; text-transform:uppercase; letter-spacing:2px; }
+      .header .count { color:#C4962A; font-size:14px; font-weight:700; }
+      .header button { background:linear-gradient(135deg,#C4962A,#E8B84B); color:#000; border:none; padding:10px 24px; font-weight:900; font-size:13px; text-transform:uppercase; letter-spacing:1px; border-radius:4px; cursor:pointer; }
+      .labels { padding:24px; display:flex; flex-direction:column; gap:24px; max-width:900px; margin:0 auto; }
+      .label-page { background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.5); }
+      .label-header { background:#1a1a1a; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; }
+      .label-id { color:#C4962A; font-weight:900; font-size:14px; letter-spacing:1px; }
+      .label-client { color:#9ca3af; font-size:13px; }
+      .label-page embed { display:block; width:100%; height:600px; border:none; }
+      @media print {
+        body { background:#fff; }
+        .header { display:none; }
+        .labels { padding:0; gap:0; }
+        .label-page { box-shadow:none; border-radius:0; page-break-after:always; }
+        .label-header { display:none; }
+        .label-page embed { height:100vh; }
+      }
+    </style></head><body>
+      <div class="header">
+        <div>
+          <h1>Étiquettes GLS</h1>
+          <span class="count">${labels.length} étiquette${labels.length > 1 ? 's' : ''} prête${labels.length > 1 ? 's' : ''}</span>
+        </div>
+        <button onclick="window.print()">🖨️ Imprimer tout</button>
+      </div>
+      <div class="labels">${pages}</div>
+    </body></html>`
+    const win = window.open('', '_blank')
+    if (!win) { alert('Veuillez autoriser les popups pour imprimer'); return }
+    win.document.write(html)
+    win.document.close()
   }
 
 
