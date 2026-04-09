@@ -4,7 +4,9 @@ import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { verifyAdmin } from '../../../../lib/adminAuth'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY)
+}
 
 export async function POST(request) {
   const auth = verifyAdmin(request)
@@ -48,7 +50,7 @@ export async function POST(request) {
   try {
     const results = await Promise.allSettled(
       destinataires.map(dest =>
-        resend.emails.send({
+        getResend().emails.send({
           from: `ACA Wholesale <onboarding@resend.dev>`,
           to: dest.email,
           subject: sujet,
