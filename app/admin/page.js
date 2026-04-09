@@ -65,7 +65,7 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#0a0500' }}>
+    <div className="min-h-screen flex overflow-x-hidden max-w-[100vw]" style={{ background: '#0a0500' }}>
       <aside className="hidden md:flex flex-col w-60 border-r border-white/10 p-5" style={{ background: 'rgba(15,10,0,0.95)' }}>
         <div className="mb-8">
           <Image src="/logo.png" alt="ACA Wholesale" width={120} height={40} className="h-9 w-auto object-contain" />
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
         </button>
       </aside>
 
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
         <header className="flex items-center justify-between px-5 py-4 border-b border-white/10" style={{ background: 'rgba(10,6,0,0.9)' }}>
           <div className="flex items-center gap-3">
             <button className="md:hidden text-white" onClick={() => setMenuOpen(!menuOpen)}>
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        <main className="flex-1 p-5 md:p-8" id="main-content" tabIndex={-1}>
+        <main className="flex-1 p-3 md:p-8 min-w-0 overflow-x-hidden" id="main-content" tabIndex={-1}>
           {activeTab === 'accueil' && <DashboardHome setActiveTab={setActiveTab} />}
           {activeTab === 'commandes' && <CommandesTab />}
           {activeTab === 'clients' && <ClientsTab />}
@@ -684,7 +684,7 @@ function CommandesTab() {
       {orders.filter(o => o.status === 'À expédier').length > 0 && checked.length === 0 && (
         <button
           onClick={() => printAllGLS(orders.filter(o => o.status === 'À expédier'))}
-          className="mb-4 w-full text-black text-sm px-5 py-3 font-black uppercase tracking-wide rounded-xl flex items-center justify-center gap-2"
+          className="mb-4 w-full text-black text-xs md:text-sm px-3 md:px-5 py-3 font-black uppercase tracking-wide rounded-xl flex items-center justify-center gap-2"
           style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}
         >
           🖨️ Imprimer à expédier ({orders.filter(o => o.status === 'À expédier').length})
@@ -692,7 +692,7 @@ function CommandesTab() {
       )}
 
       {/* Filtres statut avec compteurs */}
-      <div className="flex gap-2 mb-4 flex-wrap">
+      <div className="flex gap-1.5 md:gap-2 mb-4 flex-wrap overflow-x-auto">
         <button onClick={() => setFiltreStatut('Tous')} className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all flex items-center gap-1.5" style={filtreStatut === 'Tous' ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' } : { background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)' }}>
           Tous <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={filtreStatut === 'Tous' ? { background: 'rgba(0,0,0,0.2)' } : { background: 'rgba(255,255,255,0.08)' }}>{orders.length}</span>
         </button>
@@ -738,7 +738,7 @@ function CommandesTab() {
       </div>
 
       {/* Barre résultats + tri + actions groupées */}
-      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2 overflow-hidden">
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={checked.length === filteredOrders.length && filteredOrders.length > 0} onChange={toggleAll} className="w-4 h-4 accent-yellow-500" />
@@ -749,7 +749,7 @@ function CommandesTab() {
           )}
         </div>
         <select value={triPar} onChange={e => setTriPar(e.target.value)} className="text-white text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
-          <option value="date-desc">Date ↓ (récenu9</option>
+          <option value="date-desc">Date ↓ (récent)</option>
           <option value="date-asc">Date ↑ (ancien)</option>
           <option value="montant-desc">Montant ↓</option>
           <option value="montant-asc">Montant ↑</option>
