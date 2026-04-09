@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { verifyAdmin } from '../../../lib/adminAuth'
 
 function getSupabase() {
   return createClient(
@@ -10,7 +11,10 @@ function getSupabase() {
   )
 }
 
-export async function GET() {
+export async function GET(req) {
+  const auth = verifyAdmin(req)
+  if (!auth.authenticated) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
   try {
     const supabase = getSupabase()
     const { data, error } = await supabase
@@ -51,6 +55,9 @@ export async function GET() {
 }
 
 export async function PATCH(req) {
+  const auth = verifyAdmin(req)
+  if (!auth.authenticated) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
   try {
     const { id, updates } = await req.json()
     const supabase = getSupabase()

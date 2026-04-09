@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { verifyAdmin } from '../../../../../lib/adminAuth'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
@@ -9,6 +10,9 @@ function getSupabase() {
 // PATCH /api/admin/orders/update-tracking
 // Body: { orderId, glsTrackId, status }
 export async function PATCH(req) {
+  const auth = verifyAdmin(req)
+  if (!auth.authenticated) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
   try {
     const body = await req.json()
     const { orderId, glsTrackId, status } = body
@@ -40,6 +44,9 @@ export async function PATCH(req) {
 
 // GET /api/admin/orders/update-tracking?limit=50&offset=0
 export async function GET(req) {
+  const auth = verifyAdmin(req)
+  if (!auth.authenticated) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
   try {
     const { searchParams } = new URL(req.url)
     const limit = parseInt(searchParams.get('limit') || '50')

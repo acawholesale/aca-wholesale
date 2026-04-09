@@ -2,10 +2,14 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { verifyAdmin } from '../../../../lib/adminAuth'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request) {
+  const auth = verifyAdmin(request)
+  if (!auth.authenticated) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
   const { destinataires, sujet, contenu, expediteur } = await request.json()
 
   if (!destinataires || destinataires.length === 0) {
