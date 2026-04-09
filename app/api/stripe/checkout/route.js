@@ -1,8 +1,13 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { createClient } from '@supabase/supabase-js'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+
+function getSupabase() {
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
+}
 
 export async function POST(req) {
   try {
@@ -10,6 +15,37 @@ export async function POST(req) {
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: 'Panier vide' }, { status: 400 })
+    }
+
+    // Check stock availability
+    const supabase = getSupabase()
+    const productIds = items.map(i => i.id).filter(Boolean)
+    if (productIds.length > 0) {
+      const { data: products } = await supabase
+        .from('products')
+        .select('id, name, stock')
+        .in('id', productIds)
+
+      if (products) {
+        const outOfStock = []
+        for (const item of items) {
+          const dbProduct = products.find(p => p.id === item.id)
+          if (dbProduct && dbProduct.stock < (item.qty || 1)) {
+            outOfStock.push({
+              id: item.id,
+              name: item.name,
+              requested: item.qty || 1,
+              available: dbProduct.stock,
+            })
+          }
+        }
+        if (outOfStock.length > 0) {
+          return NextResponse.json({
+            error: 'Stock insuffisant',
+            outOfStock,
+          }, { status: 400 })
+        }
+      }
     }
 
     // Generate order ID
