@@ -63,7 +63,7 @@ function LoginContent() {
     outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s',
   }
   const labelStyle = {
-    display: 'block', fontSize: '11px', fontWeight: 900, color: '#6b7280',
+    display: 'block', fontSize: '11px', fontWeight: 900, color: '#9ca3af',
     textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px',
   }
 
@@ -78,7 +78,7 @@ function LoginContent() {
           <h1 style={{ fontSize: '22px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', textAlign: 'center' }}>
             Connexion
           </h1>
-          <p style={{ color: '#6b7280', fontSize: '13px', textAlign: 'center', marginBottom: '28px' }}>
+          <p style={{ color: '#9ca3af', fontSize: '13px', textAlign: 'center', marginBottom: '28px' }}>
             Accédez à votre espace revendeur
           </p>
 
@@ -118,7 +118,7 @@ function LoginContent() {
           </form>
         </div>
 
-        <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '13px', marginTop: '20px' }}>
+        <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '13px', marginTop: '20px' }}>
           Pas encore de compte ?{' '}
           <Link href="/register" style={{ color: '#C4962A', fontWeight: 700, textDecoration: 'none' }}>
             Créer un compte →

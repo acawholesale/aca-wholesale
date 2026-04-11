@@ -90,17 +90,17 @@ export default function Navbar() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="alert-modal-title"
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-overlay-heavy backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-overlay-heavy backdrop-blur-sm modal-overlay"
           onClick={() => setAlertModal(false)}
           onKeyDown={handleAlertKeyDown}
         >
           <div
-            className="w-full max-w-sm p-6 rounded-lg bg-card border border-gold-medium"
+            className="w-full max-w-sm p-6 rounded-lg bg-card border border-gold-medium modal-content"
             onClick={e => e.stopPropagation()}
           >
             <div className="text-2xl mb-3 text-center">🔥</div>
             <h3 id="alert-modal-title" className="font-black text-white text-center uppercase tracking-wide mb-1">Alerte drop</h3>
-            <p className="text-gray-400 text-xs text-center mb-4">Soyez alerté dès que le prochain drop est en ligne</p>
+            <p className="text-gray-300 text-xs text-center mb-4">Soyez alerté dès que le prochain drop est en ligne</p>
             {alertSent ? (
               <div className="text-center py-2">
                 <div className="text-green-400 font-black text-sm">✓ Vous serez alerté !</div>
@@ -133,7 +133,7 @@ export default function Navbar() {
           role="dialog"
           aria-modal="true"
           aria-label="Recherche"
-          className="fixed inset-0 z-[99] flex items-start justify-center pt-24 px-4 bg-black/90 backdrop-blur-md"
+          className="fixed inset-0 z-[99] flex items-start justify-center pt-24 px-4 bg-black/90 backdrop-blur-md modal-overlay"
           onClick={() => setSearchOpen(false)}
           onKeyDown={handleSearchKeyDown}
         >

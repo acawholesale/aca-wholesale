@@ -22,10 +22,10 @@ export default function WhyUsSection() {
           <div className="bg-overlay-dark p-6 md:p-12">
             <div className="text-xs font-black uppercase tracking-widest mb-3 text-gold">Pourquoi ACA Wholesale ?</div>
             <h2 className="text-xl md:text-3xl font-black text-white mb-6 uppercase leading-tight">Un fournisseur fiable, pensé pour les revendeurs</h2>
-            <p className="text-gray-400 leading-relaxed mb-4 text-sm">
+            <p className="text-gray-300 leading-relaxed mb-4 text-sm">
               Après plusieurs années dans la revente de vêtements, nous avons créé ACA Wholesale pour répondre à un vrai besoin : proposer aux revendeurs des lots de qualité, sélectionnés avec soin, avec un bon potentiel de revente.
             </p>
-            <p className="text-gray-400 leading-relaxed mb-6 text-sm">
+            <p className="text-gray-300 leading-relaxed mb-6 text-sm">
               Basés en Moselle, nous travaillons chaque jour pour offrir un service sérieux, transparent et efficace.
             </p>
             <div className="space-y-2 mb-8">
@@ -44,7 +44,7 @@ export default function WhyUsSection() {
             <div className="text-center">
               <div className="text-6xl mb-6">📦</div>
               <p className="text-white font-black text-lg uppercase">Notre entrepôt en Moselle</p>
-              <p className="text-gray-400 text-sm mt-2">Tri, sélection et expédition depuis la France</p>
+              <p className="text-gray-300 text-sm mt-2">Tri, sélection et expédition depuis la France</p>
               <div className="mt-8 grid grid-cols-2 gap-3">
                 {warehouseFeatures.map((b) => (
                   <div key={b.text} className="glass-card rounded-md p-3 text-center">

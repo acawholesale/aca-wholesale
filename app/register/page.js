@@ -63,7 +63,7 @@ export default function Register() {
     outline: 'none', boxSizing: 'border-box',
   }
   const labelStyle = {
-    display: 'block', fontSize: '11px', fontWeight: 900, color: '#6b7280',
+    display: 'block', fontSize: '11px', fontWeight: 900, color: '#9ca3af',
     textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px',
   }
 

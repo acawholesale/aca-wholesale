@@ -14,7 +14,7 @@ export default function TrustBar() {
             <div key={item.title} className="text-center px-4 py-2">
               <div className="text-xl md:text-2xl mb-1">{item.emoji}</div>
               <div className="font-bold text-xs md:text-sm text-white uppercase tracking-wide">{item.title}</div>
-              <div className="text-[10px] md:text-xs text-gray-400 mt-0.5">{item.sub}</div>
+              <div className="text-[10px] md:text-xs text-gray-300 mt-0.5">{item.sub}</div>
             </div>
           ))}
         </div>

@@ -109,7 +109,7 @@ export default function ProductCard({ product }) {
           <h3 className="font-black text-xs md:text-sm mb-1 text-white uppercase tracking-wide hover:text-[#E8B84B] transition-colors line-clamp-2">
             {product.name}
           </h3>
-          <p className="text-[10px] md:text-xs text-gray-400 mb-2">{product.description}</p>
+          <p className="text-[11px] md:text-xs text-gray-300 mb-2 line-clamp-2">{product.description}</p>
 
           {/* Stars */}
           <div className="flex items-center gap-0.5 mb-2">
@@ -122,21 +122,21 @@ export default function ProductCard({ product }) {
           {/* Price block */}
           <div className="mb-2">
             <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="font-black text-base md:text-lg text-white">{product.price}€</span>
+              <span className="font-black text-lg md:text-xl text-white">{product.price}€</span>
               {product.originalPrice && (
-                <span className="text-xs text-gray-500 line-through" aria-label={`Prix original ${product.originalPrice}€`}>{product.originalPrice}€</span>
+                <span className="text-xs text-gray-400 line-through" aria-label={`Prix original ${product.originalPrice}€`}>{product.originalPrice}€</span>
               )}
               {discount && (
-                <span className="text-[10px] bg-red-600 text-white font-black px-1.5 py-0.5">
+                <span className="text-[10px] bg-red-600 text-white font-black px-1.5 py-0.5 rounded-sm">
                   -{discount}%
                 </span>
               )}
             </div>
             {pricePerPiece && (
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-gray-400">~{pricePerPiece}€/pièce</span>
+                <span className="text-[11px] text-gray-400">~{pricePerPiece}€/pièce</span>
                 {product.vinteMin && product.vinteMax && (
-                  <span className="text-[10px] text-gold-light">
+                  <span className="text-[11px] text-gold-light font-medium">
                     revente {product.vinteMin}-{product.vinteMax}€
                   </span>
                 )}
@@ -149,23 +149,18 @@ export default function ProductCard({ product }) {
         <div className="flex gap-1.5">
           <Link
             href={`/produits/${product.id}`}
-            className="flex-1 text-center border text-gray-300 text-xs py-2.5 font-bold uppercase tracking-wide rounded-sm transition-colors bg-overlay-light border-glass focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1"
+            className="flex-1 text-center border text-gray-300 text-xs py-3 font-bold uppercase tracking-wide rounded-sm transition-all hover:text-white hover:border-white/30 bg-overlay-light border-glass cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1"
           >
             Détails
           </Link>
           <button
             onClick={handleAdd}
             disabled={isSoldOut}
-            className={`flex-1 text-center text-xs py-2.5 font-black transition-all duration-300 uppercase tracking-wide rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1${
-              !isSoldOut && !added ? ' bg-gold-gradient text-black' : ''
+            className={`flex-1 text-center text-xs py-3 font-black transition-all duration-300 uppercase tracking-wide rounded-sm cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1${
+              isSoldOut ? ' bg-white/[0.08] text-gray-500 cursor-not-allowed' :
+              added ? ' bg-green-600 text-white' :
+              ' btn-gold'
             }`}
-            style={
-              isSoldOut
-                ? { background: 'rgba(255,255,255,0.08)', color: '#666', cursor: 'not-allowed' }
-                : added
-                ? { background: '#16a34a', color: '#fff' }
-                : undefined
-            }
           >
             {isSoldOut ? 'Épuisé' : added ? '✓ Ajouté' : '+ Panier'}
           </button>

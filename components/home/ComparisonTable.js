@@ -39,7 +39,7 @@ export default function ComparisonTable() {
             Nos gammes
           </span>
           <h2 className="text-2xl md:text-4xl font-black uppercase text-white mb-2">CHOISISSEZ VOTRE NIVEAU</h2>
-          <p className="text-gray-400 text-sm">Des lots adaptés à chaque type de revendeur</p>
+          <p className="text-gray-300 text-sm">Des lots adaptés à chaque type de revendeur</p>
         </div>
         <div className="grid grid-cols-3 gap-0 rounded overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
           {tiers.map((tier, i) => (
@@ -78,7 +78,7 @@ export default function ComparisonTable() {
                   className="px-3 py-3 text-center"
                   style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
                 >
-                  <div className="text-[10px] text-gray-400 uppercase tracking-wide mb-0.5">{row.label}</div>
+                  <div className="text-[10px] text-gray-300 uppercase tracking-wide mb-0.5">{row.label}</div>
                   <div className={`text-xs font-bold ${tier.highlighted ? 'text-gold-light' : 'text-white'}`}>{row.val}</div>
                 </div>
               ))}

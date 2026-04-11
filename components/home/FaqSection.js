@@ -45,7 +45,7 @@ export default function FaqSection() {
                   aria-labelledby={triggerId}
                   className={`faq-answer ${isOpen ? 'open' : ''}`}
                 >
-                  <p className="px-4 md:px-5 pb-4 md:pb-5 text-gray-400 text-sm leading-relaxed">{item.a}</p>
+                  <p className="px-4 md:px-5 pb-4 md:pb-5 text-gray-300 text-sm leading-relaxed">{item.a}</p>
                 </div>
               </div>
             )

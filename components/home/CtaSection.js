@@ -9,7 +9,7 @@ export default function CtaSection() {
           <h2 className="text-2xl md:text-5xl font-black uppercase text-white mb-4 leading-tight">
             Prêt à développer<br />votre activité ?
           </h2>
-          <p className="text-gray-400 text-sm md:text-base mb-8 max-w-xl mx-auto">
+          <p className="text-gray-300 text-sm md:text-base mb-8 max-w-xl mx-auto">
             Accédez à des lots de vêtements de marque sélectionnés avec soin, expédiés rapidement depuis la France.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

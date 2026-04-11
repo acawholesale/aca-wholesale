@@ -28,7 +28,7 @@ export default function CategoriesSection() {
             >
               <div className="text-2xl md:text-3xl mb-2 md:mb-3">{cat.emoji}</div>
               <h3 className="font-bold text-[10px] md:text-xs mb-0.5 text-white uppercase tracking-wide">{cat.name}</h3>
-              <p className="text-[10px] text-gray-400">{cat.count} lots</p>
+              <p className="text-[10px] text-gray-300">{cat.count} lots</p>
             </Link>
           ))}
         </div>
