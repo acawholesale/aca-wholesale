@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../lib/supabase'
 
 const statusColor = {
   'Payé':       { color: '#f97316', bg: 'rgba(249,115,22,0.1)',  border: 'rgba(249,115,22,0.25)' },
@@ -60,11 +61,22 @@ export default function Compte() {
   useEffect(() => {
     if (!session?.email) return
     setOrdersLoading(true)
-    fetch('/api/orders/customer?email=' + encodeURIComponent(session.email))
-      .then(r => r.json())
-      .then(data => { setOrders(data.orders || []) })
-      .catch(err => console.error('Orders fetch error:', err))
-      .finally(() => setOrdersLoading(false))
+    ;(async () => {
+      try {
+        const { data: { session: s } } = await supabase.auth.getSession()
+        const token = s?.access_token
+        if (!token) { setOrdersLoading(false); return }
+        const res = await fetch('/api/orders/customer?email=' + encodeURIComponent(session.email), {
+          headers: { 'Authorization': 'Bearer ' + token }
+        })
+        const data = await res.json()
+        setOrders(data.orders || [])
+      } catch (err) {
+        console.error('Orders fetch error:', err)
+      } finally {
+        setOrdersLoading(false)
+      }
+    })()
   }, [session?.email])
 
   const handleLogout = async () => {
@@ -85,7 +97,12 @@ export default function Compte() {
 
       // If it's an ACA order ID, look up the GLS tracking number first
       if (ref.startsWith('ACA-')) {
-        const lookupRes = await fetch('/api/orders/customer?orderId=' + encodeURIComponent(ref))
+        const { data: { session: s } } = await supabase.auth.getSession()
+        const token = s?.access_token
+        if (!token) { setTrackError('Veuillez vous reconnecter.'); setTrackLoading(false); return }
+        const lookupRes = await fetch('/api/orders/customer?orderId=' + encodeURIComponent(ref), {
+          headers: { 'Authorization': 'Bearer ' + token }
+        })
         const lookupData = await lookupRes.json()
         const order = (lookupData.orders || [])[0]
         if (!order) { setTrackError('Commande introuvable.'); setTrackLoading(false); return }

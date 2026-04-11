@@ -1,13 +1,25 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { verifyAdmin } from '../../../../lib/adminAuth'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
 }
 
+// Verify Supabase auth token and return user email
+async function getAuthenticatedEmail(req) {
+  const authHeader = req.headers.get('authorization') || ''
+  const token = authHeader.replace('Bearer ', '')
+  if (!token) return null
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
+  const { data: { user }, error } = await supabase.auth.getUser(token)
+  if (error || !user) return null
+  return user.email
+}
+
 // GET /api/orders/customer?email=xxx
-// Returns all orders for a given customer email
+// Returns all orders for the authenticated customer, or any customer for admin
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url)
@@ -16,6 +28,21 @@ export async function GET(req) {
 
     if (!email && !orderId) {
       return NextResponse.json({ error: 'email or orderId required' }, { status: 400 })
+    }
+
+    // Auth check: must be logged-in customer or admin
+    const admin = verifyAdmin(req)
+    const authenticatedEmail = await getAuthenticatedEmail(req)
+
+    if (!admin.authenticated && !authenticatedEmail) {
+      return NextResponse.json({ error: 'Authentification requise' }, { status: 401 })
+    }
+
+    // Non-admin can only query their own orders
+    if (!admin.authenticated) {
+      if (email && email.toLowerCase() !== authenticatedEmail.toLowerCase()) {
+        return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 })
+      }
     }
 
     const supabase = getSupabase()
@@ -27,12 +54,21 @@ export async function GET(req) {
     if (orderId) {
       query = query.eq('id', orderId)
     } else {
-      query = query.ilike('email', email.trim())
+      // Non-admin: force query to their own email only
+      query = query.ilike('email', admin.authenticated ? email.trim() : authenticatedEmail)
     }
 
     const { data, error } = await query
 
     if (error) throw error
+
+    // Non-admin querying by orderId: verify they own the order
+    if (orderId && !admin.authenticated && data?.length > 0) {
+      const order = data[0]
+      if (order.email?.toLowerCase() !== authenticatedEmail.toLowerCase()) {
+        return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 })
+      }
+    }
 
     const orders = (data || []).map(o => ({
       id: o.id,
