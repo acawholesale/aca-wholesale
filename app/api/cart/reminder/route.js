@@ -32,11 +32,14 @@ async function sendEmail(to, { subject, html }) {
 
 export async function POST(request) {
   try {
-    // Vérification du secret CRON
+    // Vérification du secret CRON (header OU body pour rétrocompatibilité QStash)
     const body = await request.json()
     const { email, type, secret } = body
+    const authHeader = request.headers.get('authorization')
+    const headerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+    const cronSecret = process.env.CRON_SECRET
 
-    if (!secret || secret !== process.env.CRON_SECRET) {
+    if (!cronSecret || (secret !== cronSecret && headerToken !== cronSecret)) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
     if (!email || !type) {

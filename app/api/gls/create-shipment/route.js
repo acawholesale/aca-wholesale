@@ -137,8 +137,8 @@ export async function POST(request) {
       const errorText = await response.text()
       console.error('GLS API error:', response.status, errorText)
       return NextResponse.json(
-        { error: `Erreur GLS (${response.status}): ${errorText}` },
-        { status: response.status }
+        { error: 'Erreur lors de la création de l\'envoi GLS. Vérifiez les données de la commande.' },
+        { status: 502 }
       )
     }
 

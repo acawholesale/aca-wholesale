@@ -155,10 +155,14 @@ export async function POST(req) {
       const items = reservation.items_json || []
       for (const item of items) {
         if (item.id) {
-          await supabase.rpc('release_stock', {
-            p_id: item.id,
-            p_qty: parseInt(item.qty) || 1,
-          })
+          try {
+            await supabase.rpc('release_stock', {
+              p_id: item.id,
+              p_qty: parseInt(item.qty) || 1,
+            })
+          } catch (releaseErr) {
+            logError('webhook', `Failed to release stock for item ${item.id}: ${releaseErr.message}`)
+          }
         }
       }
       await supabase

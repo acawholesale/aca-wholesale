@@ -8,6 +8,11 @@ function getResend() {
   return new Resend(process.env.RESEND_API_KEY)
 }
 
+function escapeHtml(str) {
+  if (!str) return ''
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
 export async function POST(request) {
   const auth = verifyAdmin(request)
   if (!auth.authenticated) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -31,7 +36,7 @@ export async function POST(request) {
         </div>
         <!-- Content -->
         <div style="padding:40px 32px;background:#111;border-left:1px solid rgba(196,150,42,0.2);border-right:1px solid rgba(196,150,42,0.2);">
-          <div style="color:#e5e7eb;font-size:15px;line-height:1.8;white-space:pre-wrap;">${contenu}</div>
+          <div style="color:#e5e7eb;font-size:15px;line-height:1.8;white-space:pre-wrap;">${escapeHtml(contenu)}</div>
         </div>
         <!-- CTA -->
         <div style="padding:24px 32px;background:#111;text-align:center;border-left:1px solid rgba(196,150,42,0.2);border-right:1px solid rgba(196,150,42,0.2);">
@@ -64,6 +69,7 @@ export async function POST(request) {
 
     return NextResponse.json({ success: true, succes, echecs, total: destinataires.length })
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Campaign send error:', error)
+    return NextResponse.json({ error: 'Erreur lors de l\'envoi de la campagne' }, { status: 500 })
   }
 }

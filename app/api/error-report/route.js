@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
+import { rateLimit } from '../../../lib/ratelimit'
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'contact@aca-wholesale.com'
 const FROM = process.env.RESEND_FROM || 'ACA Wholesale <noreply@aca-wholesale.com>'
@@ -11,20 +12,16 @@ function escapeHtml(str) {
 
 export async function POST(req) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const rl = await rateLimit(ip, 'error-report', { limit: 10, window: 60 })
+    if (!rl.success) {
+      return NextResponse.json({ ok: true, throttled: true })
+    }
+
     const { message, stack, url, userAgent, timestamp } = await req.json()
 
     if (!message) {
       return NextResponse.json({ error: 'message required' }, { status: 400 })
-    }
-
-    // Rate limit: max 10 error reports per minute (simple in-memory)
-    if (!global._errorReportCount) global._errorReportCount = { count: 0, reset: Date.now() }
-    if (Date.now() - global._errorReportCount.reset > 60000) {
-      global._errorReportCount = { count: 0, reset: Date.now() }
-    }
-    global._errorReportCount.count++
-    if (global._errorReportCount.count > 10) {
-      return NextResponse.json({ ok: true, throttled: true })
     }
 
     if (!process.env.RESEND_API_KEY) {

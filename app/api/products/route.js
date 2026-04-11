@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { rateLimit } from '../../../lib/ratelimit'
 
 function getSupabase() {
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const url = process.env.SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_KEY
   if (!url || !key) return null
   return createClient(url, key)
 }
@@ -13,6 +14,16 @@ function getSupabase() {
 // GET /api/products?id=1 — get single product
 export async function GET(req) {
   try {
+    // Rate limit: 30 requests per minute per IP
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const rl = await rateLimit(ip, 'products', { limit: 30, window: 60 })
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Trop de requêtes. Réessayez dans une minute.' },
+        { status: 429, headers: { 'Retry-After': '60' } }
+      )
+    }
+
     const supabase = getSupabase()
     if (!supabase) {
       return NextResponse.json({ source: 'static', error: 'Supabase not configured' }, { status: 500 })

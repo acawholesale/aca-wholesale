@@ -70,7 +70,7 @@ export function CartProvider({ children }) {
           email:  sess.email,
           prenom: sess.prenom || '',
           nom:    sess.nom    || '',
-          items:  cartItems,
+          products: cartItems,
           total,
         }),
       })

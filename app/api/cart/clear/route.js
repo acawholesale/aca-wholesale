@@ -30,7 +30,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Adresse email invalide.' }, { status: 400 })
     }
 
-    await redis.del(`aca_cart:${email}`)
+    await redis.del(`cart:${email}`)
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('cart/clear error:', err)

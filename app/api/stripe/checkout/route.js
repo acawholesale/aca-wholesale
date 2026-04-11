@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import crypto from 'crypto'
 import { createClient } from '@supabase/supabase-js'
 import { logError } from '../../../../lib/errorLog'
+import { rateLimit } from '../../../../lib/ratelimit'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -11,6 +13,16 @@ function getSupabase() {
 }
 
 export async function POST(req) {
+  // Rate limit: 5 checkout attempts per 5 minutes per IP
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  const rl = await rateLimit(ip, 'checkout', { limit: 5, window: 300 })
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Trop de tentatives. Réessayez dans quelques minutes.' },
+      { status: 429, headers: { 'Retry-After': '300' } }
+    )
+  }
+
   const supabase = getSupabase()
   const reserved = []
 
@@ -75,9 +87,9 @@ export async function POST(req) {
       reserved.push({ id: item.id, qty })
     }
 
-    // Generate order ID
+    // Generate order ID (cryptographically random, non-guessable)
     const year = new Date().getFullYear()
-    const rand = String(Math.floor(Math.random() * 90000) + 10000)
+    const rand = crypto.randomUUID().slice(0, 8).toUpperCase()
     const orderId = 'ACA-' + year + '-' + rand
 
     // Build line items for Stripe using DB prices (never trust client prices)

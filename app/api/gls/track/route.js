@@ -1,9 +1,20 @@
 export const dynamic = 'force-dynamic'
 // app/api/gls/track/route.js
 import { NextResponse } from 'next/server'
+import { rateLimit } from '../../../../lib/ratelimit'
 
 export async function GET(request) {
   try {
+    // Rate limit: 20 tracking requests per minute per IP
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const rl = await rateLimit(ip, 'gls-track', { limit: 20, window: 60 })
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Trop de requêtes. Réessayez dans une minute.' },
+        { status: 429, headers: { 'Retry-After': '60' } }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
     const trackID = searchParams.get('id') || searchParams.get('parcelNumber')
 
@@ -59,7 +70,7 @@ export async function GET(request) {
 
   } catch (err) {
     console.error('GLS track error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur lors du suivi du colis' }, { status: 500 })
   }
 }
 
