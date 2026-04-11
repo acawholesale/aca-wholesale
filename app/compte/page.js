@@ -148,6 +148,19 @@ export default function Compte() {
     { id: 'profile',   label: '👤 Mon profil' },
   ]
 
+  const openInvoice = async (orderId) => {
+    const { data: { session: s } } = await supabase.auth.getSession()
+    const token = s?.access_token
+    if (!token) return
+    const res = await fetch('/api/orders/invoice?id=' + encodeURIComponent(orderId), {
+      headers: { 'Authorization': 'Bearer ' + token }
+    })
+    if (!res.ok) return
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    window.open(url, '_blank')
+  }
+
   const tsl = trackResult ? (trackStatusLabel[trackResult.status] || { label: trackResult.status, icon: '📍', color: '#9ca3af' }) : null
 
   return (
@@ -266,9 +279,9 @@ export default function Compte() {
                   ) : (
                     <span style={{ color: '#6b7280', fontSize: 13, fontStyle: 'italic' }}>Expédition en préparation</span>
                   )}
-                  <a href={'/api/orders/invoice?id=' + o.id + '&email=' + encodeURIComponent(session?.email || '')} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ background: 'rgba(255,255,255,0.06)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px 16px', fontSize: 13, cursor: 'pointer', fontWeight: 600, textDecoration: 'none' }}>
+                  <button onClick={(e) => { e.stopPropagation(); openInvoice(o.id) }} style={{ background: 'rgba(255,255,255,0.06)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px 16px', fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>
                     Facture
-                  </a>
+                  </button>
                 </div>
               </div>
             ))}
@@ -430,9 +443,9 @@ export default function Compte() {
 
             {/* Actions */}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <a href={'/api/orders/invoice?id=' + selectedOrder.id + '&email=' + encodeURIComponent(session?.email || '')} target="_blank" rel="noopener noreferrer" style={{ flex: 1, background: 'rgba(255,255,255,0.06)', color: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: '12px 16px', fontSize: 14, cursor: 'pointer', fontWeight: 700, textDecoration: 'none', textAlign: 'center' }}>
+              <button onClick={() => openInvoice(selectedOrder.id)} style={{ flex: 1, background: 'rgba(255,255,255,0.06)', color: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: '12px 16px', fontSize: 14, cursor: 'pointer', fontWeight: 700, textAlign: 'center' }}>
                 Facture
-              </a>
+              </button>
               <button onClick={() => setSelectedOrder(null)} style={{ flex: 1, background: 'none', color: '#6b7280', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px 16px', fontSize: 14, cursor: 'pointer', fontWeight: 600 }}>
                 Fermer
               </button>

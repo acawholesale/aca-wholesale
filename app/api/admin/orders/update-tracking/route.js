@@ -54,7 +54,7 @@ export async function PATCH(req) {
     return NextResponse.json({ success: true, order: data })
   } catch (err) {
     console.error('update-tracking error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur lors de la mise à jour du suivi' }, { status: 500 })
   }
 }
 
@@ -115,6 +115,6 @@ export async function GET(req) {
     return NextResponse.json({ orders: data || [], total: count })
   } catch (err) {
     console.error('list orders error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur lors de la récupération des commandes' }, { status: 500 })
   }
 }

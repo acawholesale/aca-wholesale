@@ -91,6 +91,6 @@ export async function GET(req) {
     return NextResponse.json({ orders })
   } catch (err) {
     console.error('Customer orders error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur lors de la récupération des commandes' }, { status: 500 })
   }
 }

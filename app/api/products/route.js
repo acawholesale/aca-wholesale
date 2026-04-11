@@ -40,7 +40,7 @@ export async function GET(req) {
     return NextResponse.json({ products: (data || []).map(formatProduct) })
   } catch (err) {
     console.error('Products API error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur lors de la récupération des produits' }, { status: 500 })
   }
 }
 
@@ -74,7 +74,7 @@ export async function PATCH(req) {
     return NextResponse.json({ success: true, product: formatProduct(data) })
   } catch (err) {
     console.error('Products PATCH error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur lors de la mise à jour du produit' }, { status: 500 })
   }
 }
 

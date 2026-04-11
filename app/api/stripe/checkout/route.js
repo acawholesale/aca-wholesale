@@ -21,6 +21,30 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Panier vide' }, { status: 400 })
     }
 
+    // Fetch real product data from DB to prevent price tampering
+    const productIds = items.map(i => i.id).filter(Boolean)
+    if (productIds.length === 0) {
+      return NextResponse.json({ error: 'Articles invalides' }, { status: 400 })
+    }
+
+    const { data: dbProducts, error: dbErr } = await supabase
+      .from('products')
+      .select('id,name,description,price,stock')
+      .in('id', productIds)
+
+    if (dbErr || !dbProducts || dbProducts.length === 0) {
+      return NextResponse.json({ error: 'Produits introuvables' }, { status: 400 })
+    }
+
+    const productMap = Object.fromEntries(dbProducts.map(p => [p.id, p]))
+
+    // Validate all items exist in DB
+    for (const item of items) {
+      if (!item.id || !productMap[item.id]) {
+        return NextResponse.json({ error: 'Produit introuvable: ' + (item.name || item.id) }, { status: 400 })
+      }
+    }
+
     // Reserve stock atomically for each item
     for (const item of items) {
       if (!item.id) continue
@@ -37,19 +61,13 @@ export async function POST(req) {
           await supabase.rpc('release_stock', { p_id: r.id, p_qty: r.qty })
         }
 
-        const { data: product } = await supabase
-          .from('products')
-          .select('stock')
-          .eq('id', item.id)
-          .single()
-
         return NextResponse.json({
           error: 'Stock insuffisant',
           outOfStock: [{
             id: item.id,
-            name: item.name,
+            name: productMap[item.id].name,
             requested: qty,
-            available: product?.stock || 0,
+            available: productMap[item.id].stock || 0,
           }],
         }, { status: 400 })
       }
@@ -62,18 +80,21 @@ export async function POST(req) {
     const rand = String(Math.floor(Math.random() * 90000) + 10000)
     const orderId = 'ACA-' + year + '-' + rand
 
-    // Build line items for Stripe
-    const lineItems = items.map(item => ({
-      price_data: {
-        currency: 'eur',
-        product_data: {
-          name: item.name,
-          description: item.description ? item.description.slice(0, 200) : undefined,
+    // Build line items for Stripe using DB prices (never trust client prices)
+    const lineItems = items.map(item => {
+      const dbProduct = productMap[item.id]
+      return {
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: dbProduct.name,
+            description: dbProduct.description ? dbProduct.description.slice(0, 200) : undefined,
+          },
+          unit_amount: Math.round(parseFloat(dbProduct.price) * 100),
         },
-        unit_amount: Math.round(item.price * 100),
-      },
-      quantity: item.qty,
-    }))
+        quantity: item.qty,
+      }
+    })
 
     const itemsSummary = items.map(i => i.name + ' x' + i.qty).join(', ').slice(0, 490)
 
@@ -106,7 +127,7 @@ export async function POST(req) {
     await supabase.from('stock_reservations').insert({
       stripe_session_id: session.id,
       order_id: orderId,
-      items_json: items.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
+      items_json: items.map(i => ({ id: i.id, name: productMap[i.id].name, qty: i.qty, price: parseFloat(productMap[i.id].price) })),
       customer_json: customer,
     })
 
@@ -116,6 +137,6 @@ export async function POST(req) {
       await supabase.rpc('release_stock', { p_id: r.id, p_qty: r.qty }).catch(() => {})
     }
     logError('checkout', 'Stripe checkout error: ' + error.message)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur lors de la création du paiement' }, { status: 500 })
   }
 }

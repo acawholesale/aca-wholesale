@@ -7,10 +7,19 @@ function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
 }
 
+async function getAuthenticatedEmail(req) {
+  const authHeader = req.headers.get('authorization') || ''
+  const token = authHeader.replace('Bearer ', '')
+  if (!token) return null
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
+  const { data: { user }, error } = await supabase.auth.getUser(token)
+  if (error || !user) return null
+  return user.email
+}
+
 export async function GET(req) {
   const { searchParams } = new URL(req.url)
   const orderId = searchParams.get('id')
-  const customerEmail = searchParams.get('email')
 
   if (!orderId) {
     return NextResponse.json({ error: 'id required' }, { status: 400 })
@@ -28,9 +37,10 @@ export async function GET(req) {
   }
 
   const admin = verifyAdmin(req)
-  const isOwner = customerEmail && order.email && customerEmail.toLowerCase() === order.email.toLowerCase()
+  const authenticatedEmail = await getAuthenticatedEmail(req)
+  const isOwner = authenticatedEmail && order.email && authenticatedEmail.toLowerCase() === order.email.toLowerCase()
   if (!admin.authenticated && !isOwner) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    return NextResponse.json({ error: 'Authentification requise' }, { status: 401 })
   }
 
   let items = []

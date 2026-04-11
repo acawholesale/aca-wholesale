@@ -168,6 +168,6 @@ export async function POST(request) {
     })
   } catch (err) {
     console.error('GLS create-shipment error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur lors de la création de l\'envoi GLS' }, { status: 500 })
   }
 }
