@@ -11,9 +11,11 @@ export default function Panier() {
   const [form, setForm] = useState({ prenom:'',nom:'',email:'',telephone:'',adresse:'',ville:'',codePostal:'',pays:'France',activite:'',notes:'' })
   const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [checkoutError, setCheckoutError] = useState(null)
   const handleSubmit = async (e) => {
     e.preventDefault()
     setCheckoutLoading(true)
+    setCheckoutError(null)
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
@@ -22,20 +24,24 @@ export default function Panier() {
       })
       const data = await res.json()
       if (data.url) {
-        clearCart()
+        // Save cart to sessionStorage for recovery if Stripe fails, then redirect
+        try { sessionStorage.setItem('aca_checkout_cart', JSON.stringify({ items, form })) } catch {}
         window.location.href = data.url
       } else if (data.outOfStock) {
-        const msg = data.outOfStock.map(i =>
-          `${i.name} : ${i.available} disponible${i.available > 1 ? 's' : ''} (demandé : ${i.requested})`
-        ).join('\n')
-        alert('Stock insuffisant :\n\n' + msg)
+        setCheckoutError({
+          type: 'stock',
+          message: 'Stock insuffisant pour certains articles :',
+          details: data.outOfStock.map(i =>
+            `${i.name} : ${i.available} disponible${i.available > 1 ? 's' : ''} (demandé : ${i.requested})`
+          ),
+        })
         setCheckoutLoading(false)
       } else {
-        alert('Erreur paiement : ' + (data.error || 'Erreur inconnue'))
+        setCheckoutError({ type: 'payment', message: data.error || 'Une erreur est survenue lors du paiement.' })
         setCheckoutLoading(false)
       }
-    } catch (err) {
-      alert('Erreur réseau : ' + err.message)
+    } catch {
+      setCheckoutError({ type: 'network', message: 'Erreur de connexion. Vérifiez votre connexion internet et réessayez.' })
       setCheckoutLoading(false)
     }
   }
@@ -68,8 +74,8 @@ export default function Panier() {
       <div style={{ maxWidth:'520px',margin:'0 auto',padding:'80px 20px' }}>
         <div style={{ background:'#111',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'12px',padding:'48px 32px',textAlign:'center' }}>
           <div style={{ fontSize:'56px',marginBottom:'20px' }}>📋</div>
-          <h1 style={{ fontSize:'20px',fontWeight:900,color:'#fff',textTransform:'uppercase',marginBottom:'12px' }}>Votre devis est vide</h1>
-          <p style={{ color:'#6b7280',fontSize:'14px',marginBottom:'32px' }}>Ajoutez des lots à votre demande de devis.</p>
+          <h1 style={{ fontSize:'20px',fontWeight:900,color:'#fff',textTransform:'uppercase',marginBottom:'12px' }}>Votre panier est vide</h1>
+          <p style={{ color:'#6b7280',fontSize:'14px',marginBottom:'32px' }}>Parcourez nos lots et ajoutez-les à votre panier.</p>
           <Link href="/produits" style={{ display:'block',background:'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'16px',fontWeight:900,fontSize:'13px',textTransform:'uppercase',letterSpacing:'0.1em',borderRadius:'4px',textDecoration:'none' }}>Voir nos lots</Link>
         </div>
       </div>
@@ -165,8 +171,18 @@ export default function Panier() {
               </div>
               <div style={{ marginBottom:'16px' }}><label style={labelStyle}>Activité de revente</label><select name="activite" value={form.activite} onChange={handleChange} style={inputStyle}><option value="">Sélectionner...</option><option>Revendeur Vinted</option><option>Revendeur Leboncoin / Facebook</option><option>Boutique en ligne</option><option>Brocante / Vide-grenier</option><option>Autre</option></select></div>
               <div style={{ marginBottom:'24px' }}><label style={labelStyle}>Préférences de tailles / Notes</label><textarea name="notes" value={form.notes} onChange={handleChange} rows={4} style={{ ...inputStyle,resize:'vertical' }} placeholder="Indiquez vos préférences de tailles, genre (homme/femme/mixte)..."></textarea></div>
+              {checkoutError && (
+                <div style={{ background: checkoutError.type === 'stock' ? 'rgba(251,191,36,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${checkoutError.type === 'stock' ? 'rgba(251,191,36,0.3)' : 'rgba(239,68,68,0.3)'}`, borderRadius: '8px', padding: '16px', marginBottom: '16px' }}>
+                  <p style={{ color: checkoutError.type === 'stock' ? '#fbbf24' : '#ef4444', fontSize: '13px', fontWeight: 700, marginBottom: checkoutError.details ? '8px' : 0 }}>{checkoutError.message}</p>
+                  {checkoutError.details && (
+                    <ul style={{ margin: 0, paddingLeft: '16px' }}>
+                      {checkoutError.details.map((d, i) => <li key={i} style={{ color: '#9ca3af', fontSize: '12px', marginBottom: '4px' }}>{d}</li>)}
+                    </ul>
+                  )}
+                </div>
+              )}
               <div style={{ display:'flex',gap:'12px' }}>
-                <button type="button" onClick={()=>setStep('cart')} style={{ flex:1,border:'1px solid rgba(255,255,255,0.15)',background:'none',padding:'16px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',color:'#fff',borderRadius:'4px',cursor:'pointer' }}>← Retour</button>
+                <button type="button" onClick={()=>{ setStep('cart'); setCheckoutError(null) }} style={{ flex:1,border:'1px solid rgba(255,255,255,0.15)',background:'none',padding:'16px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',color:'#fff',borderRadius:'4px',cursor:'pointer' }}>← Retour</button>
                 <button type="submit" disabled={checkoutLoading} style={{ flex:2,background:checkoutLoading?'#6b7280':'linear-gradient(135deg,#C4962A,#E8B84B)',color:'#000',padding:'16px',fontWeight:900,fontSize:'12px',textTransform:'uppercase',letterSpacing:'0.1em',borderRadius:'4px',border:'none',cursor:checkoutLoading?'not-allowed':'pointer' }}>{checkoutLoading ? '⏳ Redirection...' : '💳 PAYER MAINTENANT →'}</button>
               </div>
               <p style={{ textAlign:'center',fontSize:'11px',color:'#4b5563',marginTop:'16px',textTransform:'uppercase' }}>Notre équipe vous contactera par email pour le paiement et l&apos;expédition.</p>

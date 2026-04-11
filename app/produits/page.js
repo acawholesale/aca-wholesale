@@ -1,5 +1,6 @@
 'use client'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import ProductCard from '../../components/ProductCard'
@@ -24,12 +25,27 @@ const budgetRanges = [
 ]
 
 export default function Produits() {
+  return (
+    <Suspense fallback={null}>
+      <ProduitsContent />
+    </Suspense>
+  )
+}
+
+function ProduitsContent() {
   const [products, setProducts] = useState(allProducts)
   const [activeCategory, setActiveCategory] = useState('all')
   const [sortBy, setSortBy] = useState('popular')
+  const searchParams = useSearchParams()
   const [search, setSearch] = useState('')
   const [budgetFilter, setBudgetFilter] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
+
+  // Read search query from URL (?q=...)
+  useEffect(() => {
+    const q = searchParams.get('q')
+    if (q) setSearch(q)
+  }, [searchParams])
 
   useEffect(() => {
     if (!supabase) return
