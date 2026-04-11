@@ -1016,6 +1016,12 @@ function CommandesTab() {
 function ProduitsTab() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [editing, setEditing] = useState(null)
+  const [saving, setSaving] = useState(new Set())
+  const [showAdd, setShowAdd] = useState(false)
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', stock: '', category: '', brand: '', emoji: '📦', pieces: '', weight: '2' })
+  const [addError, setAddError] = useState('')
+  const [feedback, setFeedback] = useState(null)
 
   useEffect(() => {
     fetch('/api/products')
@@ -1032,43 +1038,85 @@ function ProduitsTab() {
     return { bg: 'rgba(34,197,94,0.08)', color: '#4ade80', label: stock + ' en stock' }
   }
 
-  const exportProductsCSV = () => {
-    const escape = (v) => {
-      if (v == null) return ''
-      const s = String(v).replace(/"/g, '""')
-      return /[,;"\n]/.test(s) ? `"${s}"` : s
+  const updateProduct = async (id, updates) => {
+    setSaving(prev => new Set([...prev, id]))
+    try {
+      const res = await fetch('/api/products', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, updates }),
+      })
+      const data = await res.json()
+      if (data.success && data.product) {
+        setProducts(prev => prev.map(p => p.id === id ? data.product : p))
+        setFeedback({ id, msg: '✓ Sauvegardé' })
+        setTimeout(() => setFeedback(null), 1500)
+      }
+    } catch (e) {
+      console.error('Update error:', e)
+    } finally {
+      setSaving(prev => { const s = new Set(prev); s.delete(id); return s })
+      setEditing(null)
     }
+  }
+
+  const adjustStock = (id, delta) => {
+    const product = products.find(p => p.id === id)
+    if (!product) return
+    const newStock = Math.max(0, (product.stock || 0) + delta)
+    setProducts(prev => prev.map(p => p.id === id ? { ...p, stock: newStock } : p))
+    updateProduct(id, { stock: newStock })
+  }
+
+  const addProduct = async () => {
+    setAddError('')
+    if (!newProduct.name || !newProduct.price) { setAddError('Nom et prix obligatoires'); return }
+    try {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProduct),
+      })
+      const data = await res.json()
+      if (data.success && data.product) {
+        setProducts(prev => [...prev, data.product])
+        setShowAdd(false)
+        setNewProduct({ name: '', price: '', stock: '', category: '', brand: '', emoji: '📦', pieces: '', weight: '2' })
+      } else {
+        setAddError(data.error || 'Erreur lors de la création')
+      }
+    } catch {
+      setAddError('Erreur réseau')
+    }
+  }
+
+  const exportProductsCSV = () => {
+    const escape = (v) => { if (v == null) return ''; const s = String(v).replace(/"/g, '""'); return /[,;"\n]/.test(s) ? `"${s}"` : s }
     const headers = ['ID', 'Nom', 'Prix', 'Prix original', 'Stock', 'Catégorie', 'Marque', 'Pièces', 'Badge']
-    const rows = products.map(p => [
-      p.id, p.name, p.price, p.originalPrice || '', p.stock, p.category || '', p.brand || '', p.pieces || '', p.badge || ''
-    ].map(escape).join(','))
+    const rows = products.map(p => [p.id, p.name, p.price, p.originalPrice || '', p.stock, p.category || '', p.brand || '', p.pieces || '', p.badge || ''].map(escape).join(','))
     const csv = [headers.map(escape).join(','), ...rows].join('\n')
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `produits-${new Date().toISOString().slice(0,10)}.csv`
-    a.click()
+    const a = document.createElement('a'); a.href = url; a.download = `produits-${new Date().toISOString().slice(0,10)}.csv`; a.click()
     URL.revokeObjectURL(url)
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[300px]">
-        <p className="text-gray-500 text-sm">Chargement des produits...</p>
-      </div>
-    )
-  }
+  if (loading) return <div className="flex items-center justify-center min-h-[300px]"><p className="text-gray-500 text-sm">Chargement des produits...</p></div>
 
   const totalStock = products.reduce((s, p) => s + (p.stock || 0), 0)
   const outOfStock = products.filter(p => (p.stock || 0) <= 0).length
   const lowStock = products.filter(p => p.stock > 0 && p.stock <= 2).length
+  const inputSt = { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', padding: '10px 12px', color: '#fff', fontSize: '13px', outline: 'none', width: '100%', boxSizing: 'border-box' }
+  const labelSt = { display: 'block', color: '#9ca3af', fontWeight: 700, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
         <p className="text-gray-500 text-xs uppercase tracking-widest font-bold">Inventaire ({products.length} produits)</p>
-        <button onClick={exportProductsCSV} className="text-[10px] px-3 py-1.5 font-bold uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'rgba(255,255,255,0.07)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)' }}>📥 Export CSV</button>
+        <div className="flex gap-2">
+          <button onClick={exportProductsCSV} className="text-[11px] px-3 py-1.5 font-bold uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'rgba(255,255,255,0.07)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)' }}>📥 CSV</button>
+          <button onClick={() => setShowAdd(true)} className="text-[11px] px-4 py-1.5 font-black uppercase tracking-wide rounded-lg flex items-center gap-1 text-black" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>+ Nouveau produit</button>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-6">
@@ -1089,26 +1137,85 @@ function ProduitsTab() {
       <div className="space-y-2">
         {products.map(product => {
           const sc = stockColor(product.stock || 0)
+          const isEditing = editing === product.id
           return (
-            <div key={product.id} className="rounded-xl p-4 flex items-center gap-3" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                {product.emoji || '📦'}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-white font-bold text-sm truncate">{product.name}</span>
-                  {product.badge && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide" style={{ background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }}>{product.badge}</span>}
+            <div key={product.id} className="rounded-xl p-4 transition-all" style={{ background: feedback?.id === product.id ? 'rgba(34,197,94,0.06)' : 'rgba(15,10,0,0.85)', border: feedback?.id === product.id ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(255,255,255,0.07)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  {product.emoji || '📦'}
                 </div>
-                <p className="text-gray-500 text-xs">{product.brand || ''} • {product.category || ''} • {product.pieces || '?'} pièces • {product.weight || 2}kg</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-white font-bold text-sm truncate">{product.name}</span>
+                    {product.badge && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide" style={{ background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }}>{product.badge}</span>}
+                  </div>
+                  <p className="text-gray-500 text-xs">{product.brand || ''} • {product.category || ''} • {product.pieces || '?'} pièces • {product.weight || 2}kg</p>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  {/* Stock controls */}
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => adjustStock(product.id, -1)} disabled={saving.has(product.id)} className="w-7 h-7 rounded flex items-center justify-center text-sm font-bold text-gray-400 hover:text-white transition-colors" style={{ background: 'rgba(255,255,255,0.06)' }}>−</button>
+                    <span className="w-8 text-center text-sm font-black" style={{ color: sc.color }}>{product.stock || 0}</span>
+                    <button onClick={() => adjustStock(product.id, 1)} disabled={saving.has(product.id)} className="w-7 h-7 rounded flex items-center justify-center text-sm font-bold text-gray-400 hover:text-white transition-colors" style={{ background: 'rgba(255,255,255,0.06)' }}>+</button>
+                  </div>
+                  {/* Price */}
+                  <p className="font-black text-sm min-w-[60px] text-right" style={{ color: '#C4962A' }}>{product.price} €</p>
+                  {/* Edit button */}
+                  <button onClick={() => setEditing(isEditing ? null : product.id)} className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide" style={{ background: isEditing ? 'rgba(196,150,42,0.15)' : 'rgba(255,255,255,0.05)', color: isEditing ? '#E8B84B' : '#6b7280', border: '1px solid ' + (isEditing ? 'rgba(196,150,42,0.3)' : 'rgba(255,255,255,0.1)') }}>
+                    {isEditing ? '✕' : '✏️'}
+                  </button>
+                </div>
               </div>
-              <div className="text-right flex-shrink-0">
-                <p className="font-black text-sm" style={{ color: '#C4962A' }}>{product.price} €</p>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: sc.bg, color: sc.color }}>{sc.label}</span>
-              </div>
+              {feedback?.id === product.id && <p className="text-green-400 text-[10px] font-bold mt-1 ml-13">{feedback.msg}</p>}
+              {/* Inline edit panel */}
+              {isEditing && (
+                <div className="mt-3 pt-3 border-t border-white/10">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                    <div><label style={labelSt}>Prix (€)</label><input type="number" defaultValue={product.price} onBlur={e => { const v = parseFloat(e.target.value); if (v && v !== product.price) updateProduct(product.id, { price: v }) }} style={inputSt} /></div>
+                    <div><label style={labelSt}>Stock</label><input type="number" defaultValue={product.stock} onBlur={e => { const v = parseInt(e.target.value); if (v >= 0 && v !== product.stock) updateProduct(product.id, { stock: v }) }} style={inputSt} /></div>
+                    <div><label style={labelSt}>Nom</label><input type="text" defaultValue={product.name} onBlur={e => { if (e.target.value && e.target.value !== product.name) updateProduct(product.id, { name: e.target.value }) }} style={inputSt} /></div>
+                    <div><label style={labelSt}>Description</label><input type="text" defaultValue={product.description} onBlur={e => { if (e.target.value !== product.description) updateProduct(product.id, { description: e.target.value }) }} style={inputSt} /></div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div><label style={labelSt}>Pièces</label><input type="number" defaultValue={product.pieces} onBlur={e => { const v = parseInt(e.target.value); if (v > 0) updateProduct(product.id, { pieces: v }) }} style={inputSt} /></div>
+                    <div><label style={labelSt}>Badge</label><input type="text" defaultValue={product.badge || ''} onBlur={e => updateProduct(product.id, { badge: e.target.value || null })} placeholder="Ex: -30%" style={inputSt} /></div>
+                    <div><label style={labelSt}>État</label><select defaultValue={product.state || 'Bon état'} onChange={e => updateProduct(product.id, { state: e.target.value })} style={inputSt}><option>Neuf</option><option>Très bon état</option><option>Bon état</option><option>État correct</option></select></div>
+                    <div><label style={labelSt}>Nouveau</label><select defaultValue={product.isNew ? 'Oui' : 'Non'} onChange={e => updateProduct(product.id, { is_new: e.target.value === 'Oui' })} style={inputSt}><option>Non</option><option>Oui</option></select></div>
+                  </div>
+                </div>
+              )}
             </div>
           )
         })}
       </div>
+
+      {/* Modal ajout produit */}
+      {showAdd && (
+        <div onClick={() => setShowAdd(false)} className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div onClick={e => e.stopPropagation()} className="modal-content" style={{ background: '#1a1200', border: '1px solid rgba(196,150,42,0.4)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h3 style={{ color: '#C4962A', fontWeight: 900, fontSize: '16px', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px' }}>Nouveau produit</h3>
+            {addError && <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', padding: '10px 14px', marginBottom: '16px', color: '#ef4444', fontSize: '13px' }}>{addError}</div>}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+              <div><label style={labelSt}>Nom *</label><input value={newProduct.name} onChange={e => setNewProduct(p => ({ ...p, name: e.target.value }))} placeholder="Lot Sweats Nike" style={inputSt} /></div>
+              <div><label style={labelSt}>Prix (€) *</label><input type="number" value={newProduct.price} onChange={e => setNewProduct(p => ({ ...p, price: e.target.value }))} placeholder="89" style={inputSt} /></div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+              <div><label style={labelSt}>Stock</label><input type="number" value={newProduct.stock} onChange={e => setNewProduct(p => ({ ...p, stock: e.target.value }))} placeholder="10" style={inputSt} /></div>
+              <div><label style={labelSt}>Pièces</label><input type="number" value={newProduct.pieces} onChange={e => setNewProduct(p => ({ ...p, pieces: e.target.value }))} placeholder="15" style={inputSt} /></div>
+              <div><label style={labelSt}>Poids (kg)</label><input type="number" value={newProduct.weight} onChange={e => setNewProduct(p => ({ ...p, weight: e.target.value }))} placeholder="2" style={inputSt} /></div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+              <div><label style={labelSt}>Marque</label><input value={newProduct.brand} onChange={e => setNewProduct(p => ({ ...p, brand: e.target.value }))} placeholder="Nike" style={inputSt} /></div>
+              <div><label style={labelSt}>Catégorie</label><select value={newProduct.category} onChange={e => setNewProduct(p => ({ ...p, category: e.target.value }))} style={inputSt}><option value="">Choisir...</option><option>sweats</option><option>tshirts</option><option>doudounes</option><option>jeans</option><option>sportswear</option></select></div>
+              <div><label style={labelSt}>Emoji</label><input value={newProduct.emoji} onChange={e => setNewProduct(p => ({ ...p, emoji: e.target.value }))} style={inputSt} /></div>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+              <button onClick={() => setShowAdd(false)} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>Annuler</button>
+              <button onClick={addProduct} style={{ flex: 2, padding: '12px', borderRadius: '8px', background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000', fontWeight: 900, fontSize: '13px', cursor: 'pointer' }}>Créer le produit</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

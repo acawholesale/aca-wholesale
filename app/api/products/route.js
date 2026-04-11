@@ -89,6 +89,52 @@ export async function PATCH(req) {
   }
 }
 
+// POST /api/products — create new product (admin only)
+export async function POST(req) {
+  try {
+    const { verifyAdmin } = await import('../../../lib/adminAuth')
+    const auth = verifyAdmin(req)
+    if (!auth.authenticated) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
+    const supabase = getSupabase()
+    if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 })
+
+    const body = await req.json()
+    if (!body.name || !body.price) {
+      return NextResponse.json({ error: 'Nom et prix obligatoires' }, { status: 400 })
+    }
+
+    const product = {
+      name: body.name,
+      description: body.description || '',
+      price: parseFloat(body.price),
+      original_price: body.original_price ? parseFloat(body.original_price) : null,
+      stock: parseInt(body.stock) || 0,
+      category: body.category || '',
+      brand: body.brand || '',
+      emoji: body.emoji || '📦',
+      pieces: parseInt(body.pieces) || 1,
+      weight: parseFloat(body.weight) || 2,
+      badge: body.badge || null,
+      is_new: body.is_new || false,
+      sizes: body.sizes || '',
+      state: body.state || 'Bon état',
+    }
+
+    const { data, error } = await supabase
+      .from('products')
+      .insert([product])
+      .select()
+      .single()
+
+    if (error) throw error
+    return NextResponse.json({ success: true, product: formatProduct(data) })
+  } catch (err) {
+    console.error('Products POST error:', err)
+    return NextResponse.json({ error: 'Erreur lors de la création du produit' }, { status: 500 })
+  }
+}
+
 function formatProduct(p) {
   if (!p) return null
   return {

@@ -1,4 +1,54 @@
+'use client'
+import { useState } from 'react'
 import Link from 'next/link'
+
+function NewsletterForm() {
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState(null) // 'ok' | 'error' | 'loading'
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!email) return
+    setStatus('loading')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prenom: 'Newsletter', nom: 'Inscription', email, sujet: 'Newsletter', message: 'Inscription newsletter depuis le footer.' }),
+      })
+      setStatus(res.ok ? 'ok' : 'error')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  if (status === 'ok') {
+    return <p className="text-green-400 font-bold text-sm">✓ Inscription confirmée !</p>
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row max-w-md mx-auto gap-2">
+      <label htmlFor="newsletter-email" className="sr-only">Votre adresse email</label>
+      <input
+        id="newsletter-email"
+        type="email"
+        required
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        placeholder="Votre adresse email"
+        className="flex-1 px-4 py-3 bg-gray-900 border border-gray-700 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-gold focus:ring-2 focus:ring-white/30 rounded-full transition-colors"
+      />
+      <button
+        type="submit"
+        disabled={status === 'loading'}
+        className="text-black px-6 py-3 font-semibold text-sm transition-all rounded-full bg-gold-gradient focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-white"
+      >
+        {status === 'loading' ? '...' : "S'inscrire"}
+      </button>
+      {status === 'error' && <p className="text-red-400 text-xs mt-1 sm:mt-0 sm:self-center">Erreur, réessayez.</p>}
+    </form>
+  )
+}
 
 export default function Footer() {
   return (
@@ -10,21 +60,7 @@ export default function Footer() {
           <p className="text-gray-300 mb-5 md:mb-6 text-xs md:text-sm">
             Recevez nos offres exclusives et soyez informé des nouveaux arrivages
           </p>
-          <form className="flex flex-col sm:flex-row max-w-md mx-auto gap-2">
-            <label htmlFor="newsletter-email" className="sr-only">Votre adresse email</label>
-            <input
-              id="newsletter-email"
-              type="email"
-              placeholder="Votre adresse email"
-              className="flex-1 px-4 py-3 bg-gray-900 border border-gray-700 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-gold focus:ring-2 focus:ring-white/30 rounded-full transition-colors"
-            />
-            <button
-              type="button"
-              className="text-black px-6 py-3 font-semibold text-sm transition-all rounded-full bg-gold-gradient focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-white"
-            >
-              S&apos;inscrire
-            </button>
-          </form>
+          <NewsletterForm />
         </div>
       </div>
 
