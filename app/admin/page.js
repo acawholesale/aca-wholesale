@@ -252,6 +252,18 @@ function ClientsTab() {
       .catch(console.error)
   }, [])
 
+  const exportClientsCSV = () => {
+    const escape = (v) => { if (v == null) return ''; const s = String(v).replace(/"/g, '""'); return /[,;"\n]/.test(s) ? `"${s}"` : s }
+    const headers = ['Nom', 'Email', 'Ville', 'Statut', 'Commandes', 'Total (€)', 'Inscrit le']
+    const rows = filtered.map(c => [c.nom, c.email, c.ville, c.statut, c.commandes, Math.round(c.total), c.dateInscription].map(escape).join(','))
+    const csv = [headers.map(escape).join(','), ...rows].join('\n')
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `clients-${new Date().toISOString().slice(0,10)}.csv`; a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const filtres = ['Tous', 'VIP', 'Actif', 'Nouveau']
   const filtered = filtre === 'Tous' ? clients : clients.filter(c => c.statut === filtre)
   const toggleCheck = (id) => setChecked(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
@@ -291,12 +303,15 @@ function ClientsTab() {
             </div>
           )}
 
-          <div className="flex gap-2 mb-4 flex-wrap">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <div className="flex gap-2 flex-wrap">
             {filtres.map(f => (
               <button key={f} onClick={() => setFiltre(f)} className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all" style={filtre === f ? { background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' } : { background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)' }}>
                 {f} {filtre === f && `(${filtered.length})`}
               </button>
             ))}
+            </div>
+            <button onClick={exportClientsCSV} className="text-[11px] px-3 py-1.5 font-bold uppercase tracking-wide rounded-lg flex items-center gap-1" style={{ background: 'rgba(255,255,255,0.07)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)' }}>📥 Export CSV</button>
           </div>
 
           <div className="flex items-center justify-between mb-3">
@@ -381,11 +396,16 @@ function CommandesTab() {
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [manualGlsModal, setManualGlsModal] = useState(null)
   const [manualTrackInput, setManualTrackInput] = useState('')
+  const [showInvoice, setShowInvoice] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [page, setPage] = useState(1)
+  const PAGE_SIZE = 20
 
-  // Persist GLS shipments across refreshes
+  // Persist GLS shipments across refreshes (tab-safe key)
+  const glsStorageKey = 'aca_gls_shipments_v2'
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('aca_gls_shipments')
+      const saved = localStorage.getItem(glsStorageKey)
       if (saved) setGlsData(JSON.parse(saved))
     } catch {}
   }, [])
@@ -411,7 +431,7 @@ function CommandesTab() {
           if (Object.keys(newGls).length > 0) {
             setGlsData(prev => {
               const merged = { ...newGls, ...prev }
-              try { localStorage.setItem('aca_gls_shipments', JSON.stringify(merged)) } catch {}
+              try { localStorage.setItem(glsStorageKey, JSON.stringify(merged)) } catch {}
               return merged
             })
           }
@@ -451,7 +471,7 @@ function CommandesTab() {
           email: order.email || '',
           tel: order.telephone || '',
         },
-        weight: 2,
+        weight: (order.produits || []).reduce((sum, p) => sum + (parseFloat(p.poids || p.weight) || 2) * (parseInt(p.qte) || 1), 0) || 2,
       }
       const res = await fetch('/api/gls/create-shipment', {
         method: 'POST',
@@ -462,7 +482,7 @@ function CommandesTab() {
       if (data.success) {
         setGlsData(prev => {
           const updated = { ...prev, [order.id]: data }
-          try { localStorage.setItem('aca_gls_shipments', JSON.stringify(updated)) } catch {}
+          try { localStorage.setItem(glsStorageKey, JSON.stringify(updated)) } catch {}
           return updated
         })
         updateStatut(order.id, 'Expédié')
@@ -524,7 +544,7 @@ function CommandesTab() {
       if (data.success) {
         setGlsData(prev => {
           const updated = { ...prev, [orderId]: { success: true, trackID: trackId, trackingUrl: 'https://gls-group.eu/track/' + trackId } }
-          try { localStorage.setItem('aca_gls_shipments', JSON.stringify(updated)) } catch {}
+          try { localStorage.setItem(glsStorageKey, JSON.stringify(updated)) } catch {}
           return updated
         })
         setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'Expédié' } : o))
@@ -545,7 +565,13 @@ function CommandesTab() {
       const matchFin = !dateFin || o.date <= dateFin
       const matchMin = !montantMin || total >= Number(montantMin)
       const matchMax = !montantMax || total <= Number(montantMax)
-      return matchStatut && matchDebut && matchFin && matchMin && matchMax
+      const q = searchQuery.trim().toLowerCase()
+      const matchSearch = !q || [
+        o.id, o.email, o.telephone,
+        typeof o.client === 'string' ? o.client : o.client?.nom || '',
+        (o.produits || []).map(p => p.nom).join(' '),
+      ].some(v => (v || '').toLowerCase().includes(q))
+      return matchStatut && matchDebut && matchFin && matchMin && matchMax && matchSearch
     })
     .sort((a, b) => {
       const tA = getTotal(a), tB = getTotal(b)
@@ -555,6 +581,14 @@ function CommandesTab() {
       if (triPar === 'montant-asc') return tA - tB
       return 0
     })
+
+  // Pagination
+  const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE)
+  const paginatedOrders = filteredOrders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  // Reset page when filters change
+  const prevFilterKey = [filtreStatut, dateDebut, dateFin, montantMin, montantMax, searchQuery, triPar].join('|')
+  useEffect(() => { setPage(1) }, [prevFilterKey])
 
   const countByStatut = (s) => orders.filter(o => o.status === s).length
 
@@ -683,9 +717,23 @@ function CommandesTab() {
         <button onClick={() => printGLSLabel(order)} className="w-full py-4 font-black text-base uppercase tracking-widest text-black rounded-xl transition-opacity hover:opacity-90 flex items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>
           🏷️ GLS – Étiquette d&apos;expédition
         </button>
-        <a href={'/api/orders/invoice?id=' + order.id + '&email=admin'} target="_blank" rel="noopener noreferrer" className="w-full py-3 mt-2 font-bold text-sm uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 text-gray-400 hover:text-white transition-colors" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}>
-          🧾 Voir la facture
-        </a>
+        <button
+          onClick={() => setShowInvoice(showInvoice === order.id ? null : order.id)}
+          className="w-full py-3 mt-2 font-bold text-sm uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 text-gray-400 hover:text-white transition-colors cursor-pointer"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}
+        >
+          🧾 {showInvoice === order.id ? 'Masquer la facture' : 'Voir la facture'}
+        </button>
+        {showInvoice === order.id && (
+          <div className="mt-3 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+            <iframe
+              src={'/api/orders/invoice?id=' + encodeURIComponent(order.id) + '&email=admin'}
+              className="w-full bg-white"
+              style={{ height: '600px' }}
+              title={'Facture ' + order.id}
+            />
+          </div>
+        )}
       </div>
     )
   }
@@ -699,12 +747,58 @@ function CommandesTab() {
             <p className="text-white font-black text-sm uppercase tracking-wide">🖨️ {checked.length} bordereau{checked.length > 1 ? 'x' : ''} sélectionné{checked.length > 1 ? 's' : ''}</p>
             <p className="text-gray-400 text-xs mt-0.5">Tous seront imprimés en une seule fois</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <select
+              onChange={e => { if (!e.target.value) return; const s = e.target.value; selectedOrders.forEach(o => updateStatut(o.id, s)); setChecked([]); e.target.value = '' }}
+              className="text-xs font-bold px-3 py-2 rounded-lg outline-none cursor-pointer"
+              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: '#e5e7eb' }}
+              defaultValue=""
+            >
+              <option value="" disabled>Changer statut…</option>
+              {STATUTS.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
             <button onClick={() => setChecked([])} className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wide px-3 py-2 rounded border border-white/10">Annuler</button>
             <button onClick={() => printAllGLS(selectedOrders)} className="text-black text-sm px-5 py-2 font-black uppercase tracking-wide rounded-lg flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)' }}>🖨️ Imprimer tout ({checked.length})</button>
           </div>
         </div>
       )}
+
+      {/* Barre de recherche */}
+      <div className="mb-4">
+        <div className="relative">
+          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Rechercher par ID, client, email, produit…"
+            className="w-full pl-10 pr-4 py-3 text-sm text-white rounded-xl outline-none"
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-sm">✕</button>
+          )}
+        </div>
+      </div>
+
+      {/* Filtres rapides par date */}
+      <div className="flex gap-1.5 mb-3 flex-wrap">
+        {[
+          { label: "Aujourd'hui", fn: () => { const d = new Date().toISOString().slice(0,10); setDateDebut(d); setDateFin(d) } },
+          { label: 'Cette semaine', fn: () => { const now = new Date(); const d = new Date(now); d.setDate(now.getDate() - now.getDay() + 1); setDateDebut(d.toISOString().slice(0,10)); setDateFin(now.toISOString().slice(0,10)) } },
+          { label: 'Ce mois', fn: () => { const now = new Date(); setDateDebut(now.toISOString().slice(0,8) + '01'); setDateFin(now.toISOString().slice(0,10)) } },
+          { label: '30 derniers jours', fn: () => { const now = new Date(); const d = new Date(now); d.setDate(now.getDate() - 30); setDateDebut(d.toISOString().slice(0,10)); setDateFin(now.toISOString().slice(0,10)) } },
+        ].map(f => (
+          <button key={f.label} onClick={f.fn} className="px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all" style={{ background: 'rgba(255,255,255,0.04)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.08)' }}>
+            {f.label}
+          </button>
+        ))}
+        {(dateDebut || dateFin) && (
+          <button onClick={() => { setDateDebut(''); setDateFin('') }} className="px-3 py-1.5 rounded-lg text-[11px] font-bold" style={{ color: '#E8B84B', background: 'rgba(196,150,42,0.1)', border: '1px solid rgba(196,150,42,0.3)' }}>
+            ✕ Période
+          </button>
+        )}
+      </div>
 
       {/* Bouton imprimer à expédier */}
       {orders.filter(o => o.status === 'À expédier').length > 0 && checked.length === 0 && (
@@ -795,7 +889,7 @@ function CommandesTab() {
             {hasActiveFilters && <button onClick={resetFilters} className="mt-4 text-xs font-bold uppercase tracking-wide px-4 py-2 rounded-lg" style={{ background: 'linear-gradient(135deg, #C4962A, #E8B84B)', color: '#000' }}>Effacer les filtres</button>}
           </div>
         )}
-        {filteredOrders.map(order => {
+        {paginatedOrders.map(order => {
           const total = getTotal(order)
           const isChecked = checked.includes(order.id)
           const justChanged = changedId === order.id
@@ -811,7 +905,7 @@ function CommandesTab() {
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-gray-400 text-[10px] md:text-xs">{typeof order.client === 'string' ? order.client : order.client?.nom || ''}</span>
-                    {order.date && <span className="text-gray-600 text-[10px]">{order.date}</span>}
+                    {order.date && <span className="text-gray-600 text-[10px]">{(() => { try { const [y,m,d] = order.date.split('-'); return `${d}/${m}/${y}` } catch { return order.date } })()}</span>}
                   </div>
                   <p className="text-gray-500 text-[10px] md:text-xs mt-0.5 truncate hidden md:block">{(order.produits || []).map(p => p.nom).join(', ')}</p>
                 </div>
@@ -823,7 +917,7 @@ function CommandesTab() {
                   value={order.status}
                   onChange={e => { e.stopPropagation(); updateStatut(order.id, e.target.value) }}
                   onClick={e => e.stopPropagation()}
-                  className="text-[10px] md:text-[11px] font-bold px-2 py-1 rounded-lg outline-none cursor-pointer"
+                  className="text-xs md:text-sm font-bold px-3 py-1.5 rounded-lg outline-none cursor-pointer min-h-[36px]"
                   style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: '#e5e7eb' }}
                 >
                   {STATUTS.map(s => <option key={s} value={s}>{s}</option>)}
@@ -855,6 +949,36 @@ function CommandesTab() {
           )
         })}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
+          <p className="text-gray-500 text-xs">
+            {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filteredOrders.length)} sur {filteredOrders.length} commandes
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-3 py-1.5 text-xs font-bold rounded-lg transition-all"
+              style={{ background: page === 1 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.07)', color: page === 1 ? '#4b5563' : '#e5e7eb', border: '1px solid rgba(255,255,255,0.1)', cursor: page === 1 ? 'not-allowed' : 'pointer' }}
+            >
+              ← Précédent
+            </button>
+            <span className="text-xs font-bold text-gray-400">
+              {page} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-3 py-1.5 text-xs font-bold rounded-lg transition-all"
+              style={{ background: page === totalPages ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.07)', color: page === totalPages ? '#4b5563' : '#e5e7eb', border: '1px solid rgba(255,255,255,0.1)', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
+            >
+              Suivant →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal saisie manuelle numéro GLS */}
       {manualGlsModal && (
