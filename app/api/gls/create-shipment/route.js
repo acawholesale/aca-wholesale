@@ -64,19 +64,22 @@ export async function POST(request) {
     const today = new Date().toISOString().split('T')[0]
     const { Product, Service } = buildProductAndServices(deliveryType)
 
+    // B2B: Name1 = société, ContactPerson = personne (recommandation GLS)
+    // B2C (flexdelivery): Name1 = nom + prénom du destinataire
+    const isB2C = deliveryType === 'domicile' || deliveryType === 'relais'
+
     const shipment = {
       ShippingDate: today,
       Product,
       Consignee: {
         ConsigneeID: String(order.id || ''),
         Address: {
-          Name1: client.nom || '',
-          Name2: client.entreprise || '',
-          Name3: '',
+          Name1: isB2C ? (client.nom || '') : (client.entreprise || client.nom || ''),
           Street: client.adresse || '',
           CountryCode: client.pays || 'FR',
           ZIPCode: client.codePostal || '',
           City: client.ville || '',
+          ContactPerson: isB2C ? '' : (client.nom || ''),
           eMail: client.email || '',
           MobilePhoneNumber: client.tel || '',
         },
