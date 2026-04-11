@@ -5,8 +5,8 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 
-const GLS_API_BASE = process.env.GLS_API_URL || 'https://wbm-fr02.shipit.gls-group.com:443'
-const GLS_CONTACT_ID = process.env.GLS_CONTACT_ID || '250aaa4lE7'
+const GLS_API_BASE = process.env.GLS_API_URL
+const GLS_CONTACT_ID = process.env.GLS_CONTACT_ID
 
 function glsHeaders() {
   const auth = process.env.GLS_BASE64_AUTH
