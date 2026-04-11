@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 // Crée un envoi GLS via l'API ShipIT REST et retourne le numéro de suivi + étiquette base64
 
 import { NextResponse } from 'next/server'
+import { verifyAdmin } from '../../../../lib/adminAuth'
 
 const GLS_API_BASE = process.env.GLS_API_URL
 const GLS_CONTACT_ID = process.env.GLS_CONTACT_ID
@@ -38,10 +39,22 @@ function buildProductAndServices(deliveryType = 'standard') {
 
 export async function POST(request) {
   try {
+    const { authenticated } = verifyAdmin(request)
+    if (!authenticated) {
+      return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 401 })
+    }
+
     const { order, deliveryType, labelFormat } = await request.json()
 
     if (!order) {
       return NextResponse.json({ error: 'Données de commande manquantes' }, { status: 400 })
+    }
+
+    if (!GLS_API_BASE || !GLS_CONTACT_ID) {
+      return NextResponse.json(
+        { error: 'Configuration GLS incomplète (GLS_API_URL et GLS_CONTACT_ID requis)' },
+        { status: 500 }
+      )
     }
 
     if (!process.env.GLS_USERNAME && !process.env.GLS_BASE64_AUTH) {
