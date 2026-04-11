@@ -35,6 +35,8 @@ export default function Compte() {
   const router = useRouter()
 
   // --- Tracking state ---
+  const [selectedOrder, setSelectedOrder] = useState(null)
+
   const [trackRef, setTrackRef]         = useState('')
   const [trackLoading, setTrackLoading] = useState(false)
   const [trackResult, setTrackResult]   = useState(null)
@@ -228,7 +230,9 @@ export default function Compte() {
             ) : orders.length === 0 ? (
               <div style={{ color: '#6b7280', textAlign: 'center', padding: 40 }}>Aucune commande pour le moment.<br/><Link href="/produits" style={{ color: '#C4962A' }}>Voir le catalogue →</Link></div>
             ) : orders.slice(0,3).map(o => (
-              <div key={o.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '16px 20px', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+              <div key={o.id} onClick={() => setSelectedOrder(o)} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '16px 20px', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', cursor: 'pointer', transition: 'border-color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(196,150,42,0.4)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}>
                 <div>
                   <span style={{ color: '#C4962A', fontWeight: 700, fontSize: 14 }}>{o.id}</span>
                   <span style={{ color: '#6b7280', fontSize: 13, marginLeft: 12 }}>{o.date}</span>
@@ -237,7 +241,7 @@ export default function Compte() {
                   <span style={{ ...getStatusColor(o.status), padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: getStatusColor(o.status).bg, border: '1px solid ' + getStatusColor(o.status).border }}>{o.status}</span>
                   <span style={{ color: '#fff', fontWeight: 700 }}>{(o.total||0).toFixed(2)} €</span>
                   {o.glsTrackId && (
-                    <button onClick={() => trackFromOrder(o)} style={{ background: '#C4962A', color: '#000', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 12, cursor: 'pointer', fontWeight: 700 }}>Suivre</button>
+                    <button onClick={(e) => { e.stopPropagation(); trackFromOrder(o) }} style={{ background: '#C4962A', color: '#000', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 12, cursor: 'pointer', fontWeight: 700 }}>Suivre</button>
                   )}
                 </div>
               </div>
@@ -258,7 +262,9 @@ export default function Compte() {
                 <Link href="/produits" style={{ color: '#C4962A', fontWeight: 700 }}>Voir le catalogue →</Link>
               </div>
             ) : orders.map(o => (
-              <div key={o.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '20px 24px', marginBottom: 16 }}>
+              <div key={o.id} onClick={() => setSelectedOrder(o)} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '20px 24px', marginBottom: 16, cursor: 'pointer', transition: 'border-color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(196,150,42,0.4)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 12 }}>
                   <div>
                     <span style={{ color: '#C4962A', fontWeight: 800, fontSize: 16 }}>{o.id}</span>
@@ -272,14 +278,14 @@ export default function Compte() {
                 <div style={{ color: '#9ca3af', fontSize: 13, marginBottom: 12 }}>{o.itemsSummary || 'Articles non détaillés'}</div>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                   {o.glsTrackId ? (
-                    <button onClick={() => trackFromOrder(o)} style={{ background: '#C4962A', color: '#000', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, cursor: 'pointer', fontWeight: 700 }}>
-                      🔍 Suivre le colis (GLS: {o.glsTrackId})
+                    <button onClick={(e) => { e.stopPropagation(); trackFromOrder(o) }} style={{ background: '#C4962A', color: '#000', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, cursor: 'pointer', fontWeight: 700 }}>
+                      Suivre le colis (GLS: {o.glsTrackId})
                     </button>
                   ) : (
                     <span style={{ color: '#6b7280', fontSize: 13, fontStyle: 'italic' }}>Expédition en préparation</span>
                   )}
-                  <a href={'/api/orders/invoice?id=' + o.id + '&email=' + encodeURIComponent(session?.email || '')} target="_blank" rel="noopener noreferrer" style={{ background: 'rgba(255,255,255,0.06)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px 16px', fontSize: 13, cursor: 'pointer', fontWeight: 600, textDecoration: 'none' }}>
-                    🧾 Facture
+                  <a href={'/api/orders/invoice?id=' + o.id + '&email=' + encodeURIComponent(session?.email || '')} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ background: 'rgba(255,255,255,0.06)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px 16px', fontSize: 13, cursor: 'pointer', fontWeight: 600, textDecoration: 'none' }}>
+                    Facture
                   </a>
                 </div>
               </div>
@@ -372,6 +378,87 @@ export default function Compte() {
           </div>
         )}
       </div>
+
+      {/* ── ORDER DETAIL MODAL ── */}
+      {selectedOrder && (
+        <div onClick={() => setSelectedOrder(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, width: '100%', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', padding: '28px 32px' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+              <div>
+                <h2 style={{ color: '#fff', fontSize: 20, fontWeight: 900, margin: 0 }}>{selectedOrder.id}</h2>
+                <p style={{ color: '#6b7280', fontSize: 13, margin: '4px 0 0' }}>{selectedOrder.date}</p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ background: getStatusColor(selectedOrder.status).bg, color: getStatusColor(selectedOrder.status).color, border: '1px solid ' + getStatusColor(selectedOrder.status).border, padding: '4px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700 }}>{selectedOrder.status}</span>
+                <button onClick={() => setSelectedOrder(null)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#9ca3af', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  ×
+                </button>
+              </div>
+            </div>
+
+            {/* Items */}
+            <div style={{ marginBottom: 24 }}>
+              <h3 style={{ color: '#9ca3af', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Articles</h3>
+              {selectedOrder.items && selectedOrder.items.length > 0 ? selectedOrder.items.map((item, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < selectedOrder.items.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{item.name || item.nom || 'Article'}</div>
+                    {(item.size || item.taille) && <span style={{ color: '#6b7280', fontSize: 12 }}>Taille: {item.size || item.taille}</span>}
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ color: '#fff', fontSize: 14, fontWeight: 700 }}>{((item.price || item.prix || 0) * (item.quantity || item.quantite || 1)).toFixed(2)} €</div>
+                    <div style={{ color: '#6b7280', fontSize: 12 }}>{item.quantity || item.quantite || 1} × {(item.price || item.prix || 0).toFixed(2)} €</div>
+                  </div>
+                </div>
+              )) : (
+                <p style={{ color: '#6b7280', fontSize: 13 }}>{selectedOrder.itemsSummary || 'Détails non disponibles'}</p>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <span style={{ color: '#fff', fontSize: 16, fontWeight: 800 }}>Total</span>
+                <span style={{ color: '#C4962A', fontSize: 16, fontWeight: 900 }}>{(selectedOrder.total || 0).toFixed(2)} €</span>
+              </div>
+            </div>
+
+            {/* Delivery address */}
+            {selectedOrder.adresse && (
+              <div style={{ marginBottom: 24 }}>
+                <h3 style={{ color: '#9ca3af', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Adresse de livraison</h3>
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '14px 18px' }}>
+                  <div style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{selectedOrder.client}</div>
+                  <div style={{ color: '#9ca3af', fontSize: 13, marginTop: 4 }}>{selectedOrder.adresse}</div>
+                  <div style={{ color: '#9ca3af', fontSize: 13 }}>{selectedOrder.codePostal} {selectedOrder.ville}</div>
+                  <div style={{ color: '#9ca3af', fontSize: 13 }}>{selectedOrder.pays}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Tracking */}
+            {selectedOrder.glsTrackId && (
+              <div style={{ marginBottom: 24 }}>
+                <h3 style={{ color: '#9ca3af', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Suivi GLS</h3>
+                <div style={{ background: 'rgba(196,150,42,0.08)', border: '1px solid rgba(196,150,42,0.2)', borderRadius: 10, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#C4962A', fontSize: 14, fontWeight: 700 }}>{selectedOrder.glsTrackId}</span>
+                  <button onClick={() => { setSelectedOrder(null); trackFromOrder(selectedOrder) }} style={{ background: '#C4962A', color: '#000', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 13, cursor: 'pointer', fontWeight: 700 }}>
+                    Suivre
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <a href={'/api/orders/invoice?id=' + selectedOrder.id + '&email=' + encodeURIComponent(session?.email || '')} target="_blank" rel="noopener noreferrer" style={{ flex: 1, background: 'rgba(255,255,255,0.06)', color: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: '12px 16px', fontSize: 14, cursor: 'pointer', fontWeight: 700, textDecoration: 'none', textAlign: 'center' }}>
+                Facture
+              </a>
+              <button onClick={() => setSelectedOrder(null)} style={{ flex: 1, background: 'none', color: '#6b7280', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px 16px', fontSize: 14, cursor: 'pointer', fontWeight: 600 }}>
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </main>
   )
