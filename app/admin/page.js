@@ -59,6 +59,7 @@ export default function AdminDashboard() {
     { id: 'commandes', label: 'Commandes', icon: '📦' },
     { id: 'clients', label: 'Clients', icon: '👥' },
     { id: 'produits', label: 'Produits', icon: '📦' },
+    { id: 'securite', label: 'Sécurité', icon: '🔐' },
     { id: 'analytiques', label: 'Analytiques', icon: '📈', premium: true },
     { id: 'campagnes', label: 'Campagnes', icon: '📧', premium: true },
     { id: 'factures', label: 'Factures', icon: '🧾', premium: true },
@@ -110,6 +111,7 @@ export default function AdminDashboard() {
           {activeTab === 'commandes' && <CommandesTab />}
           {activeTab === 'clients' && <ClientsTab />}
           {activeTab === 'produits' && <ProduitsTab />}
+          {activeTab === 'securite' && <SecuriteTab />}
           {['analytiques', 'campagnes', 'factures', 'remises'].includes(activeTab) && <PremiumUpgradeTab activeTab={activeTab} />}
         </main>
       </div>
@@ -1216,6 +1218,107 @@ function ProduitsTab() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function SecuriteTab() {
+  const [totpData, setTotpData] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const fetchTotp = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/admin/totp')
+      const data = await res.json()
+      if (res.ok) {
+        setTotpData(data)
+      } else {
+        setError(data.error || 'Erreur lors de la génération')
+      }
+    } catch {
+      setError('Erreur réseau')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div>
+      <p className="text-gray-500 text-xs uppercase tracking-widest font-bold mb-6">Sécurité du compte</p>
+
+      <div className="rounded-xl p-6 mb-4" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style={{ background: 'rgba(196,150,42,0.15)' }}>🔐</div>
+          <div>
+            <h3 className="text-white font-black text-sm uppercase tracking-wide">Authentification 2FA (TOTP)</h3>
+            <p className="text-gray-500 text-xs mt-0.5">Ajoutez une couche de sécurité avec Google Authenticator ou Authy</p>
+          </div>
+        </div>
+
+        {!totpData ? (
+          <div>
+            <p className="text-gray-300 text-sm mb-4 leading-relaxed">
+              La 2FA ajoute un code à 6 chiffres (qui change toutes les 30 secondes) en plus de votre mot de passe.
+              Même si quelqu&apos;un devine votre mot de passe, il ne pourra pas se connecter sans votre téléphone.
+            </p>
+            {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
+            <button
+              onClick={fetchTotp}
+              disabled={loading}
+              className="text-black text-sm px-6 py-3 font-black uppercase tracking-wide rounded-lg"
+              style={{ background: loading ? '#6b7280' : 'linear-gradient(135deg, #C4962A, #E8B84B)', cursor: loading ? 'not-allowed' : 'pointer' }}
+            >
+              {loading ? 'Génération...' : 'Configurer la 2FA'}
+            </button>
+          </div>
+        ) : totpData.enabled ? (
+          <div className="rounded-lg p-4" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.3)' }}>
+            <p className="text-green-400 font-bold text-sm">✓ 2FA est activé</p>
+            <p className="text-gray-400 text-xs mt-1">{totpData.message}</p>
+          </div>
+        ) : (
+          <div>
+            <div className="rounded-lg p-4 mb-4" style={{ background: 'rgba(196,150,42,0.08)', border: '1px solid rgba(196,150,42,0.3)' }}>
+              <p className="font-bold text-xs uppercase tracking-wide mb-2" style={{ color: '#C4962A' }}>Étape 1 — Scanner le QR code</p>
+              <p className="text-gray-300 text-sm mb-4">Ouvrez Google Authenticator, Authy, ou 1Password et scannez ce QR code :</p>
+              <div className="flex justify-center mb-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={totpData.qr} alt="QR Code 2FA" style={{ width: '200px', height: '200px', borderRadius: '12px', background: '#fff', padding: '8px' }} />
+              </div>
+              <p className="text-gray-500 text-xs text-center">Ou entrez ce code manuellement dans votre app :</p>
+              <p className="text-white text-center text-sm font-bold mt-1 select-all break-all" style={{ background: 'rgba(255,255,255,0.06)', padding: '10px', borderRadius: '8px', letterSpacing: '0.1em', fontFamily: 'monospace' }}>
+                {totpData.secret}
+              </p>
+            </div>
+
+            <div className="rounded-lg p-4" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)' }}>
+              <p className="font-bold text-xs uppercase tracking-wide mb-2" style={{ color: '#60a5fa' }}>Étape 2 — Ajouter la variable sur Vercel</p>
+              <ol className="text-gray-300 text-sm leading-relaxed" style={{ paddingLeft: '18px', margin: 0 }}>
+                <li className="mb-1">Allez sur <strong className="text-white">Vercel → Settings → Environment Variables</strong></li>
+                <li className="mb-1">Ajoutez une variable nommée <strong className="text-white">ADMIN_TOTP_SECRET</strong></li>
+                <li className="mb-1">Collez la valeur : <strong style={{ color: '#C4962A' }}>{totpData.secret}</strong></li>
+                <li className="mb-1">Cochez <strong className="text-white">Production + Preview + Development</strong></li>
+                <li>Cliquez <strong className="text-white">Redeploy</strong></li>
+              </ol>
+              <p className="text-gray-500 text-xs mt-3">Après le redéploiement, le login demandera votre mot de passe puis le code 6 chiffres.</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-xl p-6" style={{ background: 'rgba(15,10,0,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style={{ background: 'rgba(255,255,255,0.05)' }}>🔑</div>
+          <div>
+            <h3 className="text-white font-black text-sm uppercase tracking-wide">Mot de passe admin</h3>
+            <p className="text-gray-500 text-xs mt-0.5">Hashé avec bcrypt, stocké dans ADMIN_PASSWORD_HASH</p>
+          </div>
+        </div>
+        <p className="text-gray-400 text-sm">Pour changer le mot de passe, générez un nouveau hash bcrypt et mettez à jour la variable <strong className="text-white">ADMIN_PASSWORD_HASH</strong> sur Vercel.</p>
+      </div>
     </div>
   )
 }
