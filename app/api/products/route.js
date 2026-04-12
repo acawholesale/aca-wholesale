@@ -119,6 +119,7 @@ export async function POST(req) {
       is_new: body.is_new || false,
       sizes: body.sizes || '',
       state: body.state || 'Bon état',
+      image_url: body.image_url || null,
     }
 
     const { data, error } = await supabase

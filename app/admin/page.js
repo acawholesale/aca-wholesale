@@ -1021,7 +1021,8 @@ function ProduitsTab() {
   const [editing, setEditing] = useState(null)
   const [saving, setSaving] = useState(new Set())
   const [showAdd, setShowAdd] = useState(false)
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', stock: '', category: '', brand: '', emoji: '📦', pieces: '', weight: '2' })
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', stock: '', category: '', brand: '', emoji: '📦', pieces: '', weight: '2', image_url: '' })
+  const [uploading, setUploading] = useState(null) // product id or 'new'
   const [addError, setAddError] = useState('')
   const [feedback, setFeedback] = useState(null)
 
@@ -1068,6 +1069,34 @@ function ProduitsTab() {
     const newStock = Math.max(0, (product.stock || 0) + delta)
     setProducts(prev => prev.map(p => p.id === id ? { ...p, stock: newStock } : p))
     updateProduct(id, { stock: newStock })
+  }
+
+  const uploadImage = async (file, productId) => {
+    const target = productId || 'new'
+    setUploading(target)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      if (productId) fd.append('productId', String(productId))
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (data.success && data.url) {
+        if (productId) {
+          setProducts(prev => prev.map(p => p.id === productId ? { ...p, imageUrl: data.url } : p))
+          setFeedback({ id: productId, msg: '✓ Photo mise à jour' })
+          setTimeout(() => setFeedback(null), 2000)
+        }
+        return data.url
+      } else {
+        alert(data.error || 'Erreur upload')
+        return null
+      }
+    } catch {
+      alert('Erreur réseau lors de l\'upload')
+      return null
+    } finally {
+      setUploading(null)
+    }
   }
 
   const addProduct = async () => {
@@ -1184,6 +1213,20 @@ function ProduitsTab() {
                     <div><label style={labelSt}>État</label><select defaultValue={product.state || 'Bon état'} onChange={e => updateProduct(product.id, { state: e.target.value })} style={inputSt}><option>Neuf</option><option>Très bon état</option><option>Bon état</option><option>État correct</option></select></div>
                     <div><label style={labelSt}>Nouveau</label><select defaultValue={product.isNew ? 'Oui' : 'Non'} onChange={e => updateProduct(product.id, { is_new: e.target.value === 'Oui' })} style={inputSt}><option>Non</option><option>Oui</option></select></div>
                   </div>
+                  {/* Photo upload */}
+                  <div className="mt-3 flex items-center gap-3">
+                    {product.imageUrl && (
+                      <img src={product.imageUrl} alt={product.name} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" style={{ border: '1px solid rgba(255,255,255,0.1)' }} />
+                    )}
+                    <div className="flex-1">
+                      <label style={labelSt}>Photo du produit</label>
+                      <label className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold cursor-pointer transition-all" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: uploading === product.id ? '#6b7280' : '#9ca3af' }}>
+                        {uploading === product.id ? '⏳ Upload...' : '📷 Choisir une image'}
+                        <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" disabled={uploading === product.id} onChange={e => { if (e.target.files?.[0]) uploadImage(e.target.files[0], product.id) }} />
+                      </label>
+                      <p className="text-gray-600 text-[10px] mt-1">JPG, PNG, WebP — 5 Mo max</p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -1210,6 +1253,26 @@ function ProduitsTab() {
               <div><label style={labelSt}>Marque</label><input value={newProduct.brand} onChange={e => setNewProduct(p => ({ ...p, brand: e.target.value }))} placeholder="Nike" style={inputSt} /></div>
               <div><label style={labelSt}>Catégorie</label><select value={newProduct.category} onChange={e => setNewProduct(p => ({ ...p, category: e.target.value }))} style={inputSt}><option value="">Choisir...</option><option>sweats</option><option>tshirts</option><option>doudounes</option><option>jeans</option><option>sportswear</option></select></div>
               <div><label style={labelSt}>Emoji</label><input value={newProduct.emoji} onChange={e => setNewProduct(p => ({ ...p, emoji: e.target.value }))} style={inputSt} /></div>
+            </div>
+            {/* Photo upload for new product */}
+            <div style={{ marginBottom: '12px' }}>
+              <label style={labelSt}>Photo du produit</label>
+              {newProduct.image_url ? (
+                <div className="flex items-center gap-3 mb-2">
+                  <img src={newProduct.image_url} alt="Aperçu" className="w-16 h-16 rounded-lg object-cover" style={{ border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <button onClick={() => setNewProduct(p => ({ ...p, image_url: '' }))} className="text-xs text-gray-500 hover:text-red-400">✕ Supprimer</button>
+                </div>
+              ) : null}
+              <label className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: uploading === 'new' ? '#6b7280' : '#9ca3af' }}>
+                {uploading === 'new' ? '⏳ Upload en cours...' : '📷 Choisir une image'}
+                <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" disabled={uploading === 'new'} onChange={async e => {
+                  if (e.target.files?.[0]) {
+                    const url = await uploadImage(e.target.files[0], null)
+                    if (url) setNewProduct(p => ({ ...p, image_url: url }))
+                  }
+                }} />
+              </label>
+              <p className="text-gray-600 text-[10px] mt-1">JPG, PNG, WebP — 5 Mo max</p>
             </div>
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
               <button onClick={() => setShowAdd(false)} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>Annuler</button>
