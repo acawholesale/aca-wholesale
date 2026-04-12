@@ -68,7 +68,7 @@ export async function PATCH(req) {
     const { id, updates } = await req.json()
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
-    const allowed = ['stock', 'price', 'original_price', 'name', 'description', 'badge', 'is_new', 'pieces', 'sizes', 'state']
+    const allowed = ['stock', 'price', 'original_price', 'name', 'description', 'badge', 'is_new', 'pieces', 'sizes', 'state', 'image_url', 'images', 'active']
     const dbUpdates = { updated_at: new Date().toISOString() }
     for (const key of allowed) {
       if (updates[key] !== undefined) dbUpdates[key] = updates[key]
@@ -120,6 +120,8 @@ export async function POST(req) {
       sizes: body.sizes || '',
       state: body.state || 'Bon état',
       image_url: body.image_url || null,
+      images: body.images || [],
+      active: body.active !== false,
     }
 
     const { data, error } = await supabase
@@ -162,5 +164,7 @@ function formatProduct(p) {
     vinteMin: p.vinte_min,
     vinteMax: p.vinte_max,
     imageUrl: p.image_url,
+    images: Array.isArray(p.images) ? p.images : [],
+    active: p.active !== false,
   }
 }

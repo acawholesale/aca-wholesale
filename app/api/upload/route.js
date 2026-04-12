@@ -32,15 +32,18 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Aucun fichier fourni' }, { status: 400 })
     }
 
-    // Validate file type
-    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
-    if (!allowed.includes(file.type)) {
-      return NextResponse.json({ error: 'Format accepté : JPG, PNG, WebP, AVIF' }, { status: 400 })
+    // Validate file type (images + videos)
+    const allowedImages = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+    const allowedVideos = ['video/mp4', 'video/webm', 'video/quicktime']
+    const isVideo = allowedVideos.includes(file.type)
+    if (!allowedImages.includes(file.type) && !isVideo) {
+      return NextResponse.json({ error: 'Format accepté : JPG, PNG, WebP, MP4, WebM' }, { status: 400 })
     }
 
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Fichier trop volumineux (5 Mo max)' }, { status: 400 })
+    // Validate file size (5MB images, 50MB videos)
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: isVideo ? 'Vidéo trop volumineuse (50 Mo max)' : 'Image trop volumineuse (5 Mo max)' }, { status: 400 })
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'

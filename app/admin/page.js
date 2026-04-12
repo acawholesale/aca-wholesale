@@ -1021,7 +1021,7 @@ function ProduitsTab() {
   const [editing, setEditing] = useState(null)
   const [saving, setSaving] = useState(new Set())
   const [showAdd, setShowAdd] = useState(false)
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', stock: '', category: '', brand: '', emoji: '📦', pieces: '', weight: '2', image_url: '' })
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', stock: '', category: '', brand: '', emoji: '📦', pieces: '', weight: '2', image_url: '', images: [] })
   const [uploading, setUploading] = useState(null) // product id or 'new'
   const [addError, setAddError] = useState('')
   const [feedback, setFeedback] = useState(null)
@@ -1112,7 +1112,7 @@ function ProduitsTab() {
       if (data.success && data.product) {
         setProducts(prev => [...prev, data.product])
         setShowAdd(false)
-        setNewProduct({ name: '', price: '', stock: '', category: '', brand: '', emoji: '📦', pieces: '', weight: '2' })
+        setNewProduct({ name: '', price: '', stock: '', category: '', brand: '', emoji: '📦', pieces: '', weight: '2', image_url: '', images: [] })
       } else {
         setAddError(data.error || 'Erreur lors de la création')
       }
@@ -1180,7 +1180,10 @@ function ProduitsTab() {
                     <span className="text-white font-bold text-sm truncate">{product.name}</span>
                     {product.badge && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide" style={{ background: 'rgba(196,150,42,0.15)', color: '#E8B84B', border: '1px solid rgba(196,150,42,0.3)' }}>{product.badge}</span>}
                   </div>
-                  <p className="text-gray-500 text-xs">{product.brand || ''} • {product.category || ''} • {product.pieces || '?'} pièces • {product.weight || 2}kg</p>
+                  <p className="text-gray-500 text-xs">
+                  {product.active === false && <span className="text-red-400 font-bold mr-1">INACTIF •</span>}
+                  {product.brand || ''} • {product.category || ''} • {product.pieces || '?'} pièces • {product.weight || 2}kg
+                </p>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
                   {/* Stock controls */}
@@ -1191,6 +1194,10 @@ function ProduitsTab() {
                   </div>
                   {/* Price */}
                   <p className="font-black text-sm min-w-[60px] text-right" style={{ color: '#C4962A' }}>{product.price} €</p>
+                  {/* Active toggle */}
+                  <button onClick={() => updateProduct(product.id, { active: !product.active })} title={product.active !== false ? 'Désactiver' : 'Réactiver'} className="w-7 h-7 rounded flex items-center justify-center text-sm transition-all" style={{ background: product.active !== false ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)', border: '1px solid ' + (product.active !== false ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)') }}>
+                    {product.active !== false ? '✓' : '✕'}
+                  </button>
                   {/* Edit button */}
                   <button onClick={() => setEditing(isEditing ? null : product.id)} className="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide" style={{ background: isEditing ? 'rgba(196,150,42,0.15)' : 'rgba(255,255,255,0.05)', color: isEditing ? '#E8B84B' : '#6b7280', border: '1px solid ' + (isEditing ? 'rgba(196,150,42,0.3)' : 'rgba(255,255,255,0.1)') }}>
                     {isEditing ? '✕' : '✏️'}
@@ -1213,19 +1220,51 @@ function ProduitsTab() {
                     <div><label style={labelSt}>État</label><select defaultValue={product.state || 'Bon état'} onChange={e => updateProduct(product.id, { state: e.target.value })} style={inputSt}><option>Neuf</option><option>Très bon état</option><option>Bon état</option><option>État correct</option></select></div>
                     <div><label style={labelSt}>Nouveau</label><select defaultValue={product.isNew ? 'Oui' : 'Non'} onChange={e => updateProduct(product.id, { is_new: e.target.value === 'Oui' })} style={inputSt}><option>Non</option><option>Oui</option></select></div>
                   </div>
-                  {/* Photo upload */}
-                  <div className="mt-3 flex items-center gap-3">
-                    {product.imageUrl && (
-                      <img src={product.imageUrl} alt={product.name} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" style={{ border: '1px solid rgba(255,255,255,0.1)' }} />
+                  {/* Media gallery */}
+                  <div className="mt-3">
+                    <label style={labelSt}>Médias ({(product.images || []).length} fichier{(product.images || []).length > 1 ? 's' : ''})</label>
+                    {(product.images || []).length > 0 && (
+                      <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-3">
+                        {(product.images || []).map((url, idx) => {
+                          const isVid = /\.(mp4|webm|mov)$/i.test(url)
+                          return (
+                            <div key={idx} className="relative group rounded-lg overflow-hidden" style={{ border: idx === 0 ? '2px solid #C4962A' : '1px solid rgba(255,255,255,0.1)', aspectRatio: '1' }}>
+                              {isVid ? (
+                                <video src={url} className="w-full h-full object-cover" muted />
+                              ) : (
+                                <img src={url} alt={`Media ${idx + 1}`} className="w-full h-full object-cover" />
+                              )}
+                              {idx === 0 && <span className="absolute top-1 left-1 text-[8px] font-black px-1.5 py-0.5 rounded uppercase bg-gold text-black">Cover</span>}
+                              {isVid && <span className="absolute top-1 right-1 text-[8px] font-black px-1.5 py-0.5 rounded bg-black/70 text-white">▶ Vidéo</span>}
+                              <div className="absolute bottom-0 left-0 right-0 flex opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'rgba(0,0,0,0.8)' }}>
+                                {idx > 0 && <button onClick={() => { const imgs = [...(product.images || [])]; [imgs[idx-1], imgs[idx]] = [imgs[idx], imgs[idx-1]]; updateProduct(product.id, { images: imgs, image_url: imgs[0] }) }} className="flex-1 py-1.5 text-[10px] font-bold text-white hover:text-gold">←</button>}
+                                {idx < (product.images || []).length - 1 && <button onClick={() => { const imgs = [...(product.images || [])]; [imgs[idx], imgs[idx+1]] = [imgs[idx+1], imgs[idx]]; updateProduct(product.id, { images: imgs, image_url: imgs[0] }) }} className="flex-1 py-1.5 text-[10px] font-bold text-white hover:text-gold">→</button>}
+                                <button onClick={() => { const imgs = (product.images || []).filter((_, i) => i !== idx); updateProduct(product.id, { images: imgs, image_url: imgs[0] || null }) }} className="flex-1 py-1.5 text-[10px] font-bold text-red-400 hover:text-red-300">✕</button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
                     )}
-                    <div className="flex-1">
-                      <label style={labelSt}>Photo du produit</label>
-                      <label className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold cursor-pointer transition-all" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: uploading === product.id ? '#6b7280' : '#9ca3af' }}>
-                        {uploading === product.id ? '⏳ Upload...' : '📷 Choisir une image'}
-                        <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" disabled={uploading === product.id} onChange={e => { if (e.target.files?.[0]) uploadImage(e.target.files[0], product.id) }} />
-                      </label>
-                      <p className="text-gray-600 text-[10px] mt-1">JPG, PNG, WebP — 5 Mo max</p>
-                    </div>
+                    <label className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: uploading === product.id ? '#6b7280' : '#9ca3af' }}>
+                      {uploading === product.id ? '⏳ Upload...' : '📷 Ajouter images / vidéos'}
+                      <input type="file" accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm" multiple className="hidden" disabled={uploading === product.id} onChange={async e => {
+                        const files = Array.from(e.target.files || [])
+                        for (const file of files) {
+                          const url = await uploadImage(file, null)
+                          if (url) {
+                            setProducts(prev => prev.map(p => {
+                              if (p.id !== product.id) return p
+                              const imgs = [...(p.images || []), url]
+                              updateProduct(product.id, { images: imgs, image_url: imgs[0] })
+                              return { ...p, images: imgs, imageUrl: imgs[0] }
+                            }))
+                          }
+                        }
+                        e.target.value = ''
+                      }} />
+                    </label>
+                    <p className="text-gray-600 text-[10px] mt-1">Images : JPG, PNG, WebP (5 Mo) — Vidéos : MP4, WebM (50 Mo) — La 1ère image = couverture</p>
                   </div>
                 </div>
               )}
@@ -1254,25 +1293,34 @@ function ProduitsTab() {
               <div><label style={labelSt}>Catégorie</label><select value={newProduct.category} onChange={e => setNewProduct(p => ({ ...p, category: e.target.value }))} style={inputSt}><option value="">Choisir...</option><option>sweats</option><option>tshirts</option><option>doudounes</option><option>jeans</option><option>sportswear</option></select></div>
               <div><label style={labelSt}>Emoji</label><input value={newProduct.emoji} onChange={e => setNewProduct(p => ({ ...p, emoji: e.target.value }))} style={inputSt} /></div>
             </div>
-            {/* Photo upload for new product */}
+            {/* Media upload for new product */}
             <div style={{ marginBottom: '12px' }}>
-              <label style={labelSt}>Photo du produit</label>
-              {newProduct.image_url ? (
-                <div className="flex items-center gap-3 mb-2">
-                  <img src={newProduct.image_url} alt="Aperçu" className="w-16 h-16 rounded-lg object-cover" style={{ border: '1px solid rgba(255,255,255,0.1)' }} />
-                  <button onClick={() => setNewProduct(p => ({ ...p, image_url: '' }))} className="text-xs text-gray-500 hover:text-red-400">✕ Supprimer</button>
+              <label style={labelSt}>Médias ({(newProduct.images || []).length} fichier{(newProduct.images || []).length > 1 ? 's' : ''})</label>
+              {(newProduct.images || []).length > 0 && (
+                <div className="grid grid-cols-4 gap-2 mb-2">
+                  {(newProduct.images || []).map((url, idx) => {
+                    const isVid = /\.(mp4|webm|mov)$/i.test(url)
+                    return (
+                      <div key={idx} className="relative rounded-lg overflow-hidden" style={{ border: idx === 0 ? '2px solid #C4962A' : '1px solid rgba(255,255,255,0.1)', aspectRatio: '1' }}>
+                        {isVid ? <video src={url} className="w-full h-full object-cover" muted /> : <img src={url} alt="" className="w-full h-full object-cover" />}
+                        {idx === 0 && <span className="absolute top-0.5 left-0.5 text-[7px] font-black px-1 py-0.5 rounded bg-gold text-black">Cover</span>}
+                        <button onClick={() => setNewProduct(p => ({ ...p, images: (p.images || []).filter((_, i) => i !== idx), image_url: (p.images || []).filter((_, i) => i !== idx)[0] || '' }))} className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/70 text-red-400 text-[10px] flex items-center justify-center">✕</button>
+                      </div>
+                    )
+                  })}
                 </div>
-              ) : null}
+              )}
               <label className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-bold cursor-pointer transition-all" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: uploading === 'new' ? '#6b7280' : '#9ca3af' }}>
-                {uploading === 'new' ? '⏳ Upload en cours...' : '📷 Choisir une image'}
-                <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" disabled={uploading === 'new'} onChange={async e => {
-                  if (e.target.files?.[0]) {
-                    const url = await uploadImage(e.target.files[0], null)
-                    if (url) setNewProduct(p => ({ ...p, image_url: url }))
+                {uploading === 'new' ? '⏳ Upload...' : '📷 Ajouter images / vidéos'}
+                <input type="file" accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm" multiple className="hidden" disabled={uploading === 'new'} onChange={async e => {
+                  for (const file of Array.from(e.target.files || [])) {
+                    const url = await uploadImage(file, null)
+                    if (url) setNewProduct(p => { const imgs = [...(p.images || []), url]; return { ...p, images: imgs, image_url: imgs[0] } })
                   }
+                  e.target.value = ''
                 }} />
               </label>
-              <p className="text-gray-600 text-[10px] mt-1">JPG, PNG, WebP — 5 Mo max</p>
+              <p className="text-gray-600 text-[10px] mt-1">Images : JPG, PNG, WebP (5 Mo) — Vidéos : MP4, WebM (50 Mo)</p>
             </div>
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
               <button onClick={() => setShowAdd(false)} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>Annuler</button>
