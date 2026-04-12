@@ -19,6 +19,7 @@ function formatProduct(p) {
     brand: p.brand, color: p.color, category: p.category, pieces: p.pieces, sizes: p.sizes,
     state: p.state, details: p.details || [], stock: p.stock, vinteMin: p.vinte_min, vinteMax: p.vinte_max,
     imageUrl: p.image_url, images: Array.isArray(p.images) ? p.images : [],
+    active: p.active !== false,
   }
 }
 
@@ -37,11 +38,11 @@ export default function ProductDetail() {
       if (data) setProduct(formatProduct(data))
     })
     supabase.from('products').select('*').neq('id', parseInt(id)).order('id').then(({ data }) => {
-      if (data) setRelated(data.map(formatProduct))
+      if (data) setRelated(data.map(formatProduct).filter(p => p.active))
     })
   }, [id])
 
-  if (!product) {
+  if (!product || product.active === false) {
     return (
       <main className="bg-transparent min-h-screen">
         <Navbar />

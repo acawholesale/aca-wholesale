@@ -41,7 +41,7 @@ export async function POST(req) {
 
     const { data: dbProducts, error: dbErr } = await supabase
       .from('products')
-      .select('id,name,description,price,stock')
+      .select('id,name,description,price,stock,active')
       .in('id', productIds)
 
     if (dbErr || !dbProducts || dbProducts.length === 0) {
@@ -50,10 +50,13 @@ export async function POST(req) {
 
     const productMap = Object.fromEntries(dbProducts.map(p => [p.id, p]))
 
-    // Validate all items exist in DB
+    // Validate all items exist in DB and are active
     for (const item of items) {
       if (!item.id || !productMap[item.id]) {
         return NextResponse.json({ error: 'Produit introuvable: ' + (item.name || item.id) }, { status: 400 })
+      }
+      if (productMap[item.id].active === false) {
+        return NextResponse.json({ error: 'Produit indisponible: ' + productMap[item.id].name }, { status: 400 })
       }
     }
 
