@@ -25,16 +25,18 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url)
     const email = searchParams.get('email')
     const orderId = searchParams.get('orderId')
+    const sessionId = searchParams.get('session_id')
 
-    if (!email && !orderId) {
-      return NextResponse.json({ error: 'email or orderId required' }, { status: 400 })
+    if (!email && !orderId && !sessionId) {
+      return NextResponse.json({ error: 'email, orderId, or session_id required' }, { status: 400 })
     }
 
     // Auth check: must be logged-in customer or admin
+    // Exception: session_id lookup is allowed without auth (proof of payment)
     const admin = verifyAdmin(req)
     const authenticatedEmail = await getAuthenticatedEmail(req)
 
-    if (!admin.authenticated && !authenticatedEmail) {
+    if (!admin.authenticated && !authenticatedEmail && !sessionId) {
       return NextResponse.json({ error: 'Authentification requise' }, { status: 401 })
     }
 
@@ -51,7 +53,9 @@ export async function GET(req) {
       .select('id,prenom,nom,email,status,total,items_summary,items_json,adresse,ville,code_postal,pays,gls_track_id,gls_label_url,created_at')
       .order('created_at', { ascending: false })
 
-    if (orderId) {
+    if (sessionId) {
+      query = query.eq('stripe_session_id', sessionId).limit(1)
+    } else if (orderId) {
       query = query.eq('id', orderId)
     } else {
       // Non-admin: force query to their own email only

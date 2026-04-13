@@ -21,21 +21,32 @@ function SuccessContent() {
     try { sessionStorage.removeItem('aca_checkout_cart') } catch {}
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Try to recover order data from checkout session or reservation
+  // Fetch order data — retry up to 3 times (webhook may be delayed)
   useEffect(() => {
     if (!sessionId) { setLoading(false); return }
-    // Try fetching order details from our API
-    fetch('/api/orders/customer?session_id=' + encodeURIComponent(sessionId))
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data?.order) setOrderData(data.order)
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+    let attempts = 0
+    const maxAttempts = 3
+    const fetchOrder = () => {
+      fetch('/api/orders/customer?session_id=' + encodeURIComponent(sessionId))
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          const order = data?.orders?.[0]
+          if (order) {
+            setOrderData(order)
+            setLoading(false)
+          } else if (++attempts < maxAttempts) {
+            setTimeout(fetchOrder, 2000)
+          } else {
+            setLoading(false)
+          }
+        })
+        .catch(() => { setLoading(false) })
+    }
+    fetchOrder()
   }, [sessionId])
 
-  const items = orderData?.items_json
-    ? (typeof orderData.items_json === 'string' ? JSON.parse(orderData.items_json) : orderData.items_json)
+  const items = orderData?.items
+    ? orderData.items
     : null
 
   return (
